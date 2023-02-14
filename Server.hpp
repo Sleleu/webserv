@@ -1,12 +1,15 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <cstring>
+#include <cstdlib>
 
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <netinet/in.h> // struct sockaddr_in
 #include <netdb.h> // struct addrinfo
+#include <arpa/inet.h>
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
@@ -16,10 +19,14 @@ typedef int	Socket;
 class Server
 {
 
+	private:
+
+	Server();
+
 	public:
 
-	Server() {}
-	~Server() {}
+	Server(std::string ip, int port);
+	~Server();
 
 	/*---- MEMBER FUNCTIONS ----*/
 	int		start_server(void);
@@ -44,6 +51,7 @@ class Server
 	Socket				_socket;
 	Socket				_accept_socket;
 	struct addrinfo		_addrinfo;
+	struct addrinfo		*_ptr_info; // va recuperer le resultat de getaddrinfo
 /*
 struct addrinfo {
     int              ai_flags; // AI_PASSIVE, AI_CANONNAME, etc
@@ -55,16 +63,27 @@ struct addrinfo {
     char            *ai_canonname; // canonical hostname
     struct addrinfo *ai_next; // liste chainee, next node
 };
+
+struct sockaddr {
+    unsigned short    sa_family;    // address family, AF_xxx
+    char              sa_data[14];  // 14 bytes of protocol address
+}; 
 */
 	struct sockaddr_in _sockaddr;
 /*
 struct sockaddr_in {
     short            sin_family;   // e.g. AF_INET
     unsigned short   sin_port;     // e.g. htons(3490)
-    struct in_addr   sin_addr;     // see struct in_addr, below
-    char             sin_zero[8];  // zero this if you want to
+    struct in_addr   sin_addr;     // Internet address
+    char             sin_zero[8];  // zize of struct sockaddr
+};
+
+struct in_addr {
+    uint32_t s_addr; // that's a 32-bit int (4 bytes)
 };
 */
+
+
 	/*--------------------------*/
 
 
