@@ -14,7 +14,7 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-typedef int	Socket;
+typedef	int					Socket;
 
 class Server
 {
@@ -31,6 +31,7 @@ class Server
 	/*---- MEMBER FUNCTIONS ----*/
 	int		start_server(void);
 	int		server_error(const std::string error_message) const;
+	void	display_ip(std::string domain);
 	/*--------------------------*/
 
 	/*---- CONFIGURATION VARIABLES ----*/
@@ -50,8 +51,8 @@ class Server
 	/*---- SERVER VARIABLES ----*/
 	Socket				_socket;
 	Socket				_accept_socket;
-	struct addrinfo		_addrinfo;
-	struct addrinfo		*_ptr_info; // va recuperer le resultat de getaddrinfo
+	addrinfo		_addrinfo;
+	addrinfo		*_ptr_info; // va recuperer le resultat de getaddrinfo
 /*
 struct addrinfo {
     int              ai_flags; // AI_PASSIVE, AI_CANONNAME, etc
