@@ -12,6 +12,7 @@ class parser
 	~parser();
 
 	private:
+	std::vector<std::map<string, *std::vector>>;
 
 };
 
