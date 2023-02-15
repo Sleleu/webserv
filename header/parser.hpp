@@ -30,7 +30,7 @@ class Parser
 	};*/	
 
 	private:
-	std::vector< std::map < std::string, std::vector<std::string > > >	_parsingVector;
+	std::vector< std::map < std::string, std::vector<std::string> > >	_parsingVector;
 	std::vector<std::string>											_conf;
 	Parser();
 
