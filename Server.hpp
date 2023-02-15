@@ -31,7 +31,7 @@ class Server
 	/*---- MEMBER FUNCTIONS ----*/
 	int		init_server(void);
 	int		init_socket(void);
-	int		start_server();
+	int		start_server(void);
 	int		server_error(const std::string error_message) const;
 	void	display_ip(std::string domain);
 	/*--------------------------*/
@@ -52,7 +52,7 @@ class Server
 
 	/*---- SERVER VARIABLES ----*/
 	Socket				_socket;
-	Socket				_accept_socket;
+	Socket				_accept_socketfd;
 	addrinfo		_addrinfo;
 	addrinfo		*_ptr_info; // va recuperer le resultat de getaddrinfo
 /*

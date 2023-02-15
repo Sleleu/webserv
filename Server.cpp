@@ -65,12 +65,28 @@ int	Server::init_socket(void)
 	
 	// Rendre le port reutilisable par le programme car les sockets ne sont pas dans un état partagé par défaut
 	// ceci altere le fonctionnement de bind(), l'empechant de fail si reutilisation du meme port
-	// Au niveau de l'API des sockets, level prend la valeur SOL_SOCKET
 	// SO_REUSEADDR permet a un socket de se lier de force a un port utilise par un autre socket
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
 		return (server_error("Setsockopt error"));
-	
+
 	return (1);
+}
+
+int Server::start_server(void)
+{
+	int listen_status;
+	sockaddr_storage	accept_sock; // les infos sur la connexion entrante iront ici
+
+	// attendre les connexions entrantes sur le host::port defini pour le socket
+	listen_status = listen(_socket, 5);
+	if (listen_status == -1)
+		return (server_error("Error when listenning socket"));
+	
+	// Lancement de la routine du serveur
+	while (42)
+	{
+		_accept_socketfd = accept(_socket, (sockaddr *)&accept_sock, (socklen_t *)sizeof(sockaddr_storage));
+	}
 }
 
 int	Server::server_error(const std::string error_message) const
