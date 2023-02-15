@@ -5,13 +5,14 @@
 # include <sstream>
 # include <cstddef>
 # include "httpRequest.hpp"
+# include "httpResponse.hpp"
 
 void httpMessage(std::string const requestMsg)
 {
 	HttpRequest requestInfo(requestMsg);
 	std::string response;
 
-	
+
 }
 
 int main ()
