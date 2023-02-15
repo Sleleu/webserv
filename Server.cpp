@@ -19,7 +19,7 @@ Server::Server(std::string ip, int port) : _port(port), _ip_str(ip)
 	std::memset(&_addrinfo, 0, sizeof(_addrinfo)); // initialiser tous les membres a 0
 	this->_addrinfo.ai_family = AF_UNSPEC; // Pour IPv4 et IPv6, IF_INET pour seulement v4
 	this->_addrinfo.ai_socktype = SOCK_STREAM; // Pour TCP
-	this->_addrinfo.ai_flags = AI_PASSIVE; // 
+	this->_addrinfo.ai_flags = AI_PASSIVE; // Se lie a l'IP de l'hote sur lequel le programme s'execute
 	this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
 }
 
@@ -30,13 +30,9 @@ Server::~Server()
 }
 /*-------------------------------------------------------*/
 
-int	Server::start_server(void)
+int	Server::init_server(void)
 {
 	int status;
-
-	// Creation du socket
-	if ((_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-		return (server_error("Error when initialise socket"));
 
 	// Met en place les structures
 	status = getaddrinfo(_ip_str.c_str(), "8080", &_addrinfo, &_ptr_info); // param a specifier
@@ -45,9 +41,35 @@ int	Server::start_server(void)
 		std::cout << "error status : " << status << " ";
 		return (server_error("<- getaddrinfo error"));
 	}
-
-	//test affichage ip
+	//test affichage ip avec getaddrinfo
 	display_ip(_ip_str);
+
+	// initialisation du socket serveur
+	if ((init_socket()) == 0)
+		return (0);
+	return (1); // Retourne 1 si success
+}
+
+int	Server::init_socket(void)
+{
+	int optval = 1; // necessaire pour setsockopt
+
+	// Creation du socket
+	// Utilise les resultats de getaddrinfo et les mettre dans socket
+	if ((_socket = socket(_ptr_info->ai_family, _ptr_info->ai_socktype, _ptr_info->ai_protocol)) == -1) // renvoie un descripteur de socket
+		return (server_error("Error when initialise socket"));
+
+	// associer le socket a un port sur le localhost
+	if ((bind(_socket, _ptr_info->ai_addr, _ptr_info->ai_addrlen)) == -1) // inutile en tant que client car on se soucie pas du port local
+		return (server_error("Error when bind socket"));
+	
+	// Rendre le port reutilisable par le programme car les sockets ne sont pas dans un état partagé par défaut
+	// ceci altere le fonctionnement de bind(), l'empechant de fail si reutilisation du meme port
+	// Au niveau de l'API des sockets, level prend la valeur SOL_SOCKET
+	// SO_REUSEADDR permet a un socket de se lier de force a un port utilise par un autre socket
+	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
+		return (server_error("Setsockopt error"));
+	
 	return (1);
 }
 

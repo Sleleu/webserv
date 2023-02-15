@@ -29,7 +29,9 @@ class Server
 	~Server();
 
 	/*---- MEMBER FUNCTIONS ----*/
-	int		start_server(void);
+	int		init_server(void);
+	int		init_socket(void);
+	int		start_server();
 	int		server_error(const std::string error_message) const;
 	void	display_ip(std::string domain);
 	/*--------------------------*/
