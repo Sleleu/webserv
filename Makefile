@@ -12,7 +12,8 @@ ADDFLAGS	=
 
 # SOURCES
 
-SRC_FILES 		= main 
+SRC_FILES 		= main \
+				  parser
 
 SRC_FILES_BONUS	=
 

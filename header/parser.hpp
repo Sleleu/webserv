@@ -3,16 +3,36 @@
 
 #include <iostream>
 #include <string>
+#include <iostream>
+#include <filesystem>
+#include <fstream>
+#include <cerrno>	
+#include <stdexcept>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <cstring>
 
-class parser
+class Parser
 {
 
 	public:
-	parser();
-	~parser();
+	Parser(std::string conf_file);
+	~Parser();
+	void	fill_conf(std::string);
+	bool	extension(std::string);
+	void	fill_vector(void);
+
+/*class File_error : public std::exception
+	{
+		public:
+		virtual const char* what() const throw();
+	};*/	
 
 	private:
-	std::vector<std::map<string, *std::vector>>;
+	std::vector< std::map < std::string, std::vector<std::string > > >	_parsingVector;
+	std::vector<std::string>											_conf;
+	Parser();
 
 };
 
