@@ -1,5 +1,5 @@
-#include "../header/parser.hpp"
-#include "../header/color.hpp"
+#include "../../header/parser/parser.hpp"
+#include "../../header/utils/color.hpp"
 
 Parser::Parser(std::string conf_file)
 {
@@ -69,20 +69,28 @@ void	Parser::fill_vector(void)
 {
 	std::vector<std::string>::iterator	tmp_it;	
 	std::vector<std::string>::iterator	end_it;	
-	int 								line = 0;
+	int 								line = 1;
 
+	initDefaultVector();
 	tmp_it = _conf.begin();
 	end_it = _conf.end();
 	std::cout << "\nParsing Conf File...\n";
 	while (tmp_it != end_it)
 	{
-		if (tmp_it->size() == 0)
+		if (tmp_it->size() == 0);
+		else if (*tmp_it == "server")
 		{
 			tmp_it ++;
 			line ++;
+			try
+			{
+				server_block_parsing(tmp_it, end_it, &line);
+			}
+			catch (std::exception &e)
+			{
+				throw;
+			}
 		}
-		else if (*tmp_it == "server")
-			std::cout << "server detected\n";
 		else
 		{
 			std::cerr << "Server token expected line: " << line << ":";
@@ -92,4 +100,55 @@ void	Parser::fill_vector(void)
 		tmp_it ++;
 		line ++;
 	}
+}
+
+void Parser::server_block_parsing(vector_iterator &tmp_it, vector_iterator &end_it, int *line)
+{
+	int accolad;
+
+	if (tmp_it == end_it || *tmp_it != "{")
+	{
+		std::cerr << "\'{\' token expected after server; line: " << *line << ":";
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		throw std::exception();
+	}
+	accolad = *line;
+	_parsingVector.push_back(initmap());
+	while (tmp_it != end_it && *tmp_it != "}" )
+	{
+		tmp_it ++;
+		(*line) ++;
+	}
+	if (tmp_it == end_it)
+	{
+		std::cerr << "\'}' token expected to match \'{\'; line: " << accolad << ":";
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		throw std::exception();
+	}
+}
+
+map_vector Parser::initmap(void)
+{
+	map_vector 					map;
+
+	//map[server_name] = 
+}
+
+void	Parser::initDefaultVector(void)
+{
+
+	//finir de remplir les vecteur pour apres aller initialiser la map par default
+	std::vector<std::string>	server_name;
+	std::vector<std::string>	listen;
+	std::vector<std::string>	root;
+	std::vector<std::string>	body_size;
+	std::vector<std::string>	location;
+	std::vector<std::string>	error;
+	std::vector<std::string>	method;
+	std::vector<std::string>	directory_listing;
+	std::vector<std::string>	gci;
+	std::vector<std::string>	default_file;
+	std::vector<std::string>	host;
+
+	_default_vec[SERVER_NAME] = webserv
 }
