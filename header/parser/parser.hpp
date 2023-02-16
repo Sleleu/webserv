@@ -26,7 +26,7 @@ typedef	std::map<std::string, std::vector<std::string> > map_vector;
 #define DIRECTORY_LISTING 7
 #define GCI 8
 #define DEFAULT_FILE_IF_REQUEST_IS_DIRECTORY 9
-#define HOST 10
+#define UPLOAD_FILE 10
 
 class Parser
 {
@@ -41,16 +41,10 @@ class Parser
 	map_vector	initmap();
 	void		initDefaultVector(void);
 
-/*class File_error : public std::exception
-	{
-		public:
-		virtual const char* what() const throw();
-	};*/	
-
 	private:
 	std::vector< std::map < std::string, std::vector<std::string> > >	_parsingVector;
 	std::vector<std::string>											_conf;
-	std::vector<std::vector<std::string> >								_default_vec[11];
+	std::vector<std::vector<std::string> >								_default_vec;
 	Parser();
 
 };

@@ -131,13 +131,13 @@ map_vector Parser::initmap(void)
 {
 	map_vector 					map;
 
-	//map[server_name] = 
+	map["server_name"] = _default_vec[SERVER_NAME];
+	map[""] = _default_vec[];
+	return (map);
 }
 
 void	Parser::initDefaultVector(void)
 {
-
-	//finir de remplir les vecteur pour apres aller initialiser la map par default
 	std::vector<std::string>	server_name;
 	std::vector<std::string>	listen;
 	std::vector<std::string>	root;
@@ -148,7 +148,31 @@ void	Parser::initDefaultVector(void)
 	std::vector<std::string>	directory_listing;
 	std::vector<std::string>	gci;
 	std::vector<std::string>	default_file;
-	std::vector<std::string>	host;
+	std::vector<std::string>	upload_file;
 
-	_default_vec[SERVER_NAME] = webserv
+	server_name.push_back("webserv");
+	listen.push_back("8080");
+	root.push_back("/html/");
+	body_size.push_back("1");
+	location.push_back("");
+	error.push_back("/html/error.html");
+	method.push_back("GET");
+	method.push_back("POST");
+	method.push_back("DELETE");
+	directory_listing.push_back("off");
+	gci.push_back("");
+	default_file.push_back("/html/index.html");
+	upload_file.push_back("off");
+
+	_default_vec.push_back(server_name);
+	_default_vec.push_back(listen);
+	_default_vec.push_back(root);
+	_default_vec.push_back(body_size);
+	_default_vec.push_back(location);
+	_default_vec.push_back(error);
+	_default_vec.push_back(method);
+	_default_vec.push_back(directory_listing);
+	_default_vec.push_back(gci);
+	_default_vec.push_back(default_file);
+	_default_vec.push_back(upload_file);
 }
