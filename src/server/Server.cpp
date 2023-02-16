@@ -35,7 +35,7 @@ int	Server::init_server(void)
 	int status;
 
 	// Met en place les structures
-	status = getaddrinfo(_ip_str.c_str(), "8080", &_addrinfo, &_ptr_info); // param a specifier
+	status = getaddrinfo(_ip_str.c_str(), "8090", &_addrinfo, &_ptr_info); // param a specifier
 	if (status != 0)
 	{
 		std::cout << "error status : " << status << " ";
@@ -60,7 +60,7 @@ int	Server::init_socket(void)
 		return (server_error("Error when initialise socket"));
 
 	// Set le socketfd en non-bloquant
-	fcntl(_accept_socketfd, F_SETFL, O_NONBLOCK);
+	fcntl(_socketfd, F_SETFL, O_NONBLOCK);
 
 	// associer le socket a un port sur le localhost
 	if ((bind(_socketfd, _ptr_info->ai_addr, _ptr_info->ai_addrlen)) == -1) // inutile en tant que client car on se soucie pas du port local
@@ -87,50 +87,79 @@ int Server::start_server(void)
 
 int	Server::server_routine(void)
 {
-	struct pollfd poll_fd[2]; // 2 connections ?
+	struct pollfd listener_fd;
 	int fd_count = 1; // 1 pour le socket du serveur
 	int fd_size = 5;
-	sockaddr_in	remote_addr; // les infos sur la connexion entrante iront ici
-	
-	poll_fd[0].fd = _socketfd;
-	poll_fd[0].events = POLLIN; // pret pour recevoir une connexion
+	sockaddr_in	accept_addr; // les infos sur la connexion entrante iront ici
+
+	listener_fd.fd = _socketfd;
+	listener_fd.events = POLLIN; // pret pour recevoir une connexion
+	_pollfd.push_back(listener_fd);
 
 	while (42)
 	{
 		char msg_to_recv[BODY_SIZE] = {0}; // Initialiser le buffer
-		int status;
+		char remoteip[INET6_ADDRSTRLEN];
 
-		int poll_count = poll(poll_fd, fd_count, -1);
+		int poll_count = poll(&_pollfd[0], fd_count, -1);
 		if (poll_count == -1)
 			return (server_error("Error : poll failed"));
 
 		for (int i = 0; i < fd_count; i++)
 		{
-			if (poll_fd[i].revents & POLLIN) // si on doit recevoir des donnees
+			if (_pollfd[i].revents & POLLIN) // si on doit recevoir des donnees
 			{
-				if (poll_fd[i].fd == this->_socketfd) // si c'est le socket du serveur, on ajoute une nouvelle connexion
-					status = accept_connect(poll_fd, remote_addr, fd_count, fd_size);
-				else // C'est un client qui se connecte au serveur
-					status = receive_data(poll_fd, msg_to_recv);
-				if (!status)
-					return (0);
-			}
-			else // C'est au serveur d'envoyer la reponse
-			{
-					/*--- ENVOI A GAB ICI---*/
+				if (_pollfd[i].fd == this->_socketfd) // si c'est le socket du serveur, on ajoute une nouvelle connexion
+				{
+					socklen_t addrlen = sizeof(accept_addr); // pour accept
+					this->_accept_socketfd = accept(_socketfd, (sockaddr *)&accept_addr, &addrlen);
+					if (_accept_socketfd < 0)
+						return (server_error("Error : failed to accept connexion from client"));
+				
+					add_pollfd(fd_count, fd_size); // nouvelle connexion A CHANGER
+					std::cout << " New connection from "
+					<< inet_ntop(accept_addr.sin_family, get_addr((sockaddr *)&accept_addr), remoteip, INET6_ADDRSTRLEN)
+					<< " on socket " << _pollfd[i].fd << std::endl;
 
-					// Reponse du serveur apres la requete
-					this->_msg_to_send = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\n <body> TEST </body>";
-					ssize_t bytes = send(_accept_socketfd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
-					if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)
-						return (server_error("Error sending response to client"));
+				}
+				else // C'est un client qui se connecte au serveur
+				{
+					ssize_t bytes_received = recv(_pollfd[i].fd, msg_to_recv, BODY_SIZE, 0);
+					if (bytes_received <= 0)
+					{
+						if (bytes_received == -1)
+							return (server_error("Error : Could not receive data from client"));
+						close(_pollfd[i].fd);
+						_pollfd.erase(_pollfd.begin() + i);
+						fd_count--;
+					}
 					else
-						std::cout << "Message sent\n";
+					{
+					this->_msg_to_send = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\n <body> TEST </body>";
+					
+						int dest_fd = _pollfd[i].fd;
+
+						if (dest_fd != _socketfd) {
+						ssize_t bytes = send(_pollfd[i].fd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
+						if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)
+							return (server_error("Error sending response to client"));
+						else
+							std::cout << "Message sent\n"; }
+					}
+					// else
+					// 	std::cout << msg_to_recv << "\n\n\n";
+
+					// close(_pollfd[i].fd);
+					// _pollfd.erase(_pollfd.begin() + i);
+				}
 			}
-		}
-	}
+		} // fd_count
+	} // loop while(42)
 	return (1);
 }
+
+
+/*
 
 int	Server::accept_connect(pollfd *poll_fd, sockaddr_in& remote_addr, int& fd_count, int& fd_size)
 {
@@ -162,3 +191,4 @@ int	Server::receive_data(pollfd *poll_fd, char *msg_to_recv)
 		return (server_error("Setsockopt error"));
 	return (1);
 }
+*/

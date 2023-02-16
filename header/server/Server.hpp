@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <netinet/in.h> // struct sockaddr_in
 #include <netdb.h> // struct addrinfo
 #include <arpa/inet.h>
@@ -20,6 +21,7 @@
 # define BODY_SIZE 			15000 // a changer avec body_size du .conf
 typedef std::size_t			size_type;
 typedef	int					Socket;
+typedef std::vector<pollfd>::iterator	iterator;
 
 class Server
 {
@@ -40,11 +42,12 @@ class Server
 
 	int		server_routine(void);
 	int		accept_connect(pollfd *pollfd, sockaddr_in& remote_addr, int& fd_count, int& fd_size);
-	int 	receive_data(pollfd *pollfd, char *msg_to_recv);
+	int 	receive_data(pollfd *pollfd, char* msg);
 
 	void*	get_addr(sockaddr *s_addr);
 	int		server_error(const std::string error_message) const;
-	void	add_pollfd(pollfd& poll_fd, int& fd_count, int& fd_size);
+	void	add_pollfd(int& fd_count, int& fd_size);
+	void	delete_pollfd(pollfd* poll_fd, int i, int& fd_count);
 	void	display_ip(std::string domain);
 	/*--------------------------*/
 
@@ -65,6 +68,7 @@ class Server
 	/*---- SERVER VARIABLES ----*/
 	Socket				_socketfd;
 	Socket				_accept_socketfd;
+	Socket				_sender_fd;
 	std::string			_msg_to_send;
 	std::string			_msg_to_recv;
 	addrinfo		_addrinfo;
@@ -99,7 +103,7 @@ struct in_addr {
     uint32_t s_addr; // that's a 32-bit int (4 bytes)
 };
 */
-	std::vector<struct pollfd>	_pollfd;
+	std::vector<pollfd>	_pollfd;
 /*
 struct pollfd {
     int fd;         // the socket descriptor
