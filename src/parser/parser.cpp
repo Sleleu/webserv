@@ -100,6 +100,7 @@ void	Parser::fill_vector(void)
 		tmp_it ++;
 		line ++;
 	}
+	std::cout << *this;
 }
 
 void Parser::server_block_parsing(vector_iterator &tmp_it, vector_iterator &end_it, int *line)
@@ -132,7 +133,16 @@ map_vector Parser::initmap(void)
 	map_vector 					map;
 
 	map["server_name"] = _default_vec[SERVER_NAME];
-	map[""] = _default_vec[];
+	map["listen"] = _default_vec[LISTEN];
+	map["root"] = _default_vec[ROOT];
+	map["body_size"] = _default_vec[BODY_SIZE];
+	map["location"] = _default_vec[LOCATION];
+	map["error"] = _default_vec[ERROR];
+	map["method"] = _default_vec[METHOD];
+	map["directory_listing"] = _default_vec[DIRECTORY_LISTING];
+	map["gci"] = _default_vec[GCI];
+	map["default_file"] = _default_vec[DEFAULT_FILE_IF_REQUEST_IS_DIRECTORY];
+	map["upload_file"] = _default_vec[UPLOAD_FILE];
 	return (map);
 }
 
@@ -175,4 +185,56 @@ void	Parser::initDefaultVector(void)
 	_default_vec.push_back(gci);
 	_default_vec.push_back(default_file);
 	_default_vec.push_back(upload_file);
+}
+
+std::ostream	&operator<<(std::ostream &o, Parser &src)
+{
+	big_vector vec = src.getBigVector();
+	int	server_nbr = 0;
+	std::vector<std::string>	tmp;
+	std::vector<std::string>	all_string;
+	map_vector					tmp_map;
+	
+	src.fill_vector_with_name(all_string);
+
+	o << BOLDWHITE << "\nPrint of _parsingVector:" << RESET;
+	for (big_vector::iterator tmp_it = vec.begin(); tmp_it != vec.end(); tmp_it ++)
+	{
+		server_nbr ++;
+		tmp_map = *tmp_it;
+		o << BOLDCYAN << "\nServer number " << server_nbr << ":\n" << RESET;
+		o << GREEN << "std::map" << RESET << "{\n";
+		for (int i = 0; i < 11; i ++)
+		{
+			tmp = tmp_map[all_string[i]];
+			o << "[" << RED << "\"" << all_string[i] << "\"" << RESET << "], ";
+			for (std::vector<std::string>::iterator it = tmp.begin(); it != tmp.end(); it ++)
+			{
+				o << "[" << RED << "\"" << *it << "\"" << RESET << "]";
+			}
+			o << "\n";
+		}
+		o << "}\n";
+	}
+	return o;
+}
+
+big_vector	&Parser::getBigVector(void)
+{
+	return (_parsingVector);
+}
+
+void	Parser::fill_vector_with_name(std::vector<std::string> &vec)
+{
+	vec.push_back("server_name");
+	vec.push_back("listen");
+	vec.push_back("root");
+	vec.push_back("body_size");
+	vec.push_back("location");
+	vec.push_back("error");
+	vec.push_back("method");
+	vec.push_back("directory_listing");
+	vec.push_back("gci");
+	vec.push_back("default_file");
+	vec.push_back("upload_file");
 }
