@@ -68,7 +68,6 @@ int	Server::init_socket(void)
 	
 	// Rendre le port reutilisable par le programme car les sockets ne sont pas dans un état partagé par défaut
 	// SO_REUSEADDR permet a un socket de se lier de force a un port utilise par un autre socket
-	
 	if (setsockopt(_socketfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
 		return (server_error("Setsockopt error"));
 	return (1);
@@ -77,7 +76,6 @@ int	Server::init_socket(void)
 int Server::start_server(void)
 {
 	int listen_status;
-	sockaddr_in	accept_addr; // les infos sur la connexion entrante iront ici
 	
 	// attendre les connexions entrantes sur le host::port defini pour le socket
 	listen_status = listen(_socketfd, 5);
@@ -85,6 +83,15 @@ int Server::start_server(void)
 		return (server_error("Error when listenning socket"));
 	
 	// Lancement de la routine du serveur
+	if (server_routine() == 0)
+		return (0);
+	return (1);
+}
+
+int	Server::server_routine(void)
+{
+	sockaddr_in	accept_addr; // les infos sur la connexion entrante iront ici
+
 	while (42)
 	{
 		socklen_t sin_size = sizeof(accept_addr); // pour accept
@@ -94,15 +101,16 @@ int Server::start_server(void)
 		if (_accept_socketfd < 0)
 			return (server_error("Error : failed to accept connexion from client"));
 
-		int optval = 1;
-		if (setsockopt(_accept_socketfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
-		return (server_error("Setsockopt error"));
+		// int optval = 1;
+		// if (setsockopt(_accept_socketfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
+		// return (server_error("Setsockopt error"));
 
 		// Recevoir la requete du client
 		ssize_t bytes_received = recv(_accept_socketfd, msg_to_recv, BODY_SIZE, 0);
 		if (bytes_received < 0)
 			return (server_error("Error : Could not receive data from client"));
-
+		else
+			std::cout << msg_to_recv << "\n\n\n";
 		/*--- ENVOI A GAB ICI---*/
 
 		// Reponse du serveur apres la requete
@@ -113,6 +121,7 @@ int Server::start_server(void)
 		else
 			std::cout << "Message sent\n";
 	}
+	return (1);
 }
 
 int	Server::server_error(const std::string error_message) const

@@ -36,6 +36,7 @@ class Server
 	int		init_server(void);
 	int		init_socket(void);
 	int		start_server(void);
+	int		server_routine(void);
 	int		server_error(const std::string error_message) const;
 	void	display_ip(std::string domain);
 	/*--------------------------*/
