@@ -70,6 +70,7 @@ void	Parser::fill_vector(void)
 	std::vector<std::string>::iterator	tmp_it;	
 	std::vector<std::string>::iterator	end_it;	
 	int 								line = 1;
+	int									server = 0;
 
 	initDefaultVector();
 	tmp_it = _conf.begin();
@@ -82,9 +83,10 @@ void	Parser::fill_vector(void)
 		{
 			tmp_it ++;
 			line ++;
+			server ++;
 			try
 			{
-				server_block_parsing(tmp_it, end_it, &line);
+				server_block_parsing(tmp_it, end_it, &line, server);
 			}
 			catch (std::exception &e)
 			{
@@ -103,7 +105,7 @@ void	Parser::fill_vector(void)
 	std::cout << *this;
 }
 
-void Parser::server_block_parsing(vector_iterator &tmp_it, vector_iterator &end_it, int *line)
+void Parser::server_block_parsing(vector_iterator &tmp_it, vector_iterator &end_it, int *line, int server)
 {
 	int accolad;
 
@@ -115,10 +117,20 @@ void Parser::server_block_parsing(vector_iterator &tmp_it, vector_iterator &end_
 	}
 	accolad = *line;
 	_parsingVector.push_back(initmap());
+	tmp_it ++;
+	(*line) ++;
 	while (tmp_it != end_it && *tmp_it != "}" )
 	{
-		tmp_it ++;
-		(*line) ++;
+		try
+		{
+			new_conf(*tmp_it, server, *line);
+			tmp_it ++;
+			(*line) ++;
+		}
+		catch (std::exception &e)
+		{
+			throw;
+		}
 	}
 	if (tmp_it == end_it)
 	{
@@ -237,4 +249,37 @@ void	Parser::fill_vector_with_name(std::vector<std::string> &vec)
 	vec.push_back("gci");
 	vec.push_back("default_file");
 	vec.push_back("upload_file");
+}
+
+void	Parser::new_conf(std::string str, int server, int line)
+{
+	int i = 0;
+	std::string	token;
+	server --;
+
+	if (str == "")
+		return ;
+	while (str[i] == '\t' || str[i] == ' ')
+		i ++;
+	if (str[i] == '#')
+		return ;
+	token = str.c_str() + i;
+	i = 0;
+	while (token[i] && token[i] != ' ')
+		i ++;
+	if (!token[i])
+	{
+		std::cerr << "Token " << token << " need a right value line " << line;
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		throw std::exception();
+	}
+	token.erase(token.begin()+i, token.end());
+	if (_parsingVector[server].find(token) == _parsingVector[server].end())
+	{
+		std::cerr << "Token " << RED << "\"" << token << "\"" << RESET << " isn't a validated token line " << line;
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		throw std::exception();
+	}
+	//mettre les valeurs de droite dans _parsingVector	
+	//meme port sur un serveur ? 
 }

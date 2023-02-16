@@ -38,11 +38,12 @@ class Parser
 	void		fill_conf(std::string);
 	bool		extension(std::string);
 	void		fill_vector(void);
-	void		server_block_parsing(vector_iterator &, vector_iterator &, int *);
+	void		server_block_parsing(vector_iterator &, vector_iterator &, int *, int);
 	map_vector	initmap();
 	void		initDefaultVector(void);
 	void		fill_vector_with_name(std::vector<std::string> &);
 	big_vector	&getBigVector(void);
+	void		new_conf(std::string, int, int line);
 
 	private:
 	std::vector< std::map < std::string, std::vector<std::string> > >	_parsingVector; //big_vector
