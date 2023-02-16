@@ -39,11 +39,20 @@ class HttpRequest
 				_body = requestMsg.substr(bodyBegin + 2);
 		}
 
+		HttpRequest & operator=(HttpRequest & rhs)
+		{
+			_controlData = rhs._controlData;
+			_headerMap = rhs._headerMap;
+			_body = rhs._body;
+			return (*this);
+		}
+
 		std::string getMethod() const {return _controlData[0];}
 		std::string getTarget() const {return _controlData[1];}
 		std::string getVersion() const {return _controlData[2];}
 		std::string getHeader(std::string key) {return _headerMap[key];}
 		std::string getBody() const {return _body;}
+
 
 	private :
 		std::vector<std::string>            _controlData;
