@@ -25,7 +25,7 @@ Server::Server(std::string ip, int port) : _port(port), _ip_str(ip)
 
 Server::~Server()
 {
-	freeaddrinfo(_ptr_info); // free la liste chainee pointee par _serv_info
+	// freeaddrinfo(_ptr_info); // free la liste chainee pointee par _serv_info
 	std::cout << "end server" << std::endl;
 }
 /*-------------------------------------------------------*/
@@ -52,7 +52,7 @@ int	Server::init_server(void)
 
 int	Server::init_socket(void)
 {
-	int optval = 1; // necessaire pour setsockopt
+	//int optval = 1; // necessaire pour setsockopt
 
 	// Creation du socket
 	// Utilise les resultats de getaddrinfo et les mettre dans socket
@@ -65,11 +65,8 @@ int	Server::init_socket(void)
 	// associer le socket a un port sur le localhost
 	if ((bind(_socketfd, _ptr_info->ai_addr, _ptr_info->ai_addrlen)) == -1) // inutile en tant que client car on se soucie pas du port local
 		return (server_error("Error when bind socket"));
-	
-	// Rendre le port reutilisable par le programme car les sockets ne sont pas dans un état partagé par défaut
-	// SO_REUSEADDR permet a un socket de se lier de force a un port utilise par un autre socket
-	if (setsockopt(_socketfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
-		return (server_error("Setsockopt error"));
+
+	freeaddrinfo(_ptr_info); // free la liste chainee pointee par _serv_info
 	return (1);
 }
 
@@ -90,69 +87,78 @@ int Server::start_server(void)
 
 int	Server::server_routine(void)
 {
-	sockaddr_in	accept_addr; // les infos sur la connexion entrante iront ici
+	struct pollfd poll_fd[2]; // 2 connections ?
+	int fd_count = 1; // 1 pour le socket du serveur
+	int fd_size = 5;
+	sockaddr_in	remote_addr; // les infos sur la connexion entrante iront ici
+	
+	poll_fd[0].fd = _socketfd;
+	poll_fd[0].events = POLLIN; // pret pour recevoir une connexion
 
 	while (42)
 	{
-		socklen_t sin_size = sizeof(accept_addr); // pour accept
 		char msg_to_recv[BODY_SIZE] = {0}; // Initialiser le buffer
+		int status;
 
-		this->_accept_socketfd = accept(_socketfd, (sockaddr *)&accept_addr, &sin_size);
-		if (_accept_socketfd < 0)
-			return (server_error("Error : failed to accept connexion from client"));
+		int poll_count = poll(poll_fd, fd_count, -1);
+		if (poll_count == -1)
+			return (server_error("Error : poll failed"));
 
-		// int optval = 1;
-		// if (setsockopt(_accept_socketfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
-		// return (server_error("Setsockopt error"));
+		for (int i = 0; i < fd_count; i++)
+		{
+			if (poll_fd[i].revents & POLLIN) // si on doit recevoir des donnees
+			{
+				if (poll_fd[i].fd == this->_socketfd) // si c'est le socket du serveur, on ajoute une nouvelle connexion
+					status = accept_connect(poll_fd, remote_addr, fd_count, fd_size);
+				else // C'est un client qui se connecte au serveur
+					status = receive_data(poll_fd, msg_to_recv);
+				if (!status)
+					return (0);
+			}
+			else // C'est au serveur d'envoyer la reponse
+			{
+					/*--- ENVOI A GAB ICI---*/
 
-		// Recevoir la requete du client
-		ssize_t bytes_received = recv(_accept_socketfd, msg_to_recv, BODY_SIZE, 0);
-		if (bytes_received < 0)
-			return (server_error("Error : Could not receive data from client"));
-		else
-			std::cout << msg_to_recv << "\n\n\n";
-		/*--- ENVOI A GAB ICI---*/
-
-		// Reponse du serveur apres la requete
-		this->_msg_to_send = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\n <body> TEST </body>";
-		ssize_t bytes = send(_accept_socketfd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
-		if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)
-			return (server_error("Error sending response to client"));
-		else
-			std::cout << "Message sent\n";
+					// Reponse du serveur apres la requete
+					this->_msg_to_send = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\n <body> TEST </body>";
+					ssize_t bytes = send(_accept_socketfd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
+					if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)
+						return (server_error("Error sending response to client"));
+					else
+						std::cout << "Message sent\n";
+			}
+		}
 	}
 	return (1);
 }
 
-int	Server::server_error(const std::string error_message) const
+int	Server::accept_connect(pollfd *poll_fd, sockaddr_in& remote_addr, int& fd_count, int& fd_size)
 {
-	std::cout << error_message << std::endl;
-	return (0);
+	socklen_t addrlen = sizeof(remote_addr);
+	char remoteip[INET6_ADDRSTRLEN];
+
+	this->_accept_socketfd = accept(_socketfd, (sockaddr *)&remote_addr, &addrlen);
+	if (_accept_socketfd < 0)
+		return (server_error("Error : failed to accept connexion from client"));
+				
+	add_pollfd(poll_fd[1], fd_count, fd_size); // nouvelle connexion A CHANGER
+	std::cout << " New connection from "
+	<< inet_ntop(remote_addr.sin_family, get_addr((sockaddr *)&remote_addr), remoteip, INET6_ADDRSTRLEN)
+	<< " on socket " << _accept_socketfd << std::endl;
+	return (1);
 }
 
-void	Server::display_ip(std::string domain)
+int	Server::receive_data(pollfd *poll_fd, char *msg_to_recv)
 {
-	addrinfo *tmp;
-	void *addr;
-	std::string ip_version; // affichage du type d'ip
+	// Recevoir la requete du client
+	ssize_t bytes_received = recv(poll_fd[1].fd, msg_to_recv, BODY_SIZE, 0);
+	if (bytes_received < 0)
+		return (server_error("Error : Could not receive data from client"));
+	else
+		std::cout << msg_to_recv << "\n\n\n";
 
-	for (tmp = _ptr_info; tmp != NULL; tmp = tmp->ai_next) // parcourir la liste chainee d'adresses
-	{
-
-		if (tmp->ai_family == AF_INET) // si famille = ipv4
-		{
-			sockaddr_in *ipv4 = (sockaddr_in *)tmp->ai_addr;
-			addr = &(ipv4->sin_addr);
-			ip_version = "IPv4";
-		}
-		else if (tmp->ai_family == AF_INET6) // si famille = ipv6
-		{
-			sockaddr_in6 *ipv6 = (sockaddr_in6 *)tmp->ai_addr;
-			addr = &(ipv6->sin6_addr);
-			ip_version = "IPv6";
-		}
-		char ipstr[INET6_ADDRSTRLEN]; // 	
-		inet_ntop(tmp->ai_family, addr, ipstr, INET6_ADDRSTRLEN);
-		std::cout << domain << " " <<  ip_version << " " << ipstr << std::endl;
-	}
+	int optval = 1;
+	if (setsockopt(_accept_socketfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
+		return (server_error("Setsockopt error"));
+	return (1);
 }

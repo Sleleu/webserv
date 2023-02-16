@@ -12,6 +12,7 @@
 #include <netinet/in.h> // struct sockaddr_in
 #include <netdb.h> // struct addrinfo
 #include <arpa/inet.h>
+#include <poll.h>
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
@@ -36,8 +37,14 @@ class Server
 	int		init_server(void);
 	int		init_socket(void);
 	int		start_server(void);
+
 	int		server_routine(void);
+	int		accept_connect(pollfd *pollfd, sockaddr_in& remote_addr, int& fd_count, int& fd_size);
+	int 	receive_data(pollfd *pollfd, char *msg_to_recv);
+
+	void*	get_addr(sockaddr *s_addr);
 	int		server_error(const std::string error_message) const;
+	void	add_pollfd(pollfd& poll_fd, int& fd_count, int& fd_size);
 	void	display_ip(std::string domain);
 	/*--------------------------*/
 
@@ -92,7 +99,14 @@ struct in_addr {
     uint32_t s_addr; // that's a 32-bit int (4 bytes)
 };
 */
-
+	std::vector<struct pollfd>	_pollfd;
+/*
+struct pollfd {
+    int fd;         // the socket descriptor
+    short events;   // bitmap of events we're interested in
+    short revents;  // when poll() returns, bitmap of events that occurred
+};
+*/
 	/*--------------------------*/
 
 
