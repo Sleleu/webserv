@@ -70,6 +70,7 @@ void	Parser::fill_vector(void)
 	std::vector<std::string>::iterator	tmp_it;	
 	std::vector<std::string>::iterator	end_it;	
 	int 								line = 1;
+	int									server = 0;
 
 	initDefaultVector();
 	tmp_it = _conf.begin();
@@ -82,9 +83,10 @@ void	Parser::fill_vector(void)
 		{
 			tmp_it ++;
 			line ++;
+			server ++;
 			try
 			{
-				server_block_parsing(tmp_it, end_it, &line);
+				server_block_parsing(tmp_it, end_it, &line, server);
 			}
 			catch (std::exception &e)
 			{
@@ -100,9 +102,10 @@ void	Parser::fill_vector(void)
 		tmp_it ++;
 		line ++;
 	}
+	std::cout << *this;
 }
 
-void Parser::server_block_parsing(vector_iterator &tmp_it, vector_iterator &end_it, int *line)
+void Parser::server_block_parsing(vector_iterator &tmp_it, vector_iterator &end_it, int *line, int server)
 {
 	int accolad;
 
@@ -114,10 +117,20 @@ void Parser::server_block_parsing(vector_iterator &tmp_it, vector_iterator &end_
 	}
 	accolad = *line;
 	_parsingVector.push_back(initmap());
+	tmp_it ++;
+	(*line) ++;
 	while (tmp_it != end_it && *tmp_it != "}" )
 	{
-		tmp_it ++;
-		(*line) ++;
+		try
+		{
+			new_conf(*tmp_it, server, *line);
+			tmp_it ++;
+			(*line) ++;
+		}
+		catch (std::exception &e)
+		{
+			throw;
+		}
 	}
 	if (tmp_it == end_it)
 	{
@@ -132,7 +145,16 @@ map_vector Parser::initmap(void)
 	map_vector 					map;
 
 	map["server_name"] = _default_vec[SERVER_NAME];
-	map[""] = _default_vec[];
+	map["listen"] = _default_vec[LISTEN];
+	map["root"] = _default_vec[ROOT];
+	map["body_size"] = _default_vec[BODY_SIZE];
+	map["location"] = _default_vec[LOCATION];
+	map["error"] = _default_vec[ERROR];
+	map["method"] = _default_vec[METHOD];
+	map["directory_listing"] = _default_vec[DIRECTORY_LISTING];
+	map["gci"] = _default_vec[GCI];
+	map["default_file"] = _default_vec[DEFAULT_FILE_IF_REQUEST_IS_DIRECTORY];
+	map["upload_file"] = _default_vec[UPLOAD_FILE];
 	return (map);
 }
 
@@ -175,4 +197,89 @@ void	Parser::initDefaultVector(void)
 	_default_vec.push_back(gci);
 	_default_vec.push_back(default_file);
 	_default_vec.push_back(upload_file);
+}
+
+std::ostream	&operator<<(std::ostream &o, Parser &src)
+{
+	big_vector vec = src.getBigVector();
+	int	server_nbr = 0;
+	std::vector<std::string>	tmp;
+	std::vector<std::string>	all_string;
+	map_vector					tmp_map;
+	
+	src.fill_vector_with_name(all_string);
+
+	o << BOLDWHITE << "\nPrint of _parsingVector:" << RESET;
+	for (big_vector::iterator tmp_it = vec.begin(); tmp_it != vec.end(); tmp_it ++)
+	{
+		server_nbr ++;
+		tmp_map = *tmp_it;
+		o << BOLDCYAN << "\nServer number " << server_nbr << ":\n" << RESET;
+		o << GREEN << "std::map" << RESET << "{\n";
+		for (int i = 0; i < 11; i ++)
+		{
+			tmp = tmp_map[all_string[i]];
+			o << "[" << RED << "\"" << all_string[i] << "\"" << RESET << "], ";
+			for (std::vector<std::string>::iterator it = tmp.begin(); it != tmp.end(); it ++)
+			{
+				o << "[" << RED << "\"" << *it << "\"" << RESET << "]";
+			}
+			o << "\n";
+		}
+		o << "}\n";
+	}
+	return o;
+}
+
+big_vector	&Parser::getBigVector(void)
+{
+	return (_parsingVector);
+}
+
+void	Parser::fill_vector_with_name(std::vector<std::string> &vec)
+{
+	vec.push_back("server_name");
+	vec.push_back("listen");
+	vec.push_back("root");
+	vec.push_back("body_size");
+	vec.push_back("location");
+	vec.push_back("error");
+	vec.push_back("method");
+	vec.push_back("directory_listing");
+	vec.push_back("gci");
+	vec.push_back("default_file");
+	vec.push_back("upload_file");
+}
+
+void	Parser::new_conf(std::string str, int server, int line)
+{
+	int i = 0;
+	std::string	token;
+	server --;
+
+	if (str == "")
+		return ;
+	while (str[i] == '\t' || str[i] == ' ')
+		i ++;
+	if (str[i] == '#')
+		return ;
+	token = str.c_str() + i;
+	i = 0;
+	while (token[i] && token[i] != ' ')
+		i ++;
+	if (!token[i])
+	{
+		std::cerr << "Token " << token << " need a right value line " << line;
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		throw std::exception();
+	}
+	token.erase(token.begin()+i, token.end());
+	if (_parsingVector[server].find(token) == _parsingVector[server].end())
+	{
+		std::cerr << "Token " << RED << "\"" << token << "\"" << RESET << " isn't a validated token line " << line;
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		throw std::exception();
+	}
+	//mettre les valeurs de droite dans _parsingVector	
+	//meme port sur un serveur ? 
 }
