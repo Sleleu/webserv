@@ -78,7 +78,7 @@ void	Parser::fill_vector(void)
 	std::cout << "\nParsing Conf File...\n";
 	while (tmp_it != end_it)
 	{
-		if (tmp_it->size() == 0);
+		if (tmp_it->size() == 0 /**/);
 		else if (*tmp_it == "server")
 		{
 			tmp_it ++;
@@ -102,6 +102,8 @@ void	Parser::fill_vector(void)
 		tmp_it ++;
 		line ++;
 	}
+	if (server == 0)
+		_parsingVector.push_back(initmap());
 	std::cout << *this;
 }
 
@@ -175,7 +177,7 @@ void	Parser::initDefaultVector(void)
 	server_name.push_back("webserv");
 	listen.push_back("8080");
 	root.push_back("/html/");
-	body_size.push_back("1");
+	body_size.push_back("1000");
 	location.push_back("");
 	error.push_back("/html/error.html");
 	method.push_back("GET");
@@ -253,8 +255,15 @@ void	Parser::fill_vector_with_name(std::vector<std::string> &vec)
 
 void	Parser::new_conf(std::string str, int server, int line)
 {
-	int i = 0;
-	std::string	token;
+	int 					i = 0;
+	int						skip = 0;
+	int						add_conf = 0;
+	std::string				token;
+	std::string				left_token;
+	map_vector::iterator	tmp_map_it;
+
+
+
 	server --;
 
 	if (str == "")
@@ -264,22 +273,53 @@ void	Parser::new_conf(std::string str, int server, int line)
 	if (str[i] == '#')
 		return ;
 	token = str.c_str() + i;
+	skip += i ;
 	i = 0;
 	while (token[i] && token[i] != ' ')
 		i ++;
 	if (!token[i])
 	{
-		std::cerr << "Token " << token << " need a right value line " << line;
+		std::cerr << "Token " << RED << "\""<< token << "\"" << RESET << " need a right value line " << line;
 		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 		throw std::exception();
 	}
 	token.erase(token.begin()+i, token.end());
-	if (_parsingVector[server].find(token) == _parsingVector[server].end())
+	tmp_map_it = _parsingVector[server].find(token);
+	if ( tmp_map_it == _parsingVector[server].end())
 	{
 		std::cerr << "Token " << RED << "\"" << token << "\"" << RESET << " isn't a validated token line " << line;
 		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 		throw std::exception();
 	}
-	//mettre les valeurs de droite dans _parsingVector	
-	//meme port sur un serveur ? 
+	left_token = token;
+	token = str.c_str() + i + 1 + skip;
+	skip += i;
+	i = 0;
+	while (token[i])
+	{
+		while(token[i] && (token[i] == ' ' || token[i] == '\t'))	
+			i++;
+		token.erase(0, i);
+		skip += i;
+		i = 0;
+		while(token[i] && (token[i] != ' ' && token[i] != '\t'))	
+			i++;
+		token.erase(i, token.size());
+		if (token != "")
+		{
+			add_conf ++ ;
+			if (add_conf == 1)
+				_parsingVector[server][left_token].clear();
+			_parsingVector[server][left_token].push_back(token);
+			token = str.c_str() + i + skip + 1;
+			skip += i;
+			i = 0;
+		}
+	}
+	if (add_conf == 0)
+	{
+		std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << " need a right value line " << line;
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		throw std::exception();
+	}
 }

@@ -1,6 +1,13 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
+/*INTERROGATION ? 
+- le fichier s'ouvre si c'est enfaite une directory
+- parser apres les valerus dans mon vector de conf ? exemple: server_name plusieurs string || server "test ok" (with white space)
+- meme port sur deux server diff ?
+- ajouter commentaire hors bloc server
+*/
+
 #include <iostream>
 #include <string>
 #include <iostream>
