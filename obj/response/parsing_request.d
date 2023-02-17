@@ -1,4 +1,4 @@
-obj/response/methods.o: src/response/methods.cpp \
+obj/response/parsing_request.o: src/response/parsing_request.cpp \
   src/response/../../header/response/response.hpp \
   src/response/../../header/response/HttpRequest.hpp \
   src/response/../../header/response/HttpResponse.hpp \

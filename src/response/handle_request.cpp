@@ -1,25 +1,51 @@
 #include "../../header/response/response.hpp"
 #include "../../header/parser/parser.hpp"
+#include "../../header/utils/color.hpp"
 
-std::string handle_request(std::string const & requestMsg)
+
+std::string handle_request( std::string const & requestMsg,\
+std::map< std::string, std::map< std::string, std::vector<std::string> > > & serverMap )
 {
-	HttpRequest request(requestMsg);
-	HttpResponse response(request);
+	std::cout << BOLDWHITE << "\nConstructing Response...\n" << RESET << std::endl;
 
-	void (*useMethod[3])(HttpRequest const & request, HttpResponse & response) = {methodGET, methodPOST, methodDELETE};
-	std::string acceptedMethods[] = {"GET", "POST", "DELETE"};
-	for (int i = 0; i < 3; i++)
-		if (acceptedMethods[i] == request.getMethod())
-			useMethod[i](request, response);
-	std::cout << "-- RESPONSE --\n\n" << response.getResponseString() << std::endl;
-	std::cout << "method -- " << request.getMethod() << std::endl;
+	// ---------------- REQUEST
+	std::cout << "Parsing Request:";
+	HttpRequest request(requestMsg);
+	std::map< std::string, std::vector< std::string > > locationInfo;
+	try
+	{
+		locationInfo = getLocationInfo(request, serverMap);
+		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
+	}
+	catch(const std::exception& e)
+	{
+		std::cout << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+	}
+
+	// ---------------- RESPONSE
+	HttpResponse response(request, locationInfo);
+	std::cout << "Executing method:";
+	try
+	{
+		acceptMethod(request, response, locationInfo);
+		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
+	}
+	catch(const std::exception& e)
+	{
+		std::cout << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+	}
+
+	std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << response.getResponseString() << std::endl;
 	return (response.getResponseString());
 }
 
+
+
+// --------------------------------- FOR TEST --------------------------------------------
 void simul_request()
 {
 	std::string const requestMsg = "\
-GET /index.html HTTP/1.1\n\
+GET /files/test.html HTTP/1.1\n\
 Host: localhost:8080\n\
 Connection: keep-alive\n\
 Cache-Control: max-age=0\n\
@@ -40,20 +66,65 @@ Accept-Language: en-US,en;q=0.9\n\
 </html>";
 
 	std::map< std::string, std::map< std::string, std::vector<std::string> > > serverMap;
-	serverMap["def"];
 	serverMap["/"];
-	serverMap["/files"] ;
+	serverMap["/files/"] ;
+	serverMap["/configz/"] ;
 
 	serverMap["def"]["server_name"].push_back("webserv");
-	serverMap["def"]["listen"].push_back("webserv");
-	serverMap["def"]["root"].push_back("webserv");
-	serverMap["def"]["body_size"].push_back("webserv");
-	serverMap["def"]["redirect"].push_back("webserv");
-	serverMap["def"]["server_name"].push_back("webserv");
-	serverMap["def"]["server_name"].push_back("webserv");
-	serverMap["def"]["server_name"].push_back("webserv");
-	serverMap["def"]["server_name"].push_back("webserv");
-	serverMap["def"]["server_name"].push_back("webserv");
-	serverMap["def"]["server_name"].push_back("webserv");
-	handle_request(requestMsg);
+	serverMap["def"]["listen"].push_back("8080");
+	serverMap["def"]["root"].push_back("/html/");
+	serverMap["def"]["body_size"].push_back("1000");
+	// serverMap["def"]["redirect"].push_back("webserv"); marche pas encore
+	serverMap["def"]["error"].push_back("/error.html");
+	serverMap["def"]["method"].push_back("GET");
+	serverMap["def"]["method"].push_back("POST");
+	serverMap["def"]["method"].push_back("DELETE");
+	serverMap["def"]["directory_listing"].push_back("on");
+	serverMap["def"]["cgi"].push_back("python");
+	serverMap["def"]["cgi"].push_back("perle");
+	serverMap["def"]["default_file"].push_back("/html/index.html");
+	serverMap["def"]["upload_file"].push_back("off");
+
+	serverMap["/"]["server_name"].push_back("webserv");
+	serverMap["/"]["listen"].push_back("8080");
+	serverMap["/"]["root"].push_back("/html/");
+	serverMap["/"]["body_size"].push_back("1000");
+	// serverMap["/"]["redirect"].push_back("webserv"); marche pas encore
+	serverMap["/"]["error"].push_back("/error.html");
+	serverMap["/"]["method"].push_back("GET");
+	serverMap["/"]["method"].push_back("POST");
+	serverMap["/"]["method"].push_back("DELETE");
+	serverMap["/"]["directory_listing"].push_back("on");
+	serverMap["/"]["cgi"].push_back("python");
+	serverMap["/"]["cgi"].push_back("perle");
+	serverMap["/"]["default_file"].push_back("/html/index.html");
+	serverMap["/"]["upload_file"].push_back("off");
+
+	serverMap["/files/"]["server_name"].push_back("webserv version 2");
+	serverMap["/files/"]["listen"].push_back("8080");
+	serverMap["/files/"]["root"].push_back("/html/");
+	serverMap["/files/"]["body_size"].push_back("1000");
+	// serverMap["/files/"]["redirect"].push_back("webserv"); marche pas encore
+	serverMap["/files/"]["error"].push_back("/error.html");
+	serverMap["/files/"]["method"].push_back("GET");
+	serverMap["/files/"]["method"].push_back("DELETE");
+	serverMap["/files/"]["directory_listing"].push_back("on");
+	serverMap["/files/"]["cgi"].push_back("python");
+	serverMap["/files/"]["default_file"].push_back("/html/index.html");
+	serverMap["/files/"]["upload_file"].push_back("on");
+
+	serverMap["/configz/"]["server_name"].push_back("webserv");
+	serverMap["/configz/"]["listen"].push_back("8080");
+	serverMap["/configz/"]["root"].push_back("/html/");
+	serverMap["/configz/"]["body_size"].push_back("1000");
+	// serverMap["/configz/"]["redirect"].push_back("webserv"); marche pas encore
+	serverMap["/configz/"]["error"].push_back("/error.html");
+	serverMap["/configz/"]["method"].push_back("GET");
+	serverMap["/configz/"]["method"].push_back("POST");
+	serverMap["/configz/"]["directory_listing"].push_back("off");
+	serverMap["/configz/"]["cgi"].push_back("perle");
+	serverMap["/configz/"]["default_file"].push_back("/html/index.html");
+	serverMap["/configz/"]["upload_file"].push_back("off");
+
+	handle_request(requestMsg, serverMap);
 }

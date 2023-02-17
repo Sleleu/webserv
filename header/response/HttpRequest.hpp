@@ -13,6 +13,7 @@ class HttpRequest
 	public:
 		HttpRequest(std::string const requestMsg)
 		{
+
 			std::string const firstHeaderLine(requestMsg, 0, requestMsg.find("\n"));
 			std::string substringTmp;
 			std::stringstream ss(firstHeaderLine);
@@ -45,6 +46,20 @@ class HttpRequest
 			_headerMap = rhs._headerMap;
 			_body = rhs._body;
 			return (*this);
+		}
+
+		std::vector<std::string> getLocation() const
+		{
+			std::vector<std::string> location;
+			std::string target = getTarget();
+
+			location.push_back(target);
+			while (target != "")
+			{
+				target = target.substr(0, target.find_last_of('/'));
+				location.push_back(target + "/");
+			}
+			return location;
 		}
 
 		std::string getMethod() const {return _controlData[0];}

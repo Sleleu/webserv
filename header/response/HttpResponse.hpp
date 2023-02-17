@@ -14,14 +14,14 @@
 class HttpResponse
 {
 	public:
-		HttpResponse(HttpRequest const & request)
+		HttpResponse(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & locationInfo)
 		{
 			_controlData["version"] = request.getVersion();
 			_controlData["code"] = "200";
 			_controlData["status"] = "OK";
 			_headers["content-type"] = "text/html"; // set with request
 			_headers["content-length"] = "1024"; // set with request (sizeof)
-			_headers["server"] = "webserv"; // set with config
+			_headers["server"] = locationInfo["server_name"][0]; // set with config
 
 			_targetPath = "./html" + request.getTarget(); // <root> set with config
 		}
