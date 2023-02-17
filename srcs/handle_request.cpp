@@ -4,7 +4,7 @@ std::string handle_request(std::string const & requestMsg)
 {
 	HttpRequest request(requestMsg);
 	HttpResponse response(request);
-	
+
 	void (*useMethod[3])(HttpRequest const & request, HttpResponse & response) = {methodGET, methodPOST, methodDELETE};
 	std::string acceptedMethods[] = {"GET", "POST", "DELETE"};
 	for (int i = 0; i < 3; i++)

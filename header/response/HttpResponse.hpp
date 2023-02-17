@@ -7,9 +7,9 @@
 # include <vector>
 # include <sstream>
 # include <cstddef>
-# include "httpRequest.hpp"
+# include "HttpRequest.hpp"
 # include <ctime>
-# include "webServHttp.hpp"
+# include "response.hpp"
 
 class HttpResponse
 {
