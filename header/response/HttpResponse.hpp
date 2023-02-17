@@ -23,7 +23,7 @@ class HttpResponse
 			_headers["content-length"] = "1024"; // set with request (sizeof)
 			_headers["server"] = "webserv"; // set with config
 
-			_targetPath = "./test_files" + request.getTarget(); // <root> set with config
+			_targetPath = "./html" + request.getTarget(); // <root> set with config
 		}
 
 		std::string getResponseString()

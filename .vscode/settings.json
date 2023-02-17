@@ -64,6 +64,10 @@
 		"xtr1common": "cpp",
 		"xtree": "cpp",
 		"xutility": "cpp",
-		"fstream": "cpp"
+		"fstream": "cpp",
+		"chrono": "cpp",
+		"codecvt": "cpp",
+		"ratio": "cpp",
+		"iomanip": "cpp"
 	}
 }

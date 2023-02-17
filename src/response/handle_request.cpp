@@ -39,5 +39,21 @@ Accept-Language: en-US,en;q=0.9\n\
 	</body>\n\
 </html>";
 
+	std::map< std::string, std::map< std::string, std::vector<std::string> > > serverMap;
+	serverMap["def"];
+	serverMap["/"];
+	serverMap["/files"] ;
+
+	serverMap["def"]["server_name"].push_back("webserv");
+	serverMap["def"]["listen"].push_back("webserv");
+	serverMap["def"]["root"].push_back("webserv");
+	serverMap["def"]["body_size"].push_back("webserv");
+	serverMap["def"]["redirect"].push_back("webserv");
+	serverMap["def"]["server_name"].push_back("webserv");
+	serverMap["def"]["server_name"].push_back("webserv");
+	serverMap["def"]["server_name"].push_back("webserv");
+	serverMap["def"]["server_name"].push_back("webserv");
+	serverMap["def"]["server_name"].push_back("webserv");
+	serverMap["def"]["server_name"].push_back("webserv");
 	handle_request(requestMsg);
 }

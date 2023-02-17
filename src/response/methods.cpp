@@ -15,5 +15,21 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
     response.setBody("\n" + targetContent);
 };
 
-void methodPOST(HttpRequest const & request, HttpResponse & response) {(void) request; (void) response;};
-void methodDELETE(HttpRequest const & request, HttpResponse & response) {(void) request; (void) response;};
+void methodPOST(HttpRequest const & request, HttpResponse & response)
+{
+    (void) request; (void) response;
+    std::string targetPath = response.getTargetPath();
+    std::ifstream ifs(targetPath.c_str());
+    if (ifs.is_open())
+    {
+        ifs.close();
+        return ; // <---- Erreur ??
+    }
+
+    std::ofstream ofs(targetPath.c_str());
+
+}
+void methodDELETE(HttpRequest const & request, HttpResponse & response)
+{
+    (void) request; (void) response;
+}
