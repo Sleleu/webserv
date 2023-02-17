@@ -89,7 +89,8 @@ int	Server::server_routine(void)
 	epoll_fd = epoll_create1(0); // init du socket_server avec epoll()
 	_server_event.data.fd = _socketfd;
 	_server_event.events = EPOLLIN; // rendre le fd disponible en lecture
-	epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _socketfd, &_server_event); // ajouter le fd a l'ensemble events
+	if ((epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _socketfd, &_server_event)) == -1) // ajouter le fd a l'ensemble events
+		return (server_error("epoll_fd epoll_ctl() error"));
 
 	while (42)
 	{
@@ -123,8 +124,9 @@ int	Server::accept_connect(int epoll_fd, int i)
 	fcntl(_remote_socketfd, F_SETFL, O_NONBLOCK); // On rend le socket non-bloquant	
 	_server_event.data.fd = _remote_socketfd;
 	_server_event.events = EPOLLIN;
-	epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _remote_socketfd, &_server_event); // l'ajouter a l'ensemble de fd
-				
+	if ((epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _remote_socketfd, &_server_event)) == -1) // l'ajouter a l'ensemble de fd
+		return (server_error("new connexion epoll_ctl() error"));
+
 	// affichage
 	std::cout << " New connection from "
 	<< inet_ntop(remote_addr.sin_family, get_addr((sockaddr *)&remote_addr), remoteip, INET6_ADDRSTRLEN)
@@ -141,17 +143,13 @@ int	Server::handle_request(int epoll_fd, int i)
 	{
 		if (bytes_received == -1)
 			return (server_error("Error : Could not receive data from client"));
-		close(_events[i].data.fd);
-		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _events[i].data.fd, NULL);
+		if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _events[i].data.fd, NULL)) == -1)
+			return (server_error("recv data epoll_ctl() error"));
 	}
-	else
-	{
-		this->_msg_to_send = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\n <body> TEST </body>";
-
-		std::cout << msg_to_recv << std::endl;
-		ssize_t bytes = send(_events[i].data.fd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
-		if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)
-			return (server_error("Error sending response to client"));
-	}
+	this->_msg_to_send = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\n <body> TEST </body>";
+	std::cout << msg_to_recv << std::endl;
+	ssize_t bytes = send(_events[i].data.fd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
+	if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)
+		return (server_error("Error sending response to client"));
 	return (1);
 }

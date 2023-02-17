@@ -46,8 +46,6 @@ class Server
 
 	void*	get_addr(sockaddr *s_addr);
 	int		server_error(const std::string error_message) const;
-	void	add_pollfd(int& fd_count, int& fd_size);
-	//void	delete_pollfd(pollfd* poll_fd, int i, int& fd_count);
 	void	display_ip(std::string domain);
 	/*--------------------------*/
 
