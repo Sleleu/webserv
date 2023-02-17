@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cstring>
 #include <cstdlib>
+#include <csignal>
 
 #include <sys/socket.h>
 #include <sys/types.h>

@@ -81,6 +81,12 @@ int Server::start_server(void)
 	return (1);
 }
 
+void	signal_handler(int signal)
+{
+	if (signal == SIGINT)
+		std::exit(EXIT_SUCCESS);
+}
+
 int	Server::server_routine(void)
 {
 	int event_count; // numero de fd actif
@@ -96,6 +102,7 @@ int	Server::server_routine(void)
 	{
 		int event_status;
 
+		std::signal(SIGINT, signal_handler); // Quitter proprement le serveur
 		event_count = epoll_wait(epoll_fd, _events, EVENTS_HANDLED, -1);
 		if (event_count == -1)
 			return (server_error("epoll_wait : error"));
@@ -146,7 +153,8 @@ int	Server::handle_request(int epoll_fd, int i)
 		if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _events[i].data.fd, NULL)) == -1)
 			return (server_error("recv data epoll_ctl() error"));
 	}
-	this->_msg_to_send = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\n <body> TEST </body>";
+	this->_msg_to_send = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 12\n\n <body> TEST </body>"; // leak si ctrl+c
+
 	std::cout << msg_to_recv << std::endl;
 	ssize_t bytes = send(_events[i].data.fd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
 	if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)
