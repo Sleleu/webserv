@@ -8,10 +8,21 @@ void*	Server::get_addr(sockaddr *s_addr)
 		return &(((sockaddr_in6 *)s_addr)->sin6_addr);
 }
 
+//------------------ DISPLAY STATUS -------------------------------------------
 int	Server::server_error(const std::string error_message) const
 {
-	std::cout << error_message << std::endl;
+	std::cout << "Extension:";
+	std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
+
+	std::cerr << error_message;
+	std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 	return (0);
+}
+
+void Server::server_ok(const std::string ok_message) const
+{
+	std::cout << ok_message;
+	std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 }
 
 void	Server::display_ip(std::string domain)
@@ -40,21 +51,4 @@ void	Server::display_ip(std::string domain)
 		std::cout << domain << " " <<  ip_version << " " << ipstr << std::endl;
 	}
 }
-
-
-// void	Server::add_pollfd(int& fd_count, int& fd_size)
-// {
-// 	if (fd_count == fd_size)
-// 		fd_size *= 2;
-// 	pollfd new_fd;
-// 	new_fd.fd = this->_accept_socketfd;
-// 	new_fd.events = POLLIN;
-// 	_pollfd.push_back(new_fd);
-// 	fd_count++;
-// }
-
-// void	Server::delete_pollfd(pollfd *poll_fd, int i, int& fd_count)
-// {
-// 	poll_fd[i] = poll_fd[fd_count - 1];
-// 	fd_count--;
-// }
+//-------------------------------------------------------------------

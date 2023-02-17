@@ -56,13 +56,15 @@ int	Server::init_socket(void)
 	// Utilise les resultats de getaddrinfo et les mettre dans socket
 	if ((_socketfd = socket(AF_INET, _ptr_info->ai_socktype, _ptr_info->ai_protocol)) == -1) // renvoie un descripteur de socket
 		return (server_error("Error when initialise socket"));
-
+	server_ok("Initialise server socket:");
+	
 	// Set le socketfd en non-bloquant
 	fcntl(_socketfd, F_SETFL, O_NONBLOCK);
 
 	// associer le socket a un port sur le localhost
 	if ((bind(_socketfd, _ptr_info->ai_addr, _ptr_info->ai_addrlen)) == -1) // inutile en tant que client car on se soucie pas du port local
 		return (server_error("Error when bind socket"));
+	server_ok("Bind server socket:");
 
 	int optval = 1;
 	if (setsockopt(_socketfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
@@ -76,6 +78,7 @@ int Server::start_server(void)
 {
 	if ((listen(_socketfd, 5)) == -1)
 		return (server_error("Error when listenning socket"));
+	server_ok("Start listening:");
 	if (server_routine() == 0) // lancement de la loop
 		return (0);
 	return (1);
@@ -97,7 +100,7 @@ int	Server::server_routine(void)
 	_server_event.events = EPOLLIN; // rendre le fd disponible en lecture
 	if ((epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _socketfd, &_server_event)) == -1) // ajouter le fd a l'ensemble events
 		return (server_error("epoll_fd epoll_ctl() error"));
-
+	
 	while (42)
 	{
 		int event_status;
