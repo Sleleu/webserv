@@ -42,19 +42,19 @@ void	Server::display_ip(std::string domain)
 }
 
 
-void	Server::add_pollfd(int& fd_count, int& fd_size)
-{
-	if (fd_count == fd_size)
-		fd_size *= 2;
-	pollfd new_fd;
-	new_fd.fd = this->_accept_socketfd;
-	new_fd.events = POLLIN;
-	_pollfd.push_back(new_fd);
-	fd_count++;
-}
+// void	Server::add_pollfd(int& fd_count, int& fd_size)
+// {
+// 	if (fd_count == fd_size)
+// 		fd_size *= 2;
+// 	pollfd new_fd;
+// 	new_fd.fd = this->_accept_socketfd;
+// 	new_fd.events = POLLIN;
+// 	_pollfd.push_back(new_fd);
+// 	fd_count++;
+// }
 
-void	Server::delete_pollfd(pollfd *poll_fd, int i, int& fd_count)
-{
-	poll_fd[i] = poll_fd[fd_count - 1];
-	fd_count--;
-}
+// void	Server::delete_pollfd(pollfd *poll_fd, int i, int& fd_count)
+// {
+// 	poll_fd[i] = poll_fd[fd_count - 1];
+// 	fd_count--;
+// }
