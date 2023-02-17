@@ -28,11 +28,11 @@ typedef	std::map<std::string, std::vector<std::string> > map_vector;
 #define LISTEN 1
 #define ROOT 2
 #define BODY_SIZE 3
-#define LOCATION 4
+#define REDIRECT 4
 #define ERROR 5
 #define METHOD 6
 #define DIRECTORY_LISTING 7
-#define GCI 8
+#define CGI 8
 #define DEFAULT_FILE_IF_REQUEST_IS_DIRECTORY 9
 #define UPLOAD_FILE 10
 
@@ -42,20 +42,23 @@ class Parser
 	public:
 	Parser(std::string conf_file);
 	~Parser();
-	void		fill_conf(std::string);
-	bool		extension(std::string);
-	void		fill_vector(void);
-	void		server_block_parsing(vector_iterator &, vector_iterator &, int *, int);
-	map_vector	initmap();
-	void		initDefaultVector(void);
-	void		fill_vector_with_name(std::vector<std::string> &);
-	big_vector	&getBigVector(void);
-	void		new_conf(std::string, int, int line);
+	void				fill_conf(std::string);
+	bool				extension(std::string);
+	void				fill_vector(void);
+	void				server_block_parsing(vector_iterator &, vector_iterator &, int *, int);
+	map_vector			initmap();
+	void				initDefaultVector(void);
+	void				fill_vector_with_name(std::vector<std::string> &);
+	big_vector			&getBigVector(void);
+	vector_iterator		&new_conf(std::string, int, int &line, vector_iterator &, vector_iterator &);
+	vector_iterator		&location_bloc(vector_iterator &, int, int &, vector_iterator &);
+	void				fill_location_path(std::string, int server, int line);
 
 	private:
-	std::vector< std::map < std::string, std::vector<std::string> > >	_parsingVector; //big_vector
-	std::vector<std::string>											_conf;
-	std::vector<std::vector<std::string> >								_default_vec;
+	std::vector< std::map < std::string, std::vector<std::string> > >						_parsingVector; //big_vector
+	std::vector<std::string>																_conf;
+	std::vector<std::vector<std::string> >													_default_vec;
+	std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	_locationVector;
 	Parser();
 
 };

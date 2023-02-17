@@ -78,7 +78,7 @@ void	Parser::fill_vector(void)
 	std::cout << "\nParsing Conf File...\n";
 	while (tmp_it != end_it)
 	{
-		if (tmp_it->size() == 0 /**/);
+		if (tmp_it->size() == 0 /*|| *tmp_it == '#'*/);
 		else if (*tmp_it == "server")
 		{
 			tmp_it ++;
@@ -104,7 +104,9 @@ void	Parser::fill_vector(void)
 	}
 	if (server == 0)
 		_parsingVector.push_back(initmap());
-	std::cout << *this;
+	std::cout << "Extension:";
+	std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
+	//std::cout << *this;
 }
 
 void Parser::server_block_parsing(vector_iterator &tmp_it, vector_iterator &end_it, int *line, int server)
@@ -125,8 +127,7 @@ void Parser::server_block_parsing(vector_iterator &tmp_it, vector_iterator &end_
 	{
 		try
 		{
-			new_conf(*tmp_it, server, *line);
-			tmp_it ++;
+			tmp_it = new_conf(*tmp_it, server, *line, tmp_it, end_it);
 			(*line) ++;
 		}
 		catch (std::exception &e)
@@ -150,11 +151,11 @@ map_vector Parser::initmap(void)
 	map["listen"] = _default_vec[LISTEN];
 	map["root"] = _default_vec[ROOT];
 	map["body_size"] = _default_vec[BODY_SIZE];
-	map["location"] = _default_vec[LOCATION];
+	map["redirect"] = _default_vec[REDIRECT];
 	map["error"] = _default_vec[ERROR];
 	map["method"] = _default_vec[METHOD];
 	map["directory_listing"] = _default_vec[DIRECTORY_LISTING];
-	map["gci"] = _default_vec[GCI];
+	map["cgi"] = _default_vec[CGI];
 	map["default_file"] = _default_vec[DEFAULT_FILE_IF_REQUEST_IS_DIRECTORY];
 	map["upload_file"] = _default_vec[UPLOAD_FILE];
 	return (map);
@@ -166,37 +167,37 @@ void	Parser::initDefaultVector(void)
 	std::vector<std::string>	listen;
 	std::vector<std::string>	root;
 	std::vector<std::string>	body_size;
-	std::vector<std::string>	location;
+	std::vector<std::string>	redirect;
 	std::vector<std::string>	error;
 	std::vector<std::string>	method;
 	std::vector<std::string>	directory_listing;
-	std::vector<std::string>	gci;
+	std::vector<std::string>	cgi;
 	std::vector<std::string>	default_file;
 	std::vector<std::string>	upload_file;
 
 	server_name.push_back("webserv");
 	listen.push_back("8080");
-	root.push_back("/html/");
+	root.push_back("/");
 	body_size.push_back("1000");
-	location.push_back("");
-	error.push_back("/html/error.html");
+	redirect.push_back("");
+	error.push_back("/error.html");
 	method.push_back("GET");
 	method.push_back("POST");
 	method.push_back("DELETE");
 	directory_listing.push_back("off");
-	gci.push_back("");
-	default_file.push_back("/html/index.html");
+	cgi.push_back("");
+	default_file.push_back("index.html");
 	upload_file.push_back("off");
 
 	_default_vec.push_back(server_name);
 	_default_vec.push_back(listen);
 	_default_vec.push_back(root);
 	_default_vec.push_back(body_size);
-	_default_vec.push_back(location);
+	_default_vec.push_back(redirect);
 	_default_vec.push_back(error);
 	_default_vec.push_back(method);
 	_default_vec.push_back(directory_listing);
-	_default_vec.push_back(gci);
+	_default_vec.push_back(cgi);
 	_default_vec.push_back(default_file);
 	_default_vec.push_back(upload_file);
 }
@@ -244,16 +245,16 @@ void	Parser::fill_vector_with_name(std::vector<std::string> &vec)
 	vec.push_back("listen");
 	vec.push_back("root");
 	vec.push_back("body_size");
-	vec.push_back("location");
+	vec.push_back("redirect");
 	vec.push_back("error");
 	vec.push_back("method");
 	vec.push_back("directory_listing");
-	vec.push_back("gci");
+	vec.push_back("cgi");
 	vec.push_back("default_file");
 	vec.push_back("upload_file");
 }
 
-void	Parser::new_conf(std::string str, int server, int line)
+vector_iterator	&Parser::new_conf(std::string str, int server, int &line, vector_iterator &tmp_it, vector_iterator &end_it)
 {
 	int 					i = 0;
 	int						skip = 0;
@@ -262,21 +263,35 @@ void	Parser::new_conf(std::string str, int server, int line)
 	std::string				left_token;
 	map_vector::iterator	tmp_map_it;
 
-
-
 	server --;
-
 	if (str == "")
-		return ;
+	{
+		tmp_it ++;
+		return (tmp_it);
+	}
 	while (str[i] == '\t' || str[i] == ' ')
 		i ++;
 	if (str[i] == '#')
-		return ;
+	{
+		tmp_it ++;
+		return (tmp_it);
+	}
 	token = str.c_str() + i;
-	skip += i ;
+	skip += i;
 	i = 0;
-	while (token[i] && token[i] != ' ')
+	while (token[i] && (token[i] != ' ' && token[i] != '\t'))
 		i ++;
+	try
+	{
+		left_token = token;
+		left_token.erase(left_token.begin()+i, left_token.end());
+		if (left_token == "location")
+			return (location_bloc(tmp_it, server + 1, line, end_it));
+	}
+	catch (std::exception &e)
+	{
+		throw;
+	}
 	if (!token[i])
 	{
 		std::cerr << "Token " << RED << "\""<< token << "\"" << RESET << " need a right value line " << line;
@@ -322,4 +337,77 @@ void	Parser::new_conf(std::string str, int server, int line)
 		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 		throw std::exception();
 	}
+	tmp_it ++;
+	return (tmp_it);
+}
+
+vector_iterator		&Parser::location_bloc(vector_iterator &tmp_it, int server, int &line, vector_iterator &end_it)
+{
+	// enregistre les infos jusqu'a }
+	// refaire le print de la classe parser pour aussi afficher le vecteur de lcoation
+	// fin
+	std::string	tmp_str;
+
+	if (_locationVector.size() == (unsigned long)server - 1)
+		_locationVector.push_back(std::map<std::string, std::map<std::string, std::vector<std::string> > >());
+	try
+	{
+		fill_location_path(*tmp_it, server,line);
+		tmp_it ++;
+		line ++;
+	}
+	catch (std::exception &e)
+	{
+		throw;
+	}
+	tmp_str = *tmp_it;	
+	int i = -1;
+	while (tmp_str[++i] && (tmp_str[i] == ' ' || tmp_str[i] == '\t'));
+	tmp_str.erase(tmp_str.begin(), tmp_str.end() - i);
+	if (tmp_it == end_it || tmp_str != "{")
+	{
+		std::cerr << "\'{\' token expected after location token; line: " << line << ":";
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		throw std::exception();
+	}
+	while (tmp_it != end_it && *tmp_it != "}" )
+	{
+		// enregister les infos ici
+		tmp_it ++;
+	}
+	return (tmp_it);
+}
+
+void	Parser::fill_location_path(std::string str, int server, int line)
+{
+	int 		i = 0;
+	int 		skip = 0;
+	std::string	token;
+	std::string	left_token;
+
+	server --;
+	while (str[i] == '\t' || str[i] == ' ')
+		i ++;
+	token = str.c_str() + i;
+	skip += i;
+	i = 0;
+	while (token[i] && (token[i] != ' ' && token[i] != '\t'))
+		i ++;
+	token.erase(token.begin()+i, token.end());
+	left_token = token;
+	token = str.c_str() + i + 1 + skip;
+	skip += i;
+	i = 0;
+	while(token[i] && (token[i] == ' ' || token[i] == '\t'))	
+		i++;
+	token.erase(0, i);
+	skip += i;
+	i = 0;
+	if (!token[i])
+	{
+		std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << " need a right value line " << line;
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		throw std::exception();
+	}
+	_locationVector[server][token];
 }
