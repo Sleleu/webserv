@@ -28,11 +28,6 @@ typedef	int					Socket;
 
 class Server
 {
-
-	private:
-
-	Server();
-
 	public:
 
 	Server(std::string ip, int port);
@@ -44,7 +39,8 @@ class Server
 	int		start_server(void);
 
 	int		handle_server(void);
-	int		accept_connect(int epoll_fd, int i);
+	int		accept_connect(int epoll_fd);
+	int		epoll_add(int epoll_fd, int socket);
 	int 	handle_request(int epoll_fd, int i);
 
 	void*	get_addr(sockaddr *s_addr);
@@ -52,6 +48,12 @@ class Server
 	int		server_error(const std::string error_message) const;
 	void	display_ip(std::string domain);
 	/*--------------------------*/
+
+	private:
+
+	Server();
+
+	std::vector<std::map<std::string, std::vector<std::string > > > _parser;
 
 	/*---- CONFIGURATION VARIABLES ----*/
 	int				_port;
@@ -69,7 +71,6 @@ class Server
 
 	/*---- SERVER VARIABLES ----*/
 	Socket				_socketfd;
-	Socket				_remote_socketfd;
 	Socket				_sender_fd;
 	std::string			_msg_to_send;
 	std::string			_msg_to_recv;

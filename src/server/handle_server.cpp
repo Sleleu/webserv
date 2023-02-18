@@ -6,6 +6,7 @@ int	Server::handle_server(void)
 	int epoll_fd; // pour le fd epoll
 
 	epoll_fd = epoll_create1(0); // init du socket_server avec epoll()
+	
 	_server_event.data.fd = _socketfd;
 	_server_event.events = EPOLLIN; // rendre le fd disponible en lecture
 	if ((epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _socketfd, &_server_event)) == -1) // ajouter le fd a l'ensemble events
@@ -22,7 +23,7 @@ int	Server::handle_server(void)
 		for (int i = 0; i < event_count; i++)
 		{
 			if (_events[i].data.fd == _socketfd) // Si event sur le socket du server : nouvelle connexion
-				event_status = accept_connect(epoll_fd, i);
+				event_status = accept_connect(epoll_fd);
 			else
 				event_status = handle_request(epoll_fd, i); // Traiter requete du client
 			if (event_status == 0)
@@ -32,25 +33,28 @@ int	Server::handle_server(void)
 	return (1);
 }
 
-int	Server::accept_connect(int epoll_fd, int i)
+int	Server::accept_connect(int epoll_fd)
 {
+	int client_socket;
 	sockaddr_in	remote_addr; // les infos sur la connexion entrante iront ici
 	socklen_t addrlen = sizeof(remote_addr); // taille de la struct remote_addr
-	char remoteip[INET6_ADDRSTRLEN]; // pour affichage de l'ip de la connexion entrante
 
-	this->_remote_socketfd = accept(_socketfd, (sockaddr *)&remote_addr, &addrlen); // On accepte la connexion et on cree un nouveau socket pour le client
-	if (_remote_socketfd < 0)
+	client_socket = accept(_socketfd, (sockaddr *)&remote_addr, &addrlen); // On accepte la connexion et on cree un nouveau socket pour le client
+	if (client_socket < 0)
 		return (server_error("Error : failed to accept connexion from client"));
-	fcntl(_remote_socketfd, F_SETFL, O_NONBLOCK); // On rend le socket non-bloquant	
-	_server_event.data.fd = _remote_socketfd;
-	_server_event.events = EPOLLIN;
-	if ((epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _remote_socketfd, &_server_event)) == -1) // l'ajouter a l'ensemble de fd
-		return (server_error("new connexion epoll_ctl() error"));
+	fcntl(client_socket, F_SETFL, O_NONBLOCK); // On rend le socket non-bloquant	
+	if (!epoll_add(epoll_fd, client_socket))
+		return (0);
+	return (1);
+}
 
-	// affichage
-	std::cout << " New connection from "
-	<< inet_ntop(remote_addr.sin_family, get_addr((sockaddr *)&remote_addr), remoteip, INET6_ADDRSTRLEN)
-	<< " on socket " << _events[i].data.fd << std::endl;
+int	Server::epoll_add(int epoll_fd, int socket)
+{
+	std::memset(&_server_event, 0, sizeof(epoll_event));
+	_server_event.data.fd = socket;
+	_server_event.events = EPOLLIN;
+	if ((epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket, &_server_event)) == -1) // l'ajouter a l'ensemble de fd
+		return (server_error("new connexion epoll_ctl() error"));
 	return (1);
 }
 
