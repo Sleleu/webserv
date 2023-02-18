@@ -16,6 +16,7 @@
 #include <arpa/inet.h>
 #include <sys/epoll.h>
 #include "../../header/utils/colors.hpp"
+#include "signal.hpp"
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
@@ -42,7 +43,7 @@ class Server
 	int		init_socket(void);
 	int		start_server(void);
 
-	int		server_routine(void);
+	int		handle_server(void);
 	int		accept_connect(int epoll_fd, int i);
 	int 	handle_request(int epoll_fd, int i);
 
@@ -74,39 +75,10 @@ class Server
 	std::string			_msg_to_recv;
 	addrinfo		_addrinfo;
 	addrinfo		*_ptr_info; // va recuperer le resultat de getaddrinfo
-/*
-struct addrinfo {
-    int              ai_flags; // AI_PASSIVE, AI_CANONNAME, etc
-    int              ai_family; // AF_INET , AF_UNSPEC pour tout use
-    int              ai_socktype; // SOCK_STREAM
-    int              ai_protocol; // 0 pour "tout"
-    size_t           ai_addrlen; // sizeof(sockaddr_in)
-    struct sockaddr *ai_addr; // struct sockaddr_in
-    char            *ai_canonname; // canonical hostname
-    struct addrinfo *ai_next; // liste chainee, next node
-};
-
-struct sockaddr {
-    unsigned short    sa_family;    // address family, AF_xxx
-    char              sa_data[14];  // 14 bytes of protocol address
-}; 
-*/
 	struct sockaddr_in _sockaddr;
-/*
-struct sockaddr_in {
-    short            sin_family;   // e.g. AF_INET
-    unsigned short   sin_port;     // e.g. htons(3490)
-    struct in_addr   sin_addr;     // Internet address
-    char             sin_zero[8];  // zize of struct sockaddr
-};
-
-struct in_addr {
-    uint32_t s_addr; // that's a 32-bit int (4 bytes)
-};
-*/
-	/*--------------------------*/
 	struct epoll_event _server_event;
 	struct epoll_event _events[EVENTS_HANDLED];
+	/*--------------------------*/
 };
 
 #endif
