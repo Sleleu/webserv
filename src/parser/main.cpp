@@ -7,5 +7,6 @@ int main(int argc, char **argv)
 	(void)argc;
 	(void)argv;
 	Parser parser(argv[1]);
-	simul_request();
+	// std::cout << parser << std::endl;
+	simul_request(parser.getBigLocation()[0], parser.getBigVector()[0]);
 }

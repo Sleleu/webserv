@@ -1,12 +1,12 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
-/*INTERROGATION ? 
+/*INTERROGATION ?
 - le fichier s'ouvre si c'est enfaite une directory
 - parser apres les valerus dans mon vector de conf ? exemple: server_name plusieurs string || server "test ok" (with white space)
 - meme port sur deux server diff ?
 - ajouter commentaire hors bloc server
-- refaire la surchage d'operateur << 
+- refaire la surchage d'operateur <<
 - "make it work with POST AND METHOD ?" dans le sujet pas claire dans conf_location
 */
 
@@ -15,7 +15,7 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
-#include <cerrno>	
+#include <cerrno>
 #include <stdexcept>
 #include <vector>
 #include <map>
