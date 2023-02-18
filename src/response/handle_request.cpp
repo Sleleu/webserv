@@ -20,7 +20,7 @@ std::map < std::string, std::vector<std::string> > defaultMap )
 		serverMap = getServerMap(locationInfo, defaultMap);
 		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 
-		//PRINT serverMap
+		//PRINT serverMap------------
 		std::cout << BOLDBLUE << "\nLOCATION INFORMATIONS :" << RESET << std::endl;
 		for (std::map< std::string, std::vector< std::string > >::const_iterator itServ = serverMap.begin();\
 		itServ != serverMap.end(); itServ++)
@@ -33,7 +33,7 @@ std::map < std::string, std::vector<std::string> > defaultMap )
 			}
 			std::cout << std::endl;
 		}
-		//PRINT serverMap
+		//PRINT serverMap-------------
 	}
 	catch(const std::exception& e)
 	{
@@ -41,21 +41,20 @@ std::map < std::string, std::vector<std::string> > defaultMap )
 	}
 
 	// ---------------- RESPONSE
-	// HttpResponse response(request, locationInfo);
-	// try
-	// {
-	// 	std::cout << "Executing method:";
-	// 	acceptMethod(request, response, locationInfo);
-	// 	std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
-	// }
-	// catch(const std::exception& e)
-	// {
-	// 	std::cout << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
-	// }
+	HttpResponse response(request, serverMap);
+	try
+	{
+		std::cout << "\nExecuting method:";
+		acceptMethod(request, response, serverMap);
+		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
+	}
+	catch(const std::exception& e)
+	{
+		std::cout << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+	}
 
-	// std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << response.getResponseString() << std::endl;
-	// return (response.getResponseString());
-	return ("ye");
+	std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << response.getResponseString() << std::endl;
+	return (response.getResponseString());
 }
 
 

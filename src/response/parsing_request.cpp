@@ -15,6 +15,7 @@ std::map< std::string, std::map< std::string, std::vector<std::string> > > & loc
 	{
 		if (locationMap.find(*it) != locationMap.end())
 		{
+			request.setLocationBlocName(*it);
 			locationInfo = locationMap[*it];
 			break;
 		}

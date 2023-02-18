@@ -14,16 +14,19 @@
 class HttpResponse
 {
 	public:
-		HttpResponse(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & locationInfo)
+		HttpResponse(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap)
 		{
 			_controlData["version"] = request.getVersion();
 			_controlData["code"] = "200";
 			_controlData["status"] = "OK";
 			_headers["content-type"] = "text/html"; // set with request
 			_headers["content-length"] = "1024"; // set with request (sizeof)
-			_headers["server"] = locationInfo["server_name"][0]; // set with config
+			_headers["server"] = serverMap["server_name"][0]; // set with config
 
-			_targetPath = "./html" + request.getTarget(); // <root> set with config
+			std::cout << "\n" << request.getLocationBlocName() << std::endl;
+			_targetPath = "./html" + serverMap["root"][0] + "/";
+			_targetPath += request.getTarget().substr(request.getLocationBlocName().length()); //MARCHE PAS
+			std::cout << _targetPath << std::endl;
 		}
 
 		std::string getResponseString()
