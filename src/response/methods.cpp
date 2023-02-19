@@ -2,15 +2,22 @@
 #include "../../header/parser/parser.hpp"
 #include "../../header/utils/color.hpp"
 
+void acceptCgi()
+{
+
+}
+
 void methodGET(HttpRequest const & request, HttpResponse & response)
 {
-    std::cout << BOLDYELLOW << " GET" << RESET;
     (void) request;
-    (void) response;
+    std::cout << BOLDYELLOW << " GET" << RESET;
     std::string targetPath = response.getTargetPath();
     std::ifstream ifs(targetPath.c_str());
     if (!ifs.is_open())
-        return ; // <---- Erreur ??
+    {
+        response.setError("404", "Not Found");
+        throw std::exception();
+    }
     std::string targetContent;
     std::string tmp;
     while (std::getline(ifs, tmp))
@@ -23,6 +30,12 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
 {
     std::cout << BOLDYELLOW << " POST" << RESET;
     (void) request; (void) response;
+    if (!response.canUpload)
+    {
+        response.setError("403", "Forbidden");
+        throw std::exception();
+    }
+
     // std::string targetPath = response.getTargetPath();
     // std::ifstream ifs(targetPath.c_str());
     // if (ifs.is_open())
@@ -48,7 +61,10 @@ std::map< std::string, std::vector< std::string > > locationInfo)
 
     std::vector<std::string> acceptedMethods = locationInfo["method"];
     if (std::find(acceptedMethods.begin(), acceptedMethods.end(), request.getMethod()) == acceptedMethods.end())
+    {
+        response.setError("405", "Method Not Allowed");
         throw std::exception();
+    }
     std::string possibleMethods[3] = {"GET", "POST", "DELETE"};
 	for (int i = 0; i < 3; i++)
 		if (possibleMethods[i] == request.getMethod())
@@ -56,5 +72,6 @@ std::map< std::string, std::vector< std::string > > locationInfo)
         	useMethod[i](request, response);
             return ;
         }
+    response.setError("405", "Method Not Allowed");
     throw std::exception();
 }

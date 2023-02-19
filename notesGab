@@ -1,0 +1,18 @@
+Configs prises en compte :
+
+- Port (pas nécessaire ?)
+
+- server_name : OK
+
+- body_size : Seb doit me l'envoyer
+
+- error : OK
+
+- Location {} : OK
+      method: OK
+      redirect: à faire
+      root: OK
+      directory_listing: à faire
+      default_file: à faire
+      cgi: voir ce que seb a fait / qu'est-ce que je lui envoie
+      upload_file: OK

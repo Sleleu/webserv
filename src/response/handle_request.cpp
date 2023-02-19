@@ -9,7 +9,7 @@ std::map < std::string, std::vector<std::string> > defaultMap )
 {
 	std::cout << BOLDWHITE << "\nReading Request...\n" << RESET << std::endl;
 
-	// ---------------- REQUEST
+	// ---------------- REQUEST ----------------
 	HttpRequest request(requestMsg);
 	std::map< std::string, std::vector< std::string > > locationInfo;
 	std::map< std::string, std::vector< std::string > > serverMap;
@@ -20,7 +20,7 @@ std::map < std::string, std::vector<std::string> > defaultMap )
 		serverMap = getServerMap(locationInfo, defaultMap);
 		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 
-		//PRINT serverMap------------
+		//
 		std::cout << BOLDBLUE << "\nLOCATION INFORMATIONS :" << RESET << std::endl;
 		for (std::map< std::string, std::vector< std::string > >::const_iterator itServ = serverMap.begin();\
 		itServ != serverMap.end(); itServ++)
@@ -33,17 +33,20 @@ std::map < std::string, std::vector<std::string> > defaultMap )
 			}
 			std::cout << std::endl;
 		}
-		//PRINT serverMap-------------
+		//
 	}
 	catch(const std::exception& e)
 	{
 		std::cout << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 	}
 
-	// ---------------- RESPONSE
+	// ---------------- RESPONSE --------------
+
 	HttpResponse response(request, serverMap);
 	try
 	{
+		std::cout << "\nTarget Path : '" << BLUE <<response.getTargetPath() << RESET << "'"<< std::endl;
+		std::cout << "Error Path : '" << RED <<response.getErrorPath() << RESET << "'"<< std::endl;
 		std::cout << "\nExecuting method:";
 		acceptMethod(request, response, serverMap);
 		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
@@ -51,6 +54,8 @@ std::map < std::string, std::vector<std::string> > defaultMap )
 	catch(const std::exception& e)
 	{
 		std::cout << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		response.errorReturn();
+		std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << RESET << std::endl; 
 	}
 
 	std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << response.getResponseString() << std::endl;

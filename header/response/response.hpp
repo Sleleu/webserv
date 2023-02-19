@@ -11,6 +11,7 @@
 # include "HttpRequest.hpp"
 # include "HttpResponse.hpp"
 # include <fstream>
+# include "body.hpp"
 
 // handle_request.cpp
 void simul_request(std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\
@@ -32,5 +33,6 @@ std::map< std::string, std::vector< std::string > > getLocationInfo( HttpRequest
 std::map< std::string, std::map< std::string, std::vector<std::string> > > & serverMap );
 std::map< std::string, std::vector< std::string > > getServerMap (std::map< std::string, std::vector< std::string > > locationMap,\
 std::map< std::string, std::vector< std::string > > defaultMap);
+
 
 #endif
