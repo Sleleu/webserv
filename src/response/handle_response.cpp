@@ -67,7 +67,7 @@ void simul_request(std::map< std::string, std::map< std::string, std::vector<std
 std::map < std::string, std::vector<std::string> > defaultMap )
 {
 	std::string const requestMsg = "\
-GET /files/test.html HTTP/1.1\n\
+GET /files/exemple/redirect.html HTTP/1.1\n\
 Host: localhost:8080\n\
 Connection: keep-alive\n\
 Cache-Control: max-age=0\n\

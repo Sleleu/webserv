@@ -21,12 +21,23 @@ class HttpResponse
 			_controlData["code"] = "200";
 			_controlData["status"] = "OK";
 			_headers["content-type"] = "text/html"; // set with request
-			_headers["content-length"] = "1024"; // set with SLELEU
+			_headers["content-length"] = "1000"; // set with body
 			_headers["server"] = serverMap["server_name"][0];
 
 			_targetPath = "./html" + serverMap["root"][0] + request.getTarget();
+			if (serverMap["redirect"].size() == 2)
+				redirectTargetPath(serverMap["redirect"][0], serverMap["redirect"][1]);
+		
 			_errorPath = "./html" + serverMap["error"][0];
+
 			canUpload = (serverMap["upload_file"][0] == "on") ? 1 : 0;
+		}
+
+		void	redirectTargetPath(std::string first, std::string second)
+		{
+			size_t pos = _targetPath.find(first);
+			if (pos != std::string::npos)
+				_targetPath.replace(pos, first.length(), second);
 		}
 
 		void	errorReturn()

@@ -10,7 +10,7 @@ Configs prises en compte :
 
 - Location {} : OK
       method: OK
-      redirect: à faire
+      redirect: OK
       root: OK
       directory_listing: à faire
       default_file: à faire
