@@ -7,10 +7,11 @@
 # include <vector>
 # include <sstream>
 # include <cstddef>
-# include "HttpRequest.hpp"
 # include <ctime>
-# include "response.hpp"
 # include <fstream>
+# include <sys/stat.h>
+# include "HttpRequest.hpp"
+# include "response.hpp"
 
 class HttpResponse
 {
@@ -24,21 +25,19 @@ class HttpResponse
 			_headers["content-length"] = "1000"; // set with body
 			_headers["server"] = serverMap["server_name"][0];
 
-			_targetPath = "./html" + serverMap["root"][0] + request.getTarget();
+			_targetPath = (serverMap["root"][0] == "/") ? \
+				"./html" + request.getTarget() : "./html" + serverMap["root"][0] + request.getTarget();
 			if (serverMap["redirect"].size() == 2)
 				redirectTargetPath(serverMap["redirect"][0], serverMap["redirect"][1]);
-		
+			if (isDirectory())
+				_targetPath = (_targetPath[_targetPath.length() -1] == '/') ?\
+					_targetPath + serverMap["default_file"][0] : _targetPath + "/" + serverMap["default_file"][0];
+
 			_errorPath = "./html" + serverMap["error"][0];
 
 			canUpload = (serverMap["upload_file"][0] == "on") ? 1 : 0;
 		}
 
-		void	redirectTargetPath(std::string first, std::string second)
-		{
-			size_t pos = _targetPath.find(first);
-			if (pos != std::string::npos)
-				_targetPath.replace(pos, first.length(), second);
-		}
 
 		void	errorReturn()
 		{
@@ -71,6 +70,26 @@ class HttpResponse
 					headersString += it->first + ": " + it->second + "\n";
 			}
 			return (controlDataString + headersString + _body);
+		}
+
+		void	redirectTargetPath(std::string first, std::string second)
+		{
+			size_t pos = _targetPath.find(first);
+			if (pos != std::string::npos)
+				_targetPath.replace(pos, first.length(), second);
+		}
+
+		bool	isDirectory()
+		{
+			const char* path =_targetPath.c_str();
+   			struct stat s;
+    
+    		if (stat(path, &s) == 0)
+			{
+       			if (S_ISDIR(s.st_mode))
+					return 1;
+			}
+			return 0;
 		}
 
 		std::string getErrorPath() const { return _errorPath; }

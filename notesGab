@@ -1,4 +1,5 @@
 Configs prises en compte :
+{
 
 - Port (pas nécessaire ?)
 
@@ -12,7 +13,16 @@ Configs prises en compte :
       method: OK
       redirect: OK
       root: OK
-      directory_listing: à faire
-      default_file: à faire
+      directory_listing: attendre de voir vraiment ce que c'est et comment ça doit marcher
+      default_file: OK
       cgi: voir ce que seb a fait / qu'est-ce que je lui envoie
-      upload_file: OK
+      upload_file: 
+}
+
+TO DO:
+
+- POST: commencé
+- DELETE: pas fait
+- RETOURS D'ERREUR: commencé
+- PAGES D'ERREUR PAR DEFAUT: commencé
+      
