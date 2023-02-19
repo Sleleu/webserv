@@ -11,6 +11,7 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
 {
     (void) request;
     std::cout << BOLDYELLOW << " GET" << RESET;
+
     std::string targetPath = response.getTargetPath();
     std::ifstream ifs(targetPath.c_str());
     if (!ifs.is_open())
@@ -29,28 +30,43 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
 void methodPOST(HttpRequest const & request, HttpResponse & response)
 {
     std::cout << BOLDYELLOW << " POST" << RESET;
-    (void) request; (void) response;
-    if (!response.canUpload)
+
+    std::string targetPath = response.getTargetPath();
+    const char* path = targetPath.c_str();
+    struct stat s;
+    if (!response.canUpload || stat(path, &s) == 0)
     {
         response.setError("403", "Forbidden");
         throw std::exception();
     }
-
-    // std::string targetPath = response.getTargetPath();
-    // std::ifstream ifs(targetPath.c_str());
-    // if (ifs.is_open())
-    // {
-    //     ifs.close();
-    //     return ; // <---- Erreur ??
-    // }
-
-    // std::ofstream ofs(targetPath.c_str());
-
+    std::ofstream newFile(path); // si le path est incorrect ?
+    if (!newFile.is_open())
+    {
+        response.setError("404", "Not Found");
+        throw std::exception();
+    }
+    newFile << request.getBody();
+    newFile.close();
 }
+
 void methodDELETE(HttpRequest const & request, HttpResponse & response)
 {
+    (void) request;
     std::cout << BOLDYELLOW << " DELETE" << RESET;
-    (void) request; (void) response;
+
+    std::string targetPath = response.getTargetPath();
+    const char* path = targetPath.c_str();
+    struct stat s;
+    if (stat(path, &s) != 0)
+    {
+        response.setError("404", "Not Found");
+        throw std::exception();
+    }
+    if (std::remove(response.getTargetPath().c_str()) != 0)
+    {
+        response.setError("403", "Forbidden");
+        throw std::exception();
+    }
 }
 
 void acceptMethod(HttpRequest const & request, HttpResponse & response,\

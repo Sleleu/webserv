@@ -21,8 +21,8 @@ Configs prises en compte :
 
 TO DO:
 
-- POST: commencé
-- DELETE: pas fait
+- POST: OK (voir si c'est vraiment ça)
+- DELETE: OK (voir si c'est vraiment ça)
 - RETOURS D'ERREUR: commencé
 - PAGES D'ERREUR PAR DEFAUT: commencé
       
