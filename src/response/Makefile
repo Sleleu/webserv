@@ -13,7 +13,8 @@ SAN			= -fsanitize=address -g
 
 SRC_FILES	=	handle_request \
 				methods \
-				_SERVERTEST \
+				HttpResponse \
+				HttpRequest \
 
 SRCS		=	$(addsuffix .cpp, $(SRC_FILES))
 OBJS 		=	$(SRCS:.cpp=.o)

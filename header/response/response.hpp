@@ -8,10 +8,10 @@
 # include <sstream>
 # include <cstddef>
 # include <algorithm>
-# include "HttpRequest.hpp"
-# include "HttpResponse.hpp"
 # include <fstream>
 # include "body.hpp"
+# include "HttpRequest.hpp"
+# include "HttpResponse.hpp"
 
 // handle_request.cpp
 void simul_request(std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\

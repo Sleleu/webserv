@@ -47,6 +47,7 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
     }
     newFile << request.getBody();
     newFile.close();
+    response.setError("201", "Created");
 }
 
 void methodDELETE(HttpRequest const & request, HttpResponse & response)
@@ -67,6 +68,7 @@ void methodDELETE(HttpRequest const & request, HttpResponse & response)
         response.setError("403", "Forbidden");
         throw std::exception();
     }
+    response.setError("204", "No Content");
 }
 
 void acceptMethod(HttpRequest const & request, HttpResponse & response,\

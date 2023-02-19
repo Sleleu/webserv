@@ -17,8 +17,10 @@ ADDFLAGS	=
 SRC_FILES 		= parser/main \
 				  parser/parser \
 				  response/handle_response \
-				  response/methods \
 				  response/parsing_request \
+				  response/methods \
+				  response/HttpResponse \
+				  response/HttpRequest \
 
 SRC_FILES_BONUS	=
 
