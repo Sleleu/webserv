@@ -22,15 +22,18 @@
 # define SERVER_HPP
 
 # define BODY_SIZE 			15000 // a changer avec body_size du .conf
-# define EVENTS_HANDLED		50 // pour le tableau de fd
-typedef std::size_t			size_type;
-typedef	int					Socket;
+# define EVENTS_HANDLED		100 // pour le tableau de fd
 
 class Server
 {
 	public:
 
-	Server(std::string ip, int port);
+	typedef std::size_t			size_type;
+	typedef	int					Socket;
+	typedef std::map<std::string, std::vector<std::string> > 	map_server;
+
+	Server(std::string ip, std::string port);
+	Server(map_server map);
 	~Server();
 
 	/*---- MEMBER FUNCTIONS ----*/
@@ -53,20 +56,13 @@ class Server
 
 	Server();
 
-	std::vector<std::map<std::string, std::vector<std::string > > > _parser;
+	map_server _map_server;
 
 	/*---- CONFIGURATION VARIABLES ----*/
-	int				_port;
-	unsigned int 	_ip;
-	std::string 	_ip_str;
+	std::string		_port;
+	std::string 	_ip;
 	std::string 	_serv_name;
 	unsigned int 	_body_size;
-	bool 			_default_error;
-	std::string 	_path_error_file;
-	std::map<int, std::string> _available_method;
-	std::string 	_redir_path;
-	std::string 	_workdir_path;
-	bool 			_auto_index;
 	/*---------------------------------*/
 
 	/*---- SERVER VARIABLES ----*/

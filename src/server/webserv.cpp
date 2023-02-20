@@ -5,10 +5,10 @@
 
 int main (int argc, char **argv)
 {
-	if (argc != 2)
+	if (argc != 3)
 		return (std::cout << "Error bad arguments\n", 1);
 
-	Server server = Server(argv[1], 8080);
+	Server server = Server(argv[1], argv[2]);
 	
 	if (!server.init_server())
 		return (1);

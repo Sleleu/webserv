@@ -4,7 +4,7 @@
 /*----------------- CONSTRUCTORS ------------------------*/
 Server::Server() {}
 
-Server::Server(std::string ip, int port) : _port(port), _ip_str(ip)
+Server::Server(std::string ip, std::string port) : _port(port), _ip(ip)
 {
 	std::cout << "Server assign constructor called" << std::endl;
 	std::memset(&_addrinfo, 0, sizeof(_addrinfo)); // initialiser tous les membres a 0
@@ -12,6 +12,12 @@ Server::Server(std::string ip, int port) : _port(port), _ip_str(ip)
 	this->_addrinfo.ai_socktype = SOCK_STREAM; // Pour TCP
 	this->_addrinfo.ai_flags = AI_PASSIVE; // Se lie a l'IP de l'hote sur lequel le programme s'execute
 	this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
+}
+
+Server::Server(map_server map)
+{
+	_map_server = map;
+	// _ip = map[ip]; // a continuer ici
 }
 
 Server::~Server()
@@ -25,14 +31,14 @@ int	Server::init_server(void)
 	int status;
 
 	// Met en place les structures
-	status = getaddrinfo(_ip_str.c_str(), "8080", &_addrinfo, &_ptr_info); // param a specifier
+	status = getaddrinfo(_ip.c_str(), _port.c_str(), &_addrinfo, &_ptr_info); // param a specifier
 	if (status != 0)
 	{
 		std::cout << "error status : " << status << " ";
 		return (server_error("<- getaddrinfo error"));
 	}
 	//test affichage ip avec getaddrinfo
-	display_ip(_ip_str);
+	display_ip(_ip);
 
 	// initialisation du socket serveur
 	if ((init_socket()) == 0)
