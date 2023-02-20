@@ -72,20 +72,20 @@ int	Server::handle_request(int epoll_fd, int i)
 	}
 	else
 	{
-		//_msg_to_send = get_response(msg_to_recv, _location_server, _map_server);
-		_msg_to_send = "HTTP/1.1 200 OK\n\
-content-length: 180\n\
-content-type: text/html\n\
-server: webSerV\n\n\
-<!DOCTYPE html>\n\
-<html>\n\
-        <head>\n\
-                <title>This is index.html page !!</title>\n\
-        </head>\n\
-        <body>\n\
-        <p> -- Skyblog de Sleleu -- </p>\n\
-        </body>\n\
-</html>";
+		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server);
+// 		_msg_to_send = "HTTP/1.1 200 OK\n\
+// content-length: 180\n\
+// content-type: text/html\n\
+// server: webSerV\n\n\
+// <!DOCTYPE html>\n\
+// <html>\n\
+//         <head>\n\
+//                 <title>This is index.html page !!</title>\n\
+//         </head>\n\
+//         <body>\n\
+//         <p> -- Skyblog de Sleleu -- </p>\n\
+//         </body>\n\
+// </html>";
 		std::cout << "RESPONSE : \n" << _msg_to_send << std::endl;
 		ssize_t bytes = send(_events[i].data.fd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
 		if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)

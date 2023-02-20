@@ -3,14 +3,14 @@
 int	display_error(const std::string error_message)
 {
 	std::cerr << error_message;
-	std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+	std::cerr << RESET << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 	return (0);
 }
 
 void display_ok(const std::string ok_message)
 {
 	std::cout << ok_message;
-	std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
+	std::cout << RESET << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 }
 
 void	Server::display_ip(std::string domain)
