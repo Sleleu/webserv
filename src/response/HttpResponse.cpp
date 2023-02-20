@@ -91,13 +91,15 @@ std::vector<std::string> HttpResponse::getPackets(map_server serverMap, std::str
 	{
 		packets.push_back(onePacket);
 		onePacket = responseString.substr(allPacketSize, maxBody);
+		if (allPacketSize > responseString.size())
+			break ;
 		allPacketSize += onePacket.size();
 	}
 
 	std::cout << BOLDBLUE << "Packets to send : " << RESET << std::endl;
 	for (std::vector<std::string>::const_iterator it = packets.begin() ; it != packets.end() ; it++)
 		std::cout << "--> " << BLUE << *it << RESET << std::endl;
-	std::cout << BOLDBLUE << allPacketSize << "bits SEND" << RESET << std::endl;
+	std::cout << BOLDBLUE << allPacketSize - headerSize << " bits SEND" << RESET << std::endl;
 
 	return packets;
 }
