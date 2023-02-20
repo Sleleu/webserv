@@ -56,9 +56,13 @@ std::string HttpResponse::getResponseString()
 	std::string controlDataString = _controlData["version"] + " " \
 		+ _controlData["code"] + " " + _controlData["status"] + "\n";
 
-	_headers["content-length"] = toString(_body.size() - 1);
-	_headers["content-type"] = (_headers["content-length"] == "0") ? "" : _headers["content-type"]; //Verifier si header "Accepted"
+	//SET HEADERS
+	_headers["content-length"] = toString(sizeof(char) * _body.size() - 2);
 
+	std::string fileType = getTargetPath().substr(getTargetPath().find_last_of('.'));
+	std::cout << "file type = " << fileType << std::endl;
+	// if (fileType == ".ico")
+	// 	_headers["content-type"] = "image/*";
 	// _headers["content-type"] = getTargetPath().substr(getTargetPath().find_last_of('.') + 1); // PAS SUR
 
 	std::string headersString;

@@ -3,10 +3,11 @@
 #include "../../header/utils/color.hpp"
 
 
-std::string get_response( std::string const & requestMsg,\
-std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\
-std::map < std::string, std::vector<std::string> > defaultMap )
+std::string get_response( std::string const & requestMsg, Server::location_server & locationMap,\
+Server::map_server defaultMap )
 {
+	std::cout << BOLDYELLOW << "\nRequest Message :\n" << RESET << std::endl;
+	std::cout << YELLOW << requestMsg << RESET << std::endl;
 	std::cout << BOLDWHITE << "\nConstructing Response...\n" << RESET << std::endl;
 
 	// ---------------- REQUEST ----------------

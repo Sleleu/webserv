@@ -12,6 +12,7 @@
 # include "body.hpp"
 # include "HttpRequest.hpp"
 # include "HttpResponse.hpp"
+#include "../server/Server.hpp"
 
 // handle_request.cpp
 void simul_request(std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\
