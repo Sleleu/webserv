@@ -15,15 +15,16 @@ class HttpRequest
 
 		std::vector<std::string> getLocation() const;
 
-		std::string getMethod() const {return _controlData[0];}
-		std::string getTarget() const {return _controlData[1];}
-		std::string getVersion() const {return _controlData[2];}
-		std::string getHeader(std::string key) {return _headerMap[key];}
-		std::string getBody() const {return _body;}
-		void		setLocationBlocName(std::string src) { _locationBlocName = src; }
-		std::string getLocationBlocName() const { return _locationBlocName; }
+		std::string getMethod() const;
+		std::string getTarget() const;
+		std::string getVersion() const;
+		std::string getHeader(std::string key);
+		std::string getBody() const;
+		void		setLocationBlocName(std::string src);
+		std::string getLocationBlocName() const;
 
-
+		void								checkParsing() const;
+		bool								parsing;
 	private :
 		std::vector<std::string>            _controlData;
 		std::map<std::string, std::string>  _headerMap;

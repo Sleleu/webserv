@@ -39,7 +39,7 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
         response.setError("403", "Forbidden");
         throw std::exception();
     }
-    std::ofstream newFile(path); // si le path est incorrect ?
+    std::ofstream newFile(path);
     if (!newFile.is_open())
     {
         response.setError("404", "Not Found");
@@ -50,7 +50,7 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
     response.setError("201", "Created");
 }
 
-void methodDELETE(HttpRequest const & request, HttpResponse & response)
+void methodDELETE(HttpRequest const & request, HttpResponse & response) //Pas de protection ? ACCESS ?
 {
     (void) request;
     std::cout << BOLDYELLOW << " DELETE" << RESET;
@@ -65,7 +65,7 @@ void methodDELETE(HttpRequest const & request, HttpResponse & response)
     }
     if (std::remove(response.getTargetPath().c_str()) != 0)
     {
-        response.setError("403", "Forbidden");
+		response.setError("500", "Internal Server Error");
         throw std::exception();
     }
     response.setError("204", "No Content");

@@ -1,13 +1,23 @@
 #include "../../header/response/HttpResponse.hpp"
+#include "../../header/response/response.hpp"
 
 HttpResponse::HttpResponse(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap)
 {
-	_controlData["version"] = request.getVersion();
+	// _controlData["version"] = request.getVersion();
+	_headers["server"] = serverMap["server_name"][0];
+	if (!request.parsing)
+	{
+		_controlData["version"] = "HTTP/1.1"; //Forcémment ?
+		_controlData["code"] = "400";
+		_controlData["status"] = "Bad Request";
+		_errorPath = "./html" + serverMap["error"][0];
+		return ;
+	}
+	_controlData["version"] = "HTTP/1.1"; //Forcémment ?
 	_controlData["code"] = "200";
 	_controlData["status"] = "OK";
-	_headers["content-type"] = "text/html"; // <- dans la fonction SET HEADER avant l'envoi de la response
-	_headers["content-length"] = "1000";  // <- dans la fonction SET HEADER avant l'envoi de la response
-	_headers["server"] = serverMap["server_name"][0];
+	_headers["content-type"] = "text/html";
+	_headers["content-length"] = "1000";
 
 	_targetPath = (serverMap["root"][0] == "/") ? \
 		"./html" + request.getTarget() : "./html" + serverMap["root"][0] + request.getTarget();
@@ -45,6 +55,11 @@ std::string HttpResponse::getResponseString()
 	std::string controlDataString = _controlData["version"] + " " \
 		+ _controlData["code"] + " " + _controlData["status"] + "\n";
 
+	_headers["content-length"] = toString(_body.length());
+	_headers["content-type"] = (_headers["content-length"] == "0") ? "" : _headers["content-type"]; //Verifier si header "Accepted"
+
+	// _headers["content-type"] = getTargetPath().substr(getTargetPath().find_last_of('.') + 1); // PAS SUR
+
 	std::string headersString;
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin() ; \
 		it != _headers.end() ; it ++)
@@ -74,3 +89,12 @@ bool	HttpResponse::isDirectory()
 	}
 	return 0;
 }
+
+std::string HttpResponse::getErrorPath() const { return _errorPath; }
+std::string HttpResponse::getCode() { return _controlData["code"]; }
+std::string HttpResponse::getStatus() { return _controlData["status"]; }
+std::string HttpResponse::getTargetPath() const { return _targetPath; }
+void		HttpResponse::setError(std::string code, std::string status) { setCode(code); setStatus(status); }
+void		HttpResponse::setCode(std::string content) { _controlData["code"] = content; }
+void		HttpResponse::setStatus(std::string content) { _controlData["status"] = content; }
+void		HttpResponse::setBody(std::string src) { _body = src; }

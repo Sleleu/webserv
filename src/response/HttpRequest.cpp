@@ -2,6 +2,7 @@
 
 HttpRequest::HttpRequest(std::string const requestMsg)
 {
+	parsing = 1;
 	std::string const firstHeaderLine(requestMsg, 0, requestMsg.find("\n"));
 	std::string substringTmp;
 	std::stringstream ss(firstHeaderLine);
@@ -26,6 +27,8 @@ HttpRequest::HttpRequest(std::string const requestMsg)
 	size_t bodyBegin = requestMsg.find("\n\n");
 	if (bodyBegin != std::string::npos)
 		_body = requestMsg.substr(bodyBegin + 2);
+
+	parsing = (_controlData.size() == 3) ? 1 : 0;
 }
 
 std::vector<std::string> HttpRequest::getLocation() const
@@ -41,3 +44,17 @@ std::vector<std::string> HttpRequest::getLocation() const
 	}
 	return location;
 }
+
+void	HttpRequest::checkParsing() const
+{
+	if (!parsing)
+		throw std::exception();
+}
+
+std::string HttpRequest::getMethod() const {return _controlData[0];}
+std::string HttpRequest::getTarget() const {return _controlData[1];}
+std::string HttpRequest::getVersion() const {return _controlData[2];}
+std::string HttpRequest::getHeader(std::string key) {return _headerMap[key];}
+std::string HttpRequest::getBody() const {return _body;}
+void		HttpRequest::setLocationBlocName(std::string src) { _locationBlocName = src; }
+std::string HttpRequest::getLocationBlocName() const { return _locationBlocName; }

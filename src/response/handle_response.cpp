@@ -7,7 +7,7 @@ std::string handle_response( std::string const & requestMsg,\
 std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\
 std::map < std::string, std::vector<std::string> > defaultMap )
 {
-	std::cout << BOLDWHITE << "\nReading Request...\n" << RESET << std::endl;
+	std::cout << BOLDWHITE << "\nConstructing Response...\n" << RESET << std::endl;
 
 	// ---------------- REQUEST ----------------
 	HttpRequest request(requestMsg);
@@ -15,9 +15,10 @@ std::map < std::string, std::vector<std::string> > defaultMap )
 	std::map< std::string, std::vector< std::string > > serverMap;
 	try
 	{
-		std::cout << "Parsing Request:";
+		std::cout << "Reading Request:";
 		locationInfo = getLocationInfo(request, locationMap);
 		serverMap = getServerMap(locationInfo, defaultMap);
+		request.checkParsing();
 		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 
 		//
@@ -45,9 +46,15 @@ std::map < std::string, std::vector<std::string> > defaultMap )
 	HttpResponse response(request, serverMap);
 	try
 	{
+		std::cout << "\nParsing Request :";
+		request.checkParsing();
+		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 		std::cout << "\nTarget Path : '" << BLUE <<response.getTargetPath() << RESET << "'"<< std::endl;
-		std::cout << "Error Path : '" << RED <<response.getErrorPath() << RESET << "'"<< std::endl;
-		std::cout << "\nExecuting method:";
+		std::cout << "Error Path : '" << RED << response.getErrorPath() << RESET << "'"<< std::endl;
+		std::cout << "\nSetting Headers :";
+		//SetHeaders ici
+		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
+		std::cout << "Executing method:";
 		acceptMethod(request, response, serverMap);
 		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 	}
@@ -55,19 +62,18 @@ std::map < std::string, std::vector<std::string> > defaultMap )
 	{
 		std::cout << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 		response.errorReturn();
-		std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << RESET << std::endl; 
+		std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << RESET << std::endl;
 	}
 
 	std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << response.getResponseString() << std::endl;
 	return (response.getResponseString());
 }
 
-
 void simul_request(std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\
 std::map < std::string, std::vector<std::string> > defaultMap )
 {
 	std::string const requestMsg = "\
-GET /index.html HTTP/1.1\n\
+GET /files/index.html HTTP/1.1\n\
 Host: localhost:8080\n\
 Connection: keep-alive\n\
 Cache-Control: max-age=0\n\

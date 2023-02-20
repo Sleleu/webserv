@@ -34,5 +34,14 @@ std::map< std::string, std::map< std::string, std::vector<std::string> > > & ser
 std::map< std::string, std::vector< std::string > > getServerMap (std::map< std::string, std::vector< std::string > > locationMap,\
 std::map< std::string, std::vector< std::string > > defaultMap);
 
+//response_utils.cpp
+template <typename T>
+std::string toString(T value)
+{
+	std::stringstream ss;
+	ss << value;
+	std::string str = ss.str();
+	return str;
+}
 
 #endif

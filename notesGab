@@ -25,12 +25,12 @@ TO DO:
 - DELETE: OK (v1)
 - RETOURS D'ERREUR: commencé
 - PAGES D'ERREUR PAR DEFAUT: commencé
-      
+- Headers: A faire (Accepted)
 
 CODES POSSIBLES
 100:	Continue	Attente de la suite de la requête: "Y a t-il un cas ?"
 
-200:	OK	Requête traitée avec succès.: Par défaut 
+200:	OK	Requête traitée avec succès.: Par défaut
 201:	Created	Requête traitée avec succès et création d’un document: OK (utilisée pour POST)
 204:	No Content	Requête traitée avec succès mais pas d’information à renvoyer: Pour DELETE ?
 
