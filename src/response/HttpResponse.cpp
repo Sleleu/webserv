@@ -1,5 +1,6 @@
 #include "../../header/response/HttpResponse.hpp"
 #include "../../header/response/response.hpp"
+#include "../../header/utils/colors.hpp"
 
 HttpResponse::HttpResponse(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap)
 {
@@ -55,8 +56,7 @@ std::string HttpResponse::getResponseString()
 	std::string controlDataString = _controlData["version"] + " " \
 		+ _controlData["code"] + " " + _controlData["status"] + "\n";
 
-	_headers["content-length"] = "180";
-	std::cout << "PRINT BODY SIZE : " << _body.size() << std::endl;
+	_headers["content-length"] = toString(_body.size() - 1);
 	_headers["content-type"] = (_headers["content-length"] == "0") ? "" : _headers["content-type"]; //Verifier si header "Accepted"
 
 	// _headers["content-type"] = getTargetPath().substr(getTargetPath().find_last_of('.') + 1); // PAS SUR

@@ -64,9 +64,9 @@ std::map < std::string, std::vector<std::string> > defaultMap )
 		response.errorReturn();
 		std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << RESET << std::endl;
 	}
-
-	std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << response.getResponseString() << std::endl;
-	return (response.getResponseString());
+	std::string responseString = response.getResponseString();
+	std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << responseString << std::endl;
+	return (responseString);
 }
 
 // void simul_request(std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\

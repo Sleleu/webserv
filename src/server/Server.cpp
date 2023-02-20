@@ -23,7 +23,7 @@ Server::Server(map_server map, location_server location) : _map_server(map), _lo
 	this->_addrinfo.ai_flags = AI_PASSIVE; // Se lie a l'IP de l'hote sur lequel le programme s'execute
 	this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
 
-	_port = "8082";
+	_port = "8080";
 	_ip = "0.0.0.0";
 	// _ip = map[ip]; // a continuer ici
 }
@@ -61,7 +61,7 @@ int	Server::init_socket(void)
 	if ((_socketfd = socket(AF_INET, _ptr_info->ai_socktype, _ptr_info->ai_protocol)) == -1) // renvoie un descripteur de socket
 		return (server_error("Error when initialise socket"));
 	server_ok("Initialise server socket:");
-	
+
 	// Set le socketfd en non-bloquant
 	fcntl(_socketfd, F_SETFL, O_NONBLOCK);
 
