@@ -15,9 +15,10 @@
 #include <netdb.h> // struct addrinfo
 #include <arpa/inet.h>
 #include <sys/epoll.h>
+
 #include "../../header/utils/colors.hpp"
 #include "../../header/response/response.hpp"
-#include "signal.hpp"
+#include "server_includes.hpp"
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
@@ -49,8 +50,6 @@ class Server
 	int 	handle_request(int epoll_fd, int i);
 
 	void*	get_addr(sockaddr *s_addr);
-	void	server_ok(const std::string ok_message) const;
-	int		server_error(const std::string error_message) const;
 	void	display_ip(std::string domain);
 	/*--------------------------*/
 

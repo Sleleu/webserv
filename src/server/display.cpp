@@ -1,13 +1,13 @@
 #include "../../header/server/Server.hpp"
 
-int	Server::server_error(const std::string error_message) const
+int	display_error(const std::string error_message)
 {
 	std::cerr << error_message;
 	std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 	return (0);
 }
 
-void Server::server_ok(const std::string ok_message) const
+void display_ok(const std::string ok_message)
 {
 	std::cout << ok_message;
 	std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
