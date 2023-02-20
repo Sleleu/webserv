@@ -6,10 +6,11 @@ NAME_BONUS	=
 SRC_DIR		= src/
 OBJ_DIR		= obj/
 SUBDIR		= obj/parser \
-			  obj/server
+			  obj/server \
+			  obj/response
 BONUS_DIR	= src_bonus/
 
-ADDFLAGS	= 
+ADDFLAGS	=
 
 # SOURCES
 
@@ -19,6 +20,13 @@ SRC_FILES 		= server/Server \
 				  server/webserv \
 				  server/display \
 				  server/signal
+				  parser/main \
+				  parser/parser \
+				  response/handle_response \
+				  response/parsing_request \
+				  response/methods \
+				  response/HttpResponse \
+				  response/HttpRequest \
 
 SRC_FILES_BONUS	=
 
@@ -50,20 +58,20 @@ SPACE = $(COUNT)
 
 #	 MANDATORY
 all:		 obj $(NAME)
-			
+
 
 $(NAME):	$(OBJS)
-			@$(CC) $(CFLAGS) $^ -o $@ $(ADDFLAGS) 
+			@$(CC) $(CFLAGS) $^ -o $@ $(ADDFLAGS)
 			@echo "\e[1A\e[K$(FONT_BOLD)FILES LOADED ! $(FONT_RESET)    $(COUNT)/($(COUNT))"
-			@echo " " 
+			@echo " "
 			@echo "$(RED)$(NAME) compiled !$(DEF_COLOR)"
 
 $(OBJ_DIR)%.o:	 $(SRC_DIR)%.cpp
-			@$(CC) $(CFLAGS) $(ADDFLAGS) -c -o $@ $< 
+			@$(CC) $(CFLAGS) $(ADDFLAGS) -c -o $@ $<
 			@$(eval LOAD=$(shell echo $$(($(LOAD)+1))))
-			@$(eval SPACE=$(shell echo $$(($(SPACE)-1)))) 
+			@$(eval SPACE=$(shell echo $$(($(SPACE)-1))))
 			@echo "\e[2A\e[K$(BLUE)Creating object file -> $(WHITE)$(notdir $@)... $(RED)[Done]$(NOC)"
-			@/bin/echo -n "$(FONT_BOLD)Load Files |$(FONT_RESET)" 
+			@/bin/echo -n "$(FONT_BOLD)Load Files |$(FONT_RESET)"
 			@load=$(LOAD) ; while [ $${load} -gt 0 ] ; do\
 				/bin/echo -n "=" ;\
 				load=`expr $$load - 1`; \
@@ -86,13 +94,13 @@ $(NAME_BONUS): $(OBJS_BONUS)
 
 $(OBJ_DIR)%.o:	 $(BONUS_DIR)%.cpp
 			@mkdir -p $(OBJ_DIR)
-			@$(CC) $(CFLAGS) -c -o $@ $< 
+			@$(CC) $(CFLAGS) -c -o $@ $<
 			@echo "$(BLUE)Creating object file -> $(WHITE)$(notdir $@)... $(RED)[Done]$(NOC)"
 
 #	 RULES
 obj:
 			@mkdir -p $(OBJ_DIR)
-			@mkdir -p $(SUBDIR)		
+			@mkdir -p $(SUBDIR)
 
 clean:
 			@$(RM) $(OBJ_DIR) $(DEPS_DIR)
@@ -106,7 +114,7 @@ re:			fclean
 			@make --no-print-directory all
 			@echo "$(GREEN)Cleaned and rebuilt everything for $(NAME)!$(DEF_COLOR)"
 
-.PHONY: all clean fclean re	
+.PHONY: all clean fclean re
 
 .SILENT: lib
 
