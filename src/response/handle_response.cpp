@@ -66,6 +66,7 @@ Server::map_server defaultMap )
 		std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << RESET << std::endl;
 	}
 	std::string responseString = response.getResponseString();
+	std::vector<std::string> packetsToSend = response.getPackets(serverMap, responseString);
 	std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << responseString << std::endl;
 	return (responseString);
 }

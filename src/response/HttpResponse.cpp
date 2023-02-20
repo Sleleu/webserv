@@ -60,7 +60,6 @@ std::string HttpResponse::getResponseString()
 	_headers["content-length"] = toString(sizeof(char) * _body.size() - 2);
 
 	std::string fileType = getTargetPath().substr(getTargetPath().find_last_of('.'));
-	std::cout << "file type = " << fileType << std::endl;
 	// if (fileType == ".ico")
 	// 	_headers["content-type"] = "image/*";
 	// _headers["content-type"] = getTargetPath().substr(getTargetPath().find_last_of('.') + 1); // PAS SUR
@@ -74,6 +73,35 @@ std::string HttpResponse::getResponseString()
 	}
 	return (controlDataString + headersString + _body);
 }
+
+std::vector<std::string> HttpResponse::getPackets(map_server serverMap, std::string responseString)
+{
+	std::vector<std::string> packets;
+	if (_body == "")
+	{
+		packets.push_back(responseString);
+		return packets;
+	}
+	size_t maxBody = std::atoi(serverMap["body_size"][0].c_str());
+	size_t headerSize = responseString.find("\n\n");
+	std::string onePacket = responseString.substr(0, headerSize)\
+				+ responseString.substr(headerSize + 1, maxBody);
+	size_t allPacketSize = onePacket.size();
+	while (allPacketSize < responseString.size())
+	{
+		packets.push_back(onePacket);
+		onePacket = responseString.substr(allPacketSize, maxBody);
+		allPacketSize += onePacket.size();
+	}
+
+	std::cout << BOLDBLUE << "Packets to send : " << RESET << std::endl;
+	for (std::vector<std::string>::const_iterator it = packets.begin() ; it != packets.end() ; it++)
+		std::cout << "--> " << BLUE << *it << RESET << std::endl;
+	std::cout << BOLDBLUE << allPacketSize << "bits SEND" << RESET << std::endl;
+
+	return packets;
+}
+
 
 void	HttpResponse::redirectTargetPath(std::string first, std::string second)
 {
