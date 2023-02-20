@@ -1,18 +1,24 @@
 # VARIABLES
 
-NAME		= webserver
+NAME		= webserv
 NAME_BONUS	= 
 
 SRC_DIR		= src/
 OBJ_DIR		= obj/
-SUBDIR		= 
+SUBDIR		= obj/parser \
+			  obj/server
 BONUS_DIR	= src_bonus/
 
 ADDFLAGS	= 
 
 # SOURCES
 
-SRC_FILES 		= main 
+SRC_FILES 		= server/Server \
+				  server/handle_server \
+				  server/Server_utils \
+				  server/webserv \
+				  server/display \
+				  server/signal
 
 SRC_FILES_BONUS	=
 
@@ -86,7 +92,7 @@ $(OBJ_DIR)%.o:	 $(BONUS_DIR)%.cpp
 #	 RULES
 obj:
 			@mkdir -p $(OBJ_DIR)
-			echo test
+			@mkdir -p $(SUBDIR)		
 
 clean:
 			@$(RM) $(OBJ_DIR) $(DEPS_DIR)
