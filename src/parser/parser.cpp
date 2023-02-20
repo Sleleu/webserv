@@ -11,6 +11,7 @@ Parser::Parser(std::string conf_file)
 	}
 	catch (std::exception &e)
 	{
+		throw;
 	}
 }
 
@@ -106,7 +107,6 @@ void	Parser::fill_vector(void)
 		_parsingVector.push_back(initmap());
 	std::cout << "Parsing stuct filled:";
 	std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
-	std::cout << *this;
 }
 
 void Parser::server_block_parsing(vector_iterator &tmp_it, vector_iterator &end_it, int *line, int server)
@@ -347,7 +347,11 @@ vector_iterator	&Parser::new_conf(std::string str, int server, int &line, vector
 		{
 			add_conf ++ ;
 			if (add_conf == 1)
+			{
 				_parsingVector[server][left_token].clear();
+				if (!pars_conf(left_token, token, line))
+					throw std::exception();
+			}
 			_parsingVector[server][left_token].push_back(token);
 			token = str.c_str() + i + skip + 1;
 			skip += i;
@@ -541,4 +545,92 @@ std::map<std::string, std::string>	Parser::init_map_token()
 	map["cgi"];
 	map["upload_file"];
 	return map;
+}
+
+bool	Parser::pars_conf(std::string token, std::string right_token, int line)
+{
+	if (token == "body_size")
+	{
+		if (!tcheck_size(right_token, token, line))
+			return false;
+	}
+	else if (token == "root")
+	{
+		if (!tcheck_root(right_token, token, line))
+			return false;
+	}
+	else if (token == "directory_listing" || token == "upload_file")
+	{
+		if (!tcheck_on_off(right_token, token, line))
+			return false;
+	}
+	return true;
+}
+
+bool	Parser::tcheck_size(std::string token, std::string left_token, int line)
+{
+	for (int i = 0; token[i]; i ++)	
+	{
+		if (!std::isdigit(token[i]))
+		{
+			std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << " only accept digits characters, line:" << line;
+			std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+			return (false);
+		}
+	}
+	if (token.size() > 5)
+	{
+		std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << " can't be greater than 99 999, line:" << line;
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		return (false);
+	}
+	if (!std::atoi(token.c_str()))
+	{
+		std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << " can't be null(0), line:" << line;
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		return (false);
+	}
+	return true;
+}
+
+bool	Parser::tcheck_root(std::string token, std::string left_token, int line)
+{
+	struct stat _stat;
+	std::string path = "./html";
+	std::string	tmp = token;
+
+	if (token[0] != '/')
+	{
+		std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << " need begin with " << RED << "\"/\"" << RESET << " to match a destination, line:" << line;
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		return false;
+	}
+	path += token;
+	token = path;
+	if (stat(token.c_str(), &_stat) != 0)
+	{
+		std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << ", path " << RED << "\"" << tmp << "\": " << RESET;
+		perror("");
+		std::cout << "line:" << line;
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		return false;
+	}
+	if (!S_ISDIR(_stat.st_mode))
+	{
+		std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << ", path " << RED << "\"" << tmp << "\": " << RESET;
+		std::cout << " isn't a directory: line:" << line;
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		return false;
+	}
+	return true;
+}
+
+bool	Parser::tcheck_on_off(std::string token, std::string left_token, int line)
+{
+	if (token == "off" || token == "on")
+		return (true);
+	std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << " only accept";
+	std::cerr << RED << " \"on\"" << RESET << " or " << RED << "\"off\"" << RESET << " token, line:" << line;
+	std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+	return false;
 }
