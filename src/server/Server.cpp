@@ -6,17 +6,25 @@ Server::Server() {}
 
 Server::Server(std::string ip, std::string port) : _port(port), _ip(ip)
 {
+	// std::cout << "Server assign constructor called" << std::endl;
+	// std::memset(&_addrinfo, 0, sizeof(_addrinfo)); // initialiser tous les membres a 0
+	// this->_addrinfo.ai_family = AF_UNSPEC; // Pour IPv4 et IPv6, IF_INET pour seulement v4
+	// this->_addrinfo.ai_socktype = SOCK_STREAM; // Pour TCP
+	// this->_addrinfo.ai_flags = AI_PASSIVE; // Se lie a l'IP de l'hote sur lequel le programme s'execute
+	// this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
+}
+
+Server::Server(map_server map, location_server location) : _map_server(map), _location_server(location)
+{
 	std::cout << "Server assign constructor called" << std::endl;
 	std::memset(&_addrinfo, 0, sizeof(_addrinfo)); // initialiser tous les membres a 0
 	this->_addrinfo.ai_family = AF_UNSPEC; // Pour IPv4 et IPv6, IF_INET pour seulement v4
 	this->_addrinfo.ai_socktype = SOCK_STREAM; // Pour TCP
 	this->_addrinfo.ai_flags = AI_PASSIVE; // Se lie a l'IP de l'hote sur lequel le programme s'execute
 	this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
-}
 
-Server::Server(map_server map)
-{
-	_map_server = map;
+	_port = "8082";
+	_ip = "0.0.0.0";
 	// _ip = map[ip]; // a continuer ici
 }
 

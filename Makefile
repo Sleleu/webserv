@@ -19,7 +19,7 @@ SRC_FILES 		= server/Server \
 				  server/Server_utils \
 				  server/webserv \
 				  server/display \
-				  server/signal
+				  server/signal \
 				  parser/main \
 				  parser/parser \
 				  response/handle_response \

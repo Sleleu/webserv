@@ -16,12 +16,13 @@
 #include <arpa/inet.h>
 #include <sys/epoll.h>
 #include "../../header/utils/colors.hpp"
+#include "../../header/response/response.hpp"
 #include "signal.hpp"
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# define BODY_SIZE 			15000 // a changer avec body_size du .conf
+# define B_SIZE 			15000 // a changer avec body_size du .conf
 # define EVENTS_HANDLED		100 // pour le tableau de fd
 
 class Server
@@ -30,10 +31,11 @@ class Server
 
 	typedef std::size_t			size_type;
 	typedef	int					Socket;
-	typedef std::map<std::string, std::vector<std::string> > 	map_server;
+	typedef std::map<std::string, std::vector<std::string> > 									  	map_server;
+	typedef std::map<std::string, std::map<std::string, std::vector<std::string> > >				location_server;
 
 	Server(std::string ip, std::string port);
-	Server(map_server map);
+	Server(map_server map, location_server location);
 	~Server();
 
 	/*---- MEMBER FUNCTIONS ----*/
@@ -56,7 +58,8 @@ class Server
 
 	Server();
 
-	map_server _map_server;
+	map_server		_map_server;
+	location_server _location_server;
 
 	/*---- CONFIGURATION VARIABLES ----*/
 	std::string		_port;

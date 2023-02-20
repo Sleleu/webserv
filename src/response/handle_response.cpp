@@ -3,7 +3,7 @@
 #include "../../header/utils/color.hpp"
 
 
-std::string handle_response( std::string const & requestMsg,\
+std::string get_response( std::string const & requestMsg,\
 std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\
 std::map < std::string, std::vector<std::string> > defaultMap )
 {
@@ -69,33 +69,33 @@ std::map < std::string, std::vector<std::string> > defaultMap )
 	return (response.getResponseString());
 }
 
-void simul_request(std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\
-std::map < std::string, std::vector<std::string> > defaultMap )
-{
-	std::string const requestMsg = "\
-GET /files/index.html HTTP/1.1\n\
-Host: localhost:8080\n\
-Connection: keep-alive\n\
-Cache-Control: max-age=0\n\
-Upgrade-Insecure-Requests: 1\n\
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.162 Safari/537.36\n\
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\n\
-DNT: 1\n\
-Accept-Encoding: gzip, deflate, br\n\
-Accept-Language: en-US,en;q=0.9\n\
-\n\
-<html>\n\
-	<head>\n\
-		<title>Ma page : d'exemple</title>\n\
-	</head>\n\
-	<body>\n\
-	Voici le contenu\n\
-	</body>\n\
-</html>";
+// void simul_request(std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\
+// std::map < std::string, std::vector<std::string> > defaultMap )
+// {
+// 	std::string const requestMsg = "\
+// GET /files/index.html HTTP/1.1\n\
+// Host: localhost:8080\n\
+// Connection: keep-alive\n\
+// Cache-Control: max-age=0\n\
+// Upgrade-Insecure-Requests: 1\n\
+// User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.162 Safari/537.36\n\
+// Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\n\
+// DNT: 1\n\
+// Accept-Encoding: gzip, deflate, br\n\
+// Accept-Language: en-US,en;q=0.9\n\
+// \n\
+// <html>\n\
+// 	<head>\n\
+// 		<title>Ma page : d'exemple</title>\n\
+// 	</head>\n\
+// 	<body>\n\
+// 	Voici le contenu\n\
+// 	</body>\n\
+// </html>";
 
 
-	handle_response(requestMsg, locationMap, defaultMap);
-}
+// 	handle_response(requestMsg, locationMap, defaultMap);
+// }
 
 
 // --------------------------------- FOR TEST --------------------------------------------
