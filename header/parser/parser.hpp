@@ -1,15 +1,6 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
-/*INTERROGATION ?
-- le fichier s'ouvre si c'est enfaite une directory
-- parser apres les valerus dans mon vector de conf ? exemple: server_name plusieurs string || server "test ok" (with white space)
-- meme port sur deux server diff ?
-- ajouter commentaire hors bloc server
-- refaire la surchage d'operateur <<
-- "make it work with POST AND METHOD ?" dans le sujet pas claire dans conf_location
-*/
-
 #include <iostream>
 #include <string>
 #include <iostream>
@@ -21,6 +12,7 @@
 #include <map>
 #include <algorithm>
 #include <cstring>
+#include <sys/stat.h>
 
 typedef std::vector< std::map < std::string, std::vector<std::string> > >	big_vector;
 typedef std::vector<std::string>::iterator vector_iterator;
@@ -47,19 +39,23 @@ class Parser
 	Parser(std::string conf_file);
 	~Parser();
 	void								fill_conf(std::string);
-	bool								extension(std::string);
+	std::string							fill_location_path(std::string, int server, int line);
 	void								fill_vector(void);
-	void								server_block_parsing(vector_iterator &, vector_iterator &, int *, int);
-	map_vector							initmap();
-	void								initDefaultVector(void);
 	void								fill_vector_with_name(std::vector<std::string> &);
 	big_vector							&getBigVector(void);
 	big_location						&getBigLocation(void);
+	bool								extension(std::string);
+	void								server_block_parsing(vector_iterator &, vector_iterator &, int *, int);
+	bool								pars_conf(std::string, std::string, int);
+	bool								tcheck_size(std::string, std::string, int);
+	bool								tcheck_root(std::string, std::string, int);
+	bool								tcheck_on_off(std::string, std::string, int);
 	vector_iterator						&new_conf(std::string, int, int &line, vector_iterator &, vector_iterator &);
 	void								new_conf_location(int &line, int server, std::string str, std::string);
 	vector_iterator						&location_bloc(vector_iterator &, int, int &, vector_iterator &);
-	std::string							fill_location_path(std::string, int server, int line);
 	std::map<std::string, std::string>	init_map_token();
+	map_vector							initmap();
+	void								initDefaultVector(void);
 
 	private:
 	std::vector< std::map < std::string, std::vector<std::string> > >						_parsingVector; //big_vector
