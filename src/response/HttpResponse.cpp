@@ -83,7 +83,7 @@ std::string HttpResponse::getResponseString()
 	std::string controlDataString = _controlData["version"] + " " \
 		+ _controlData["code"] + " " + _controlData["status"] + "\n";
 
-	_headers["content-length"] = toString(sizeof(char) * _body.size() - 2);
+	_headers["content-length"] = (_body.size() == 0) ? "" : toString(sizeof(char) * _body.size() - 2);
 
 	std::string headersString;
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin() ; \

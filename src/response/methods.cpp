@@ -94,6 +94,7 @@ void methodDELETE(HttpRequest const & request, HttpResponse & response) //Pas de
         throw std::exception();
     }
     response.setError("204", "No Content");
+    response.setBody("");
 }
 
 void acceptMethod(HttpRequest const & request, HttpResponse & response,\
