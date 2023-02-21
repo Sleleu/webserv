@@ -84,12 +84,22 @@ int	Server::init_socket(void)
 	return (1);
 }
 
+// int Server::start_server(void)
+// {
+// 	if ((listen(_socketfd, 5)) == -1)
+// 		return (display_error("Error when listenning socket"));
+// 	display_ok("Start listening:");
+// 	if (handle_server() == 0) // lancement de la loop
+// 		return (0);
+// 	return (1);
+// }
+
 int Server::start_server(void)
 {
 	if ((listen(_socketfd, 5)) == -1)
 		return (display_error("Error when listenning socket"));
 	display_ok("Start listening:");
-	if (handle_server() == 0) // lancement de la loop
-		return (0);
+//	if (handle_server() == 0) // lancement de la loop
+//		return (0);
 	return (1);
 }

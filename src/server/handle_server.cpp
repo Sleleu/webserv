@@ -1,5 +1,14 @@
 #include "../../header/server/Server.hpp"
 
+int	Server::add_socket_to_events(int epoll_fd)
+{
+	_server_event.data.fd = _socketfd;
+	_server_event.events = EPOLLIN; // rendre le fd disponible en lecture
+	if ((epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _socketfd, &_server_event)) == -1) // ajouter le fd a l'ensemble events
+		return (display_error("epoll_fd epoll_ctl() error"));
+	return (1);
+}
+
 int	Server::handle_server(void)
 {
 	int event_count; // numero de fd actif
@@ -7,11 +16,8 @@ int	Server::handle_server(void)
 
 	epoll_fd = epoll_create1(0); // init du socket_server avec epoll()
 
-	_server_event.data.fd = _socketfd;
-	_server_event.events = EPOLLIN; // rendre le fd disponible en lecture
-	if ((epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _socketfd, &_server_event)) == -1) // ajouter le fd a l'ensemble events
-		return (display_error("epoll_fd epoll_ctl() error"));
-
+	if (!add_socket_to_events(epoll_fd))
+		return (0);
 	while (42)
 	{
 		int event_status;

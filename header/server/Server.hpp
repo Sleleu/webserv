@@ -52,6 +52,9 @@ class Server
 
 	void*	get_addr(sockaddr *s_addr);
 	void	display_ip(std::string domain);
+
+	int		add_socket_to_events(int epoll_fd);
+
 	/*--------------------------*/
 
 	private:
