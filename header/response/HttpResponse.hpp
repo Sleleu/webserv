@@ -17,9 +17,12 @@ class HttpResponse
 	public:
 		typedef std::map<std::string, std::vector<std::string> > 	map_server;
 
-		HttpResponse(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap);
+		HttpResponse();
+
+		void setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap);
 
 		std::string getResponseString();
+		void		setHeader();
 
 		std::vector<std::string> getPackets(map_server serverMap, std::string responseString);
 

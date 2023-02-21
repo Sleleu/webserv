@@ -36,7 +36,7 @@ CODES POSSIBLES
 
 301:  Moved Permanently  Document déplacé de façon permanente.: Quand on utilise "redirect" ?
 
-400:  Bad Request  La syntaxe de la requête est erronée: Est-ce possible dans notre cas ?
+400:  Bad Request  La syntaxe de la requête est erronée: Ok
 401:	Unauthorized	Une authentification est nécessaire pour accéder à la ressource: Pas à gérer ?
 403:	Forbidden	Le serveur a compris la requête, mais refuse de l'exécuter.: OK
 404:	Not Found	Ressource non trouvée.: OK

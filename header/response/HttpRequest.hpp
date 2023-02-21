@@ -11,8 +11,9 @@
 class HttpRequest
 {
 	public:
-		HttpRequest(std::string const requestMsg);
+		HttpRequest();
 
+		void setRequestInfo(std::string const requestMsg);
 		std::vector<std::string> getLocation() const;
 
 		std::string getMethod() const;

@@ -2,23 +2,26 @@
 #include "../../header/response/response.hpp"
 #include "../../header/utils/colors.hpp"
 
-HttpResponse::HttpResponse(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap)
+HttpResponse::HttpResponse()
 {
-	// _controlData["version"] = request.getVersion();
+	_controlData["version"] = "HTTP/1.1"; //Forcémment ?
+	_controlData["code"] = "200";
+	_controlData["status"] = "OK";
+	_headers["server"] = "webserv";
+	_headers["content-type"] = "text/html";
+	_headers["content-length"] = "0";
+}
+
+void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap)
+{
 	_headers["server"] = serverMap["server_name"][0];
 	if (!request.parsing)
 	{
-		_controlData["version"] = "HTTP/1.1"; //Forcémment ?
 		_controlData["code"] = "400";
 		_controlData["status"] = "Bad Request";
 		_errorPath = "./html" + serverMap["error"][0];
 		return ;
 	}
-	_controlData["version"] = "HTTP/1.1"; //Forcémment ?
-	_controlData["code"] = "200";
-	_controlData["status"] = "OK";
-	_headers["content-type"] = "text/html";
-	_headers["content-length"] = "1000";
 
 	_targetPath = (serverMap["root"][0] == "/") ? \
 		"./html" + request.getTarget() : "./html" + serverMap["root"][0] + request.getTarget();
@@ -29,9 +32,9 @@ HttpResponse::HttpResponse(HttpRequest const & request, std::map< std::string, s
 			_targetPath + serverMap["default_file"][0] : _targetPath + "/" + serverMap["default_file"][0];
 
 	_errorPath = "./html" + serverMap["error"][0];
-
 	canUpload = (serverMap["upload_file"][0] == "on") ? 1 : 0;
 }
+
 
 void	HttpResponse::errorReturn()
 {
@@ -39,7 +42,8 @@ void	HttpResponse::errorReturn()
 	std::ifstream ifs(errPath.c_str());
 	if (!ifs.is_open())
 	{
-		setError("500", "Internal Server Error"); //voir quelle page on display dans ce cas là
+		setError("500", "Internal Server Error");
+		setBody(BODY_500);
 		return ;
 	}
 
@@ -51,18 +55,22 @@ void	HttpResponse::errorReturn()
 	setBody("\n" + errorFileContent);
 }
 
+void		HttpResponse::setHeader()
+{
+	std::string fileType = getTargetPath().substr(getTargetPath().find_last_of('.') + 1);
+	std::string img = "ico png apng avif webp";
+	if (img.find(fileType) != std::string::npos)			//un peu bancal
+		_headers["content-type"] = "image/" + fileType;
+	if (fileType == "html")
+		_headers["content-type"] = "text/" + fileType;
+}
+
 std::string HttpResponse::getResponseString()
 {
 	std::string controlDataString = _controlData["version"] + " " \
 		+ _controlData["code"] + " " + _controlData["status"] + "\n";
 
-	//SET HEADERS
 	_headers["content-length"] = toString(sizeof(char) * _body.size() - 2);
-
-	std::string fileType = getTargetPath().substr(getTargetPath().find_last_of('.'));
-	// if (fileType == ".ico")
-	// 	_headers["content-type"] = "image/*";
-	// _headers["content-type"] = getTargetPath().substr(getTargetPath().find_last_of('.') + 1); // PAS SUR
 
 	std::string headersString;
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin() ; \
@@ -83,27 +91,26 @@ std::vector<std::string> HttpResponse::getPackets(map_server serverMap, std::str
 		return packets;
 	}
 	size_t maxBody = std::atoi(serverMap["body_size"][0].c_str());
-	size_t headerSize = responseString.find("\n\n");
-	std::string onePacket = responseString.substr(0, headerSize)\
+	size_t headerSize = responseString.find("\n\n") + 1;
+	std::string onePacket = responseString.substr(0, headerSize + 1)\
 				+ responseString.substr(headerSize + 1, maxBody);
 	size_t allPacketSize = onePacket.size();
-	while (allPacketSize < responseString.size())
+	while (1)
 	{
 		packets.push_back(onePacket);
 		onePacket = responseString.substr(allPacketSize, maxBody);
-		if (allPacketSize > responseString.size())
+		if (allPacketSize >= responseString.size())
 			break ;
 		allPacketSize += onePacket.size();
 	}
 
 	std::cout << BOLDBLUE << "Packets to send : " << RESET << std::endl;
 	for (std::vector<std::string>::const_iterator it = packets.begin() ; it != packets.end() ; it++)
-		std::cout << "--> " << BLUE << *it << RESET << std::endl;
-	std::cout << BOLDBLUE << allPacketSize - headerSize << " bits SEND" << RESET << std::endl;
+		std::cout << "|" << BLUE << *it << RESET;
+	std::cout << "\n" <<BOLDBLUE << allPacketSize - headerSize << " bits SEND" << RESET << std::endl;
 
 	return packets;
 }
-
 
 void	HttpResponse::redirectTargetPath(std::string first, std::string second)
 {
