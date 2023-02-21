@@ -14,7 +14,8 @@ Server::Server(std::string ip, std::string port) : _port(port), _ip(ip)
 	this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
 }
 
-Server::Server(map_server map, location_server location) : _map_server(map), _location_server(location)
+Server::Server(map_server map, location_server location)
+: _map_server(map), _location_server(location)
 {
 	std::cout << "Server assign constructor called" << std::endl;
 	std::memset(&_addrinfo, 0, sizeof(_addrinfo)); // initialiser tous les membres a 0
@@ -23,9 +24,14 @@ Server::Server(map_server map, location_server location) : _map_server(map), _lo
 	this->_addrinfo.ai_flags = AI_PASSIVE; // Se lie a l'IP de l'hote sur lequel le programme s'execute
 	this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
 
-	_port = "8080";
-	_ip = "0.0.0.0";
-	// _ip = map[ip]; // a continuer ici
+	_port = map.find("listen")->second[0]; // assigner port au fichier conf
+	_serv_name = map.find("server_name")->second[0];
+	_body_size = std::atoi(map.find("body_size")->second[0].c_str());
+	_ip = "localhost";
+
+	std::cout << BOLDCYAN << "New server [" << BOLDYELLOW << _ip << BOLDCYAN
+			  << "] on port [" << BOLDYELLOW << _port
+			  << BOLDCYAN << "] initialised\n" << RESET;
 }
 
 Server::~Server()

@@ -32,8 +32,9 @@ class Server
 
 	typedef std::size_t			size_type;
 	typedef	int					Socket;
-	typedef std::map<std::string, std::vector<std::string> > 									  	map_server;
-	typedef std::map<std::string, std::map<std::string, std::vector<std::string> > >				location_server;
+	typedef std::map<std::string, std::vector<std::string> > 							map_server;
+	typedef std::map<std::string, std::map<std::string, std::vector<std::string> > >	location_server;
+	typedef std::map<std::string, std::vector<std::string> >::iterator					map_iterator;
 
 	Server(std::string ip, std::string port);
 	Server(map_server map, location_server location);
@@ -65,6 +66,7 @@ class Server
 	std::string 	_ip;
 	std::string 	_serv_name;
 	unsigned int 	_body_size;
+	unsigned int	_id_server;
 	/*---------------------------------*/
 
 	/*---- SERVER VARIABLES ----*/
