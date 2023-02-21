@@ -36,25 +36,28 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
 
 void methodPOST(HttpRequest const & request, HttpResponse & response)
 {
-    std::cout << BOLDYELLOW << " POST" << RESET;
+    (void) request;
+    (void) response;
+    std::cout << "POST" << std::endl;
+    // std::cout << BOLDYELLOW << " POST" << RESET;
 
-    std::string targetPath = response.getTargetPath();
-    const char* path = targetPath.c_str();
-    struct stat s;
-    if (!response.canUpload || stat(path, &s) == 0)
-    {
-        response.setError("403", "Forbidden");
-        throw std::exception();
-    }
-    std::ofstream newFile(path);
-    if (!newFile.is_open())
-    {
-        response.setError("404", "Not Found");
-        throw std::exception();
-    }
-    newFile << request.getBody();
-    newFile.close();
-    response.setError("201", "Created");
+    // std::string targetPath = response.getTargetPath();
+    // const char* path = targetPath.c_str();
+    // struct stat s;
+    // if (!response.canUpload || stat(path, &s) == 0)
+    // {
+    //     response.setError("403", "Forbidden");
+    //     throw std::exception();
+    // }
+    // std::ofstream newFile(path);
+    // if (!newFile.is_open())
+    // {
+    //     response.setError("404", "Not Found");
+    //     throw std::exception();
+    // }
+    // newFile << request.getBody();
+    // newFile.close();
+    // response.setError("201", "Created");
 }
 
 void methodDELETE(HttpRequest const & request, HttpResponse & response) //Pas de protection ? ACCESS ?
@@ -75,7 +78,8 @@ void methodDELETE(HttpRequest const & request, HttpResponse & response) //Pas de
 		response.setError("500", "Internal Server Error");
         throw std::exception();
     }
-    response.setError("204", "No Content");
+    // response.setError("204", "No Content");
+    response.setError("200", "OK");
 }
 
 void acceptMethod(HttpRequest const & request, HttpResponse & response,\

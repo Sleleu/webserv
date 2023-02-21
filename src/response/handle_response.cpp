@@ -16,7 +16,7 @@ Server::map_server defaultMap )
 
 	try
 	{
-		std::cout << "Reading Request:";
+		std::cout << "\nReading Request:";
 		request.setRequestInfo(requestMsg);
 		locationInfo = getLocationInfo(request, locationMap);
 		serverMap = getServerMap(locationInfo, defaultMap);
@@ -74,7 +74,7 @@ Server::map_server defaultMap )
 		packetsToSend = response.getPackets(serverMap, responseString);
 	else
 		packetsToSend.push_back(responseString);
-	// std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << responseString << std::endl;
+	std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << responseString << std::endl;
 	return (responseString); // il faudra return "packetsToSend"
 }
 

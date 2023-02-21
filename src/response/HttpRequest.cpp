@@ -1,6 +1,6 @@
 #include "../../header/response/HttpRequest.hpp"
 
-HttpRequest::HttpRequest(): parsing(1) {}
+HttpRequest::HttpRequest(): parsing(1), _body(""){}
 
 void HttpRequest::setRequestInfo(std::string const requestMsg)
 {
@@ -27,9 +27,39 @@ void HttpRequest::setRequestInfo(std::string const requestMsg)
 		}
 	}
 
-	size_t bodyBegin = requestMsg.find("\n\n");
+	size_t bodyBegin = requestMsg.find("\r\n\r\n");
 	if (bodyBegin != std::string::npos)
 		_body = requestMsg.substr(bodyBegin + 2);
+
+	setTarget();
+}
+
+void		HttpRequest::setTarget()
+{
+	std::string	argsString;
+	if (getMethod() == "GET")
+	{
+		std::string const oldTarget = getTarget();
+		size_t const argsBegin = oldTarget.find("?");
+		if (argsBegin == std::string::npos)
+			return ;
+		_controlData[1] = oldTarget.substr(0, argsBegin);
+		argsString = oldTarget.substr(argsBegin);
+	}
+	else if (getMethod() == "POST")
+		argsString = _body;
+	else
+		return ;
+	for (size_t pos = 0 ; pos != std::string::npos;)
+	{
+		size_t beginArg = pos;
+		pos = argsString.find("&", pos + 1);
+		std::string oneArg = argsString.substr(beginArg + 1, pos - 1);
+		_args[oneArg.substr(0, oneArg.find("="))] = oneArg.substr(oneArg.find("=") + 1);
+	}
+	std::cout << std::endl;
+	for (std::map<std::string, std::string>::const_iterator it = _args.begin() ; it != _args.end() ; it++)
+		std::cout << it->first << " -> "<< it->second << std::endl;
 }
 
 std::vector<std::string> HttpRequest::getLocation() const
@@ -52,10 +82,18 @@ void	HttpRequest::checkParsing() const
 		throw std::exception();
 }
 
-std::string HttpRequest::getMethod() const {return _controlData[0];}
-std::string HttpRequest::getTarget() const {return _controlData[1];}
-std::string HttpRequest::getVersion() const {return _controlData[2];}
-std::string HttpRequest::getHeader(std::string key) {return _headerMap[key];}
-std::string HttpRequest::getBody() const {return _body;}
-void		HttpRequest::setLocationBlocName(std::string src) { _locationBlocName = src; }
+std::string HttpRequest::getMethod() const { return _controlData[0]; }
+
+std::string HttpRequest::getTarget() const { return _controlData[1]; }
+
+std::string HttpRequest::getVersion() const { return _controlData[2]; }
+
+std::string HttpRequest::getHeader(std::string key) { return _headerMap[key]; }
+
+std::string HttpRequest::getBody() const { return _body; }
+
+void	HttpRequest::setLocationBlocName(std::string src) {  _locationBlocName = src; }
+
 std::string HttpRequest::getLocationBlocName() const { return _locationBlocName; }
+
+std::map<std::string, std::string> HttpRequest::getArgs() const { return _args; }
