@@ -10,6 +10,7 @@
 # include <ctime>
 # include <fstream>
 # include <sys/stat.h>
+# include <algorithm>
 # include "HttpRequest.hpp"
 
 class HttpResponse
@@ -40,11 +41,10 @@ class HttpResponse
 
 		bool		isDirectory();
 		bool		canUpload;
-		bool		canCgi;
+		bool		cgiUsed;
 
 	private :
 
-		std::string	_cgiAccepted; // set with config
 		std::string _targetPath;
 		std::string _errorPath;
 

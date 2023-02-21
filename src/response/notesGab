@@ -5,7 +5,7 @@ Configs prises en compte :
 
 - server_name : OK
 
-- body_size : Seb doit me l'envoyer
+- body_size : OK
 
 - error : OK
 
@@ -13,9 +13,9 @@ Configs prises en compte :
       method: OK
       redirect: OK
       root: OK
-      directory_listing: attendre de voir vraiment ce que c'est et comment ça doit marcher
+      directory_listing: OK
       default_file: OK
-      cgi: voir ce que seb a fait / qu'est-ce que je lui envoie
+      cgi: voir que je lui envoie
       upload_file: OK
 }
 

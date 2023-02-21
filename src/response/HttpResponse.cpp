@@ -28,11 +28,24 @@ void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::s
 	if (serverMap["redirect"].size() == 2)
 		redirectTargetPath(serverMap["redirect"][0], serverMap["redirect"][1]);
 	if (isDirectory())
-		_targetPath = (_targetPath[_targetPath.length() -1] == '/') ?\
-			_targetPath + serverMap["default_file"][0] : _targetPath + "/" + serverMap["default_file"][0];
+	{
+		if (serverMap["directory_listing"][0] == "on") // Pas certain de cette partie
+		{
+			_targetPath = (_targetPath[_targetPath.length() -1] == '/') ?\
+				_targetPath + "directory_listing.html" : _targetPath + "/" + "directory_listing.html";
+		}
+		else
+		{
+			_targetPath = (_targetPath[_targetPath.length() -1] == '/') ?\
+				_targetPath + serverMap["default_file"][0] : _targetPath + "/" + serverMap["default_file"][0];
+		}
+	}
 
 	_errorPath = "./html" + serverMap["error"][0];
 	canUpload = (serverMap["upload_file"][0] == "on") ? 1 : 0;
+	
+	std::string fileType = getTargetPath().substr(getTargetPath().find_last_of('.') + 1);
+	cgiUsed = (std::find(serverMap["cgi"].begin(), serverMap["cgi"].end(), fileType) != serverMap["cgi"].end());
 }
 
 

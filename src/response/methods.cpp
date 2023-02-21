@@ -4,7 +4,6 @@
 
 void acceptCgi()
 {
-
 }
 
 void methodGET(HttpRequest const & request, HttpResponse & response)
@@ -13,17 +12,25 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
     std::cout << BOLDYELLOW << " GET" << RESET;
 
     std::string targetPath = response.getTargetPath();
-    std::ifstream ifs(targetPath.c_str());
-    if (!ifs.is_open())
+    std::ifstream targetStream(targetPath.c_str());
+    if (!targetStream.is_open())
     {
         response.setError("404", "Not Found");
         throw std::exception();
     }
+    if (response.cgiUsed)
+    {
+	    std::cout << MAGENTA << " CGI used" << RESET;
+        targetStream.close();
+        acceptCgi();
+        response.setBody(BODY_CGI); // FOR TEST
+        return ;
+    }
     std::string targetContent;
     std::string tmp;
-    while (std::getline(ifs, tmp))
+    while (std::getline(targetStream, tmp))
         targetContent += tmp + "\n";
-    ifs.close();
+    targetStream.close();
     response.setBody("\n" + targetContent);
 };
 
