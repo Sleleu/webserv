@@ -38,8 +38,23 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
 {
     (void) request;
     (void) response;
-    std::cout << "POST" << std::endl;
-    // std::cout << BOLDYELLOW << " POST" << RESET;
+    std::cout << BOLDYELLOW << " POST" << RESET;
+
+    std::string targetPath = response.getTargetPath();
+    std::ifstream targetStream(targetPath.c_str());
+    if (!targetStream.is_open())
+    {
+        response.setError("404", "Not Found");
+        throw std::exception();
+    }
+    targetStream.close();
+    if (response.cgiUsed)
+    {
+	    std::cout << MAGENTA << " CGI used" << RESET;
+        acceptCgi();
+        response.setBody(BODY_CGI); // FOR TEST
+        return ;
+    }
 
     // std::string targetPath = response.getTargetPath();
     // const char* path = targetPath.c_str();
@@ -78,8 +93,7 @@ void methodDELETE(HttpRequest const & request, HttpResponse & response) //Pas de
 		response.setError("500", "Internal Server Error");
         throw std::exception();
     }
-    // response.setError("204", "No Content");
-    response.setError("200", "OK");
+    response.setError("204", "No Content");
 }
 
 void acceptMethod(HttpRequest const & request, HttpResponse & response,\
