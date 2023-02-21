@@ -13,14 +13,12 @@ Handler::Handler()
 
 Handler::Handler(conf_server c_server, conf_location c_location) : _conf_server(c_server), _conf_location(c_location)
 {
-	std::cout << "Assign constructor called" << std::endl;
-
 	conf_server_iterator   conf_server_it = _conf_server.begin();
 	conf_location_iterator conf_location_it = _conf_location.begin();
 
 	for (size_t id = 0; conf_server_it < _conf_server.end(); conf_server_it++, conf_location_it++, id++)
 	{
-		Server new_server(*conf_server_it, *conf_location_it);
+		Server new_server(*conf_server_it, *conf_location_it, id);
 		_v_server.push_back(new_server);
 	}
 	std::cout << "Servers added to handler" << std::endl;
@@ -39,6 +37,7 @@ int	Handler::launch_servers(void)
 		(*it).init_server();
 		(*it).start_server();
 	}
+	return (1);
 }
 
 int	Handler::handle_servers(void)
@@ -59,8 +58,17 @@ int	Handler::handle_servers(void)
 			return (display_error("epoll_wait"));
 		for (int i = 0; i < event_count; i++)
 		{
-			// continue
+			for (it = _v_server.begin(); it < _v_server.end(); it++)
+			{
+				if (_events[i].data.fd == (*it).get_socketfd())
+					event_status = (*it).accept_connect(_epollfd);
+				else
+					event_status = (*it).handle_request(_epollfd, i);
+				if (event_status == 0)
+					return (0);
+			}
 		}
+		return (1);
 	}
 }
 

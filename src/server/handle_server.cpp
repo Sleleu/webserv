@@ -72,7 +72,7 @@ int	Server::handle_request(int epoll_fd, int i)
 	if (bytes_received <= 0)
 	{
 		if (bytes_received == -1)
-			return (display_error("Error : Could not receive data from client"));
+			return (std::cerr << "Server [" << get_id() << "] ", display_error("Error : Could not receive data from client"));
 		if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _events[i].data.fd, NULL)) == -1)
 			return (display_error("recv data epoll_ctl() error"));
 	}

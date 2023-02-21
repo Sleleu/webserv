@@ -14,8 +14,8 @@ Server::Server(std::string ip, std::string port) : _port(port), _ip(ip)
 	this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
 }
 
-Server::Server(map_server map, location_server location)
-: _map_server(map), _location_server(location)
+Server::Server(map_server map, location_server location, int id)
+: _map_server(map), _location_server(location), _id_server(id + 1)
 {
 	std::cout << "Server assign constructor called" << std::endl;
 	std::memset(&_addrinfo, 0, sizeof(_addrinfo)); // initialiser tous les membres a 0
@@ -29,9 +29,10 @@ Server::Server(map_server map, location_server location)
 	_body_size = std::atoi(map.find("body_size")->second[0].c_str());
 	_ip = "localhost";
 
-	std::cout << BOLDCYAN << "New server [" << BOLDYELLOW << _ip << BOLDCYAN
-			  << "] on port [" << BOLDYELLOW << _port
-			  << BOLDCYAN << "] initialised\n" << RESET;
+	std::cout << BOLDCYAN << "Server [" << BOLDYELLOW << get_ip()
+			  << BOLDCYAN << "] id [" << BOLDGREEN << get_id()
+			  << BOLDCYAN << "] on port [" << BOLDBLUE << get_port()
+			  << BOLDCYAN << "] initialised" << RESET << std::endl;
 }
 
 Server::~Server()
@@ -103,3 +104,35 @@ int Server::start_server(void)
 //		return (0);
 	return (1);
 }
+
+//------------------- GETTERS ------------------------------
+std::string	Server::get_ip(void) const
+{
+	return (_ip);
+}
+
+std::string	Server::get_port(void) const
+{
+	return (_port);
+}
+
+std::string Server::get_serv_name(void) const
+{
+	return (_serv_name);
+}
+
+unsigned int Server::get_id(void) const
+{
+	return (_id_server);
+}
+
+Server::Socket	Server::get_socketfd(void) const
+{
+	return (_socketfd);
+}
+
+Server::Socket	Server::get_sender_fd(void) const
+{
+	return (_sender_fd);
+}
+//----------------------------------------------------------

@@ -37,7 +37,7 @@ class Server
 	typedef std::map<std::string, std::vector<std::string> >::iterator					map_iterator;
 
 	Server(std::string ip, std::string port);
-	Server(map_server map, location_server location);
+	Server(map_server map, location_server location, int id);
 	~Server();
 
 	/*---- MEMBER FUNCTIONS ----*/
@@ -54,6 +54,13 @@ class Server
 	void	display_ip(std::string domain);
 
 	int		add_socket_to_events(int epoll_fd);
+
+	std::string get_ip(void) const;
+	std::string	get_port(void) const;
+	unsigned int get_id(void) const;
+	std::string get_serv_name(void) const;
+	Socket		get_socketfd(void) const;
+	Socket		get_sender_fd(void) const;
 
 	/*--------------------------*/
 
