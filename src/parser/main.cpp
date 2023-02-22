@@ -17,15 +17,16 @@ int main(int argc, char **argv)
 		// if (!server.init_server())
 		// 	return (1);
 		// server.start_server();
-	
+
 		Handler handler(parser.getBigVector(), parser.getBigLocation());
-		
+
+
 		handler.launch_servers();
 		handler.handle_servers();
 	}
 	catch (std::exception &e)
 	{
 	}
-	
+	return (0);
 	//simul_request(parser.getBigLocation()[0], parser.getBigVector()[0]);
 }

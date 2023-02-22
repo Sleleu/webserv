@@ -15,11 +15,12 @@ class Handler
 	typedef std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >::iterator	conf_location_iterator;
 
 	Handler();
-	Handler(conf_server c_server, conf_location c_location);
+	Handler(conf_server& c_server, conf_location& c_location);
 	~Handler();
 
-	int	launch_servers(void);
-	int	handle_servers(void);
+	int		launch_servers(void);
+	int		handle_servers(void);
+	void	close_servers_sockfd(void);
 
 	private:
 
