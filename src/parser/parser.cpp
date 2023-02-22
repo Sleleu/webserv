@@ -520,6 +520,12 @@ void	Parser::new_conf_location(int &line, int server, std::string str, std::stri
 		if (token != "")
 		{
 			add_conf ++ ;
+			if (add_conf == 1)
+			{
+				_parsingVector[server][left_token].clear();
+				if (!pars_conf(left_token, token, line))
+					throw std::exception();
+			}
 			_locationVector[server][location][left_token].push_back(token);
 			token = str.c_str() + i + skip + 1;
 			skip += i;
@@ -562,6 +568,11 @@ bool	Parser::pars_conf(std::string token, std::string right_token, int line)
 	else if (token == "directory_listing" || token == "upload_file")
 	{
 		if (!tcheck_on_off(right_token, token, line))
+			return false;
+	}
+	else if (token == "upload_file")
+	{
+		if (!tcheck_upload(right_token, token, line))
 			return false;
 	}
 	return true;
