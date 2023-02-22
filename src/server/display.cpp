@@ -1,5 +1,14 @@
 #include "../../header/server/Server.hpp"
 
+void	print_vector(std::vector<int> &vector)
+{
+	std::vector<int>::iterator it = vector.begin();
+
+	for (; it < vector.end(); it++)
+		std::cout << *it << " | ";
+	std::cout << std::endl;
+}
+
 int	display_error(const std::string error_message)
 {
 	std::cerr << error_message;

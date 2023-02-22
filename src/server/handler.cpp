@@ -40,16 +40,16 @@ int	Handler::launch_servers(void)
 	return (1);
 }
 
-bool is_client_owned(Server& server, int event_fd)
+int	is_client_owned(Server& server, int event_fd)
 {
 	int i = 0;
 
 	if (server.get_client_fd().size() == 0)
-		return (false);
+		return (-1);
 	for (; i < (int)server.get_client_fd().size(); i++)
 		if (server.get_client_fd()[i] == event_fd)
-			return (true);
-	return (false);
+			return (i); // return l'index du client_fd
+	return (-1);
 }
 
 int	Handler::handle_servers(void)
@@ -72,21 +72,22 @@ int	Handler::handle_servers(void)
 		{
 			for (it = _v_server.begin(); it < _v_server.end(); it++)
 			{
-				if (_events[i].data.fd == (*it).get_socketfd())
-					event_status = (*it).accept_connect(_epollfd);
+				if (_events[i].data.fd == (*it).get_socketfd()) // S'il s'agit de l'un des sockets d'un serveur
+					event_status = (*it).accept_connect(_epollfd); // accepter la nouvelle connexion et ajouter le socketfd du client au serveur vise
+				if (event_status == 0)
+					return (0);
 			}
-			if (it == _v_server.end())
+			if (it == _v_server.end()) // si l'event ne correspond pas a une nouvelle connexion
 			{
-				for (it = _v_server.begin(); it < _v_server.end(); it++)
+				for (it = _v_server.begin(); it < _v_server.end(); it++) // Chercher a quel serveur correspond l'event
 				{
-					if (is_client_owned(*it, _events[i].data.fd))
-						event_status = (*it).handle_request(_events, _epollfd, i);
+					int index_client_fd = is_client_owned(*it, _events[i].data.fd);
+					if (index_client_fd != -1) // Une fois lien client|serveur decouvert
+						event_status = (*it).handle_request(_events, _epollfd, index_client_fd); // traiter la requete
+					if (event_status == 0)
+						return (0);
 				}
 			}
-			
-			if (event_status == 0)
-				return (0);
-			//}
 		}
 	}
 	return (1);

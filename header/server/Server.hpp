@@ -45,10 +45,9 @@ class Server
 	int		init_socket(void);
 	int		start_server(void);
 
-	int		handle_server(void);
 	int		accept_connect(int epoll_fd);
 	int		epoll_add(int epoll_fd, int socket);
-	int 	handle_request(epoll_event* events, int epoll_fd, int i);
+	int 	handle_request(epoll_event* events, int& epoll_fd, int i);
 
 	void*	get_addr(sockaddr *s_addr);
 	void	display_ip(std::string domain);

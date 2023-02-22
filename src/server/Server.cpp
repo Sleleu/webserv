@@ -29,6 +29,7 @@ Server::Server(map_server map, location_server location, int id)
 	_body_size = std::atoi(map.find("body_size")->second[0].c_str());
 	_ip = "localhost";
 
+	/*--- Affichage initialisation du serveur ---*/
 	std::cout << BOLDCYAN << "Server [" << BOLDYELLOW << get_serv_name()
 			  << BOLDCYAN << "] id [" << BOLDGREEN << get_id()
 			  << BOLDCYAN << "] on port [" << BOLDBLUE << get_port()
@@ -52,8 +53,6 @@ int	Server::init_server(void)
 		std::cout << "error status : " << status << " ";
 		return (display_error("<- getaddrinfo error"));
 	}
-	//test affichage ip avec getaddrinfo
-	display_ip(_ip);
 
 	// initialisation du socket serveur
 	if ((init_socket()) == 0)
@@ -81,29 +80,111 @@ int	Server::init_socket(void)
 	if (setsockopt(_socketfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
 		return (display_error("Setsockopt error"));
 
-	//freeaddrinfo(_ptr_info); // free la liste chainee pointee par _serv_info
+	freeaddrinfo(_ptr_info); // free la liste chainee pointee par _serv_info
 	return (1);
 }
-
-// int Server::start_server(void)
-// {
-// 	if ((listen(_socketfd, 5)) == -1)
-// 		return (display_error("Error when listenning socket"));
-// 	display_ok("Start listening:");
-// 	if (handle_server() == 0) // lancement de la loop
-// 		return (0);
-// 	return (1);
-// }
 
 int Server::start_server(void)
 {
 	if ((listen(_socketfd, 5)) == -1)
 		return (display_error("Error when listenning socket"));
 	display_ok("Start listening:");
-	// if (handle_server() == 0) // lancement de la loop
-	// 	return (0);
 	return (1);
 }
+
+int	Server::add_socket_to_events(int epoll_fd)
+{
+	_server_event.data.fd = _socketfd;
+	_server_event.events = EPOLLIN; // rendre le fd disponible en lecture
+	if ((epoll_ctl(epoll_fd, EPOLL_CTL_ADD, _socketfd, &_server_event)) == -1) // ajouter le fd a l'ensemble events
+		return (display_error("epoll_fd epoll_ctl() error"));
+	return (1);
+}
+
+int	Server::accept_connect(int epoll_fd)
+{
+	Server::Socket client_socket;
+	sockaddr_in	remote_addr; // les infos sur la connexion entrante iront ici
+	socklen_t addrlen = sizeof(remote_addr); // taille de la struct remote_addr
+
+	client_socket = accept(_socketfd, (sockaddr *)&remote_addr, &addrlen); // On accepte la connexion et on cree un nouveau socket pour le client
+	if (client_socket < 0)
+		return (display_error("Error : failed to accept connexion from client"));
+	fcntl(client_socket, F_SETFL, O_NONBLOCK); // On rend le socket non-bloquant
+
+	int optval = 1;
+	if (setsockopt(client_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
+		return (display_error("Setsockopt error"));
+
+	if (!epoll_add(epoll_fd, client_socket))
+		return (0);
+
+	_client_fd.push_back(client_socket); // ajouter le socket a ce serveur
+
+	/*--- Affichage nouvelle connexion au serveur ---*/
+	std::cout << BOLDCYAN << "New connection to server [" << BOLDYELLOW << _serv_name 
+			  << BOLDCYAN << "] id [" << BOLDGREEN << _id_server
+			  << BOLDCYAN << "] on socket [" << BOLDMAGENTA << client_socket
+			  << BOLDCYAN << "]" << RESET << std::endl;
+
+	return (1);
+}
+
+int	Server::epoll_add(int epoll_fd, int socket)
+{
+	std::memset(&_server_event, 0, sizeof(epoll_event));
+	_server_event.data.fd = socket;
+	_server_event.events = EPOLLIN;
+	if ((epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket, &_server_event)) == -1) // l'ajouter a l'ensemble de fd
+		return (display_error("new connexion epoll_ctl() error"));
+	return (1);
+}
+
+// template <typename T>
+// void	print_vector(std::vector<T> &vector)
+// {
+// 	typename std::vector<T>::iterator it = vector.begin();
+
+// 	for (; it < vector.end(); it++)
+// 		std::cout << *it << " | ";
+// 	std::cout << std::endl;
+// }
+
+int	Server::handle_request(epoll_event* events, int& epoll_fd, int i)
+{
+	char msg_to_recv[B_SIZE] = {0};
+	(void)events;
+	(void)epoll_fd;
+	ssize_t bytes_received = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
+	if (bytes_received <= 0)
+	{
+		if (bytes_received == -1)
+			return (std::cerr << "Server [" << get_id() << "] ", display_error("Error : Could not receive data from client"));
+		if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _client_fd[i], NULL)) == -1)
+			return (display_error("recv data epoll_ctl() error"));
+		close(_client_fd[i]);
+		_client_fd.erase(_client_fd.begin() + i);
+	}
+	else
+	{
+		std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
+				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
+				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
+
+		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server);
+		ssize_t bytes = send(_client_fd[i], _msg_to_send.c_str(), _msg_to_send.size(), 0);
+		if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)
+			return (display_error("Error sending response to client"));
+		
+		std::cout << BOLDCYAN << "Response from server [" << BOLDYELLOW << _serv_name
+				  << BOLDCYAN << "] id [" << BOLDGREEN << _id_server
+				  << BOLDCYAN << "] on socket [" << BOLDMAGENTA << _client_fd[i]
+				  << BOLDCYAN << "] successfully sent" << RESET << std::endl;
+		print_vector(_client_fd);
+	}
+	return (1);
+}
+
 
 //------------------- GETTERS ------------------------------
 std::string	Server::get_ip(void) const

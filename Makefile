@@ -15,7 +15,6 @@ ADDFLAGS	=
 # SOURCES
 
 SRC_FILES 		= server/Server \
-				  server/handle_server \
 				  server/Server_utils \
 				  server/webserv \
 				  server/display \
