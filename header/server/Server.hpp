@@ -48,7 +48,7 @@ class Server
 	int		handle_server(void);
 	int		accept_connect(int epoll_fd);
 	int		epoll_add(int epoll_fd, int socket);
-	int 	handle_request(int epoll_fd, int i);
+	int 	handle_request(epoll_event* events, int epoll_fd, int i);
 
 	void*	get_addr(sockaddr *s_addr);
 	void	display_ip(std::string domain);
@@ -61,6 +61,7 @@ class Server
 	std::string get_serv_name(void) const;
 	Socket		get_socketfd(void) const;
 	Socket		get_sender_fd(void) const;
+	std::vector<Socket> 	get_client_fd(void) const; // new version
 
 	/*--------------------------*/
 
@@ -82,10 +83,11 @@ class Server
 	/*---- SERVER VARIABLES ----*/
 	Socket				_socketfd;
 	Socket				_sender_fd;
+	std::vector<Socket>	_client_fd;
 	std::string			_msg_to_send;
 	std::string			_msg_to_recv;
-	addrinfo		_addrinfo;
-	addrinfo		*_ptr_info; // va recuperer le resultat de getaddrinfo
+	struct addrinfo		_addrinfo;
+	struct addrinfo		*_ptr_info; // va recuperer le resultat de getaddrinfo
 	struct sockaddr_in _sockaddr;
 	struct epoll_event _server_event;
 	struct epoll_event _events[EVENTS_HANDLED];

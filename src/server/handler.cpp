@@ -40,6 +40,18 @@ int	Handler::launch_servers(void)
 	return (1);
 }
 
+bool is_client_owned(Server& server, int event_fd)
+{
+	int i = 0;
+
+	if (server.get_client_fd().size() == 0)
+		return (false);
+	for (; i < (int)server.get_client_fd().size(); i++)
+		if (server.get_client_fd()[i] == event_fd)
+			return (true);
+	return (false);
+}
+
 int	Handler::handle_servers(void)
 {
 	int event_count;
@@ -51,7 +63,7 @@ int	Handler::handle_servers(void)
 		(*it).add_socket_to_events(_epollfd);
 	while (42)
 	{
-		int event_status;
+		int event_status = 1;
 		std::signal(SIGINT, signal_handler);
 		event_count = epoll_wait(_epollfd, _events, EVENTS_HANDLED, -1);
 		if (event_count == -1)
@@ -62,13 +74,21 @@ int	Handler::handle_servers(void)
 			{
 				if (_events[i].data.fd == (*it).get_socketfd())
 					event_status = (*it).accept_connect(_epollfd);
-				else
-					event_status = (*it).handle_request(_epollfd, i);
-				if (event_status == 0)
-					return (0);
 			}
+			if (it == _v_server.end())
+			{
+				for (it = _v_server.begin(); it < _v_server.end(); it++)
+				{
+					if (is_client_owned(*it, _events[i].data.fd))
+						event_status = (*it).handle_request(_events, _epollfd, i);
+				}
+			}
+			
+			if (event_status == 0)
+				return (0);
+			//}
 		}
-		return (1);
 	}
+	return (1);
 }
 

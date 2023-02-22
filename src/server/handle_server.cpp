@@ -31,7 +31,7 @@ int	Server::handle_server(void)
 			if (_events[i].data.fd == _socketfd) // Si event sur le socket du server : nouvelle connexion
 				event_status = accept_connect(epoll_fd);
 			else
-				event_status = handle_request(epoll_fd, i); // Traiter requete du client
+				event_status = handle_request(_events, epoll_fd, i); // Traiter requete du client
 			if (event_status == 0)
 				return (0);
 		}
@@ -51,6 +51,13 @@ int	Server::accept_connect(int epoll_fd)
 	fcntl(client_socket, F_SETFL, O_NONBLOCK); // On rend le socket non-bloquant
 	if (!epoll_add(epoll_fd, client_socket))
 		return (0);
+
+	_client_fd.push_back(client_socket); // ajouter le socket a ce serveur
+
+	std::cout << BOLDCYAN << "New connection on server [" << BOLDGREEN << _id_server
+			  << BOLDCYAN << "] on socket [" << BOLDMAGENTA << client_socket
+			  << BOLDCYAN << "]" << RESET << std::endl;
+
 	return (1);
 }
 
@@ -64,36 +71,27 @@ int	Server::epoll_add(int epoll_fd, int socket)
 	return (1);
 }
 
-int	Server::handle_request(int epoll_fd, int i)
+int	Server::handle_request(epoll_event* events, int epoll_fd, int i)
 {
 	char msg_to_recv[B_SIZE] = {0};
 
-	ssize_t bytes_received = recv(_events[i].data.fd, msg_to_recv, B_SIZE, 0);
+	ssize_t bytes_received = recv(events[i].data.fd, msg_to_recv, B_SIZE, 0);
 	if (bytes_received <= 0)
 	{
 		if (bytes_received == -1)
 			return (std::cerr << "Server [" << get_id() << "] ", display_error("Error : Could not receive data from client"));
-		if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _events[i].data.fd, NULL)) == -1)
+		if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL)) == -1)
 			return (display_error("recv data epoll_ctl() error"));
 	}
 	else
 	{
+		std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << events[i].data.fd
+				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
+				  << BOLDCYAN << "] successfully sent" << RESET << std::endl;
+
 		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server);
-// 		_msg_to_send = "HTTP/1.1 200 OK\n\
-// content-length: 180\n\
-// content-type: text/html\n\
-// server: webSerV\n\n\
-// <!DOCTYPE html>\n\
-// <html>\n\
-//         <head>\n\
-//                 <title>This is index.html page !!</title>\n\
-//         </head>\n\
-//         <body>\n\
-//         <p> -- Skyblog de Sleleu -- </p>\n\
-//         </body>\n\
-// </html>";
 		std::cout << "RESPONSE : \n" << _msg_to_send << std::endl;
-		ssize_t bytes = send(_events[i].data.fd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
+		ssize_t bytes = send(events[i].data.fd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
 		if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)
 			return (display_error("Error sending response to client"));
 	}

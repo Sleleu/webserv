@@ -29,7 +29,7 @@ Server::Server(map_server map, location_server location, int id)
 	_body_size = std::atoi(map.find("body_size")->second[0].c_str());
 	_ip = "localhost";
 
-	std::cout << BOLDCYAN << "Server [" << BOLDYELLOW << get_ip()
+	std::cout << BOLDCYAN << "Server [" << BOLDYELLOW << get_serv_name()
 			  << BOLDCYAN << "] id [" << BOLDGREEN << get_id()
 			  << BOLDCYAN << "] on port [" << BOLDBLUE << get_port()
 			  << BOLDCYAN << "] initialised" << RESET << std::endl;
@@ -81,7 +81,7 @@ int	Server::init_socket(void)
 	if (setsockopt(_socketfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
 		return (display_error("Setsockopt error"));
 
-	freeaddrinfo(_ptr_info); // free la liste chainee pointee par _serv_info
+	//freeaddrinfo(_ptr_info); // free la liste chainee pointee par _serv_info
 	return (1);
 }
 
@@ -100,8 +100,8 @@ int Server::start_server(void)
 	if ((listen(_socketfd, 5)) == -1)
 		return (display_error("Error when listenning socket"));
 	display_ok("Start listening:");
-//	if (handle_server() == 0) // lancement de la loop
-//		return (0);
+	// if (handle_server() == 0) // lancement de la loop
+	// 	return (0);
 	return (1);
 }
 
@@ -134,5 +134,10 @@ Server::Socket	Server::get_socketfd(void) const
 Server::Socket	Server::get_sender_fd(void) const
 {
 	return (_sender_fd);
+}
+
+std::vector<Server::Socket> Server::get_client_fd(void) const
+{
+	return (_client_fd);
 }
 //----------------------------------------------------------
