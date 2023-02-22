@@ -2,6 +2,8 @@
 
 function error_html()
 {
+	echo "Content-type: text/html; charset=UTF-8"
+	echo ""
 	echo "<html>"
 	echo "	<head>"
 	echo "		<title>ERROR</title>"
@@ -12,8 +14,12 @@ function error_html()
 	echo "<html>"
 }
 
+if [[ "$UPLOAD" != "on" ]]
+then
+	error_html "$1" "upload isn't allowed" 
+	exit 4
+fi
 last_char=${UPLOAD_PATH: -1}
-
 if [[ -z "$UPLOAD_PATH" ]]
 then
 	error_html "$1" "UPLOAD_PATH not specified"
@@ -29,11 +35,7 @@ then
 	UPLOAD_PATH="$UPLOAD_PATH/"
 fi
 path=$UPLOAD_PATH$1
-if [[ "$UPLOAD" != "ON" ]]
-then
-	error_html "$1" "upload isn't allowed" 
-	exit 4
-fi
+
 if [[ ! -e "$UPLOAD_PATH" ]]
 then
 	error_html "$1" "UPLOAD_PATH \"$UPLOAD_PATH\" does not exist"
@@ -50,9 +52,10 @@ then
 	exit 1
 fi
 
-
 echo "$CONTENT" > $path
 
+echo "Content-type: text/html; charset=UTF-8"
+echo ""
 echo "<html>"
 echo "	<head>"
 echo "		<title>Sucess</title>"
