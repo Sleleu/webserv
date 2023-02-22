@@ -1,10 +1,7 @@
 #include "../../header/response/response.hpp"
+#include "../../header/response/CgiHandler.hpp"
 #include "../../header/parser/parser.hpp"
 #include "../../header/utils/color.hpp"
-
-void acceptCgi()
-{
-}
 
 void methodGET(HttpRequest const & request, HttpResponse & response)
 {
@@ -18,14 +15,14 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
         response.setError("404", "Not Found");
         throw std::exception();
     }
-    if (response.cgiUsed)
-    {
-	    std::cout << MAGENTA << " CGI used" << RESET;
-        targetStream.close();
-        acceptCgi();
-        response.setBody(BODY_CGI); // FOR TEST
-        return ;
-    }
+    // if (response.cgiUsed)
+    // {
+	//     std::cout << MAGENTA << " CGI used" << RESET;
+    //     targetStream.close();
+    //     acceptCgi();
+    //     response.setBody(BODY_CGI); // FOR TEST
+    //     return ;
+    // }
     std::string targetContent;
     std::string tmp;
     while (std::getline(targetStream, tmp))
@@ -48,31 +45,15 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
         throw std::exception();
     }
     targetStream.close();
-    if (response.cgiUsed)
-    {
-	    std::cout << MAGENTA << " CGI used" << RESET;
-        acceptCgi();
-        response.setBody(BODY_CGI); // FOR TEST
-        return ;
-    }
-
-    // std::string targetPath = response.getTargetPath();
-    // const char* path = targetPath.c_str();
-    // struct stat s;
-    // if (!response.canUpload || stat(path, &s) == 0)
+    CgiHandler(response, request);
+    // handle_cgi();
+    // if (response.cgiUsed)
     // {
-    //     response.setError("403", "Forbidden");
-    //     throw std::exception();
+	//     std::cout << MAGENTA << " CGI used" << RESET;
+    //     acceptCgi();
+    //     response.setBody(BODY_CGI); // FOR TEST
+    //     return ;
     // }
-    // std::ofstream newFile(path);
-    // if (!newFile.is_open())
-    // {
-    //     response.setError("404", "Not Found");
-    //     throw std::exception();
-    // }
-    // newFile << request.getBody();
-    // newFile.close();
-    // response.setError("201", "Created");
 }
 
 void methodDELETE(HttpRequest const & request, HttpResponse & response) //Pas de protection ? ACCESS ?

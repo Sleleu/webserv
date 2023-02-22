@@ -34,7 +34,7 @@ void HttpRequest::setRequestInfo(std::string const requestMsg)
 	setTarget();
 }
 
-void		HttpRequest::setTarget()
+void		HttpRequest::setTarget() //PARSING PB '?'
 {
 	std::string	argsString;
 	if (getMethod() == "GET")
@@ -50,11 +50,12 @@ void		HttpRequest::setTarget()
 		argsString = _body;
 	else
 		return ;
+	_content = argsString;
 	for (size_t pos = 0 ; pos != std::string::npos;)
 	{
 		size_t beginArg = pos;
 		pos = argsString.find("&", pos + 1);
-		std::string oneArg = argsString.substr(beginArg + 1, pos - 1);
+		std::string oneArg = argsString.substr(beginArg + 1, pos - 1); //Segfault peut etre
 		_args[oneArg.substr(0, oneArg.find("="))] = oneArg.substr(oneArg.find("=") + 1);
 	}
 	std::cout << std::endl;
@@ -81,6 +82,8 @@ void	HttpRequest::checkParsing() const
 	if (!parsing)
 		throw std::exception();
 }
+
+std::string HttpRequest::getContent() const { return _content; }
 
 std::string HttpRequest::getMethod() const { return _controlData[0]; }
 

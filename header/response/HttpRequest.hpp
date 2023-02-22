@@ -26,6 +26,7 @@ class HttpRequest
 		std::map<std::string, std::string>	getArgs() const;
 		void								setLocationBlocName(std::string src);
 		std::string 						getLocationBlocName() const;
+		std::string 						getContent() const;
 
 		void								checkParsing() const;
 		bool								parsing;
@@ -36,6 +37,7 @@ class HttpRequest
 		std::string 						_locationBlocName;
 		std::string 						_target;
 		std::map<std::string, std::string> 	_args;
+		std::string						 	_content;
 };
 
 

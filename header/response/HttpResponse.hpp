@@ -20,20 +20,24 @@ class HttpResponse
 
 		HttpResponse();
 
-		void setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap);
+		void	setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap);
+		void	redirectTargetPath(std::string first, std::string second);
+		void	setCgi(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap);
+		void	setUpload(std::map< std::string, std::vector< std::string > > & serverMap);
 
 		std::string getResponseString();
 		void		setHeader();
-
 		std::vector<std::string> getPackets(map_server serverMap, std::string responseString);
-
 		void		errorReturn();
-		void		redirectTargetPath(std::string first, std::string second);
+
 
 		std::string getErrorPath() const;
 		std::string getCode();
 		std::string getStatus();
 		std::string getTargetPath() const;
+		std::string getCgiPath() const;
+		std::string getUploadPath() const;
+		std::string getIsUpload() const;
 		void		setError(std::string code, std::string status);
 		void		setCode(std::string content);
 		void		setStatus(std::string content);
@@ -47,6 +51,9 @@ class HttpResponse
 
 		std::string _targetPath;
 		std::string _errorPath;
+		std::string _cgiPath;
+		std::string _uploadPath;
+		std::string _isUpload;
 
 		std::map<std::string, std::string> 	_controlData;
 		std::map<std::string, std::string> 	_headers;

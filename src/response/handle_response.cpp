@@ -18,7 +18,7 @@ Server::map_server defaultMap )
 	{
 		std::cout << "\nReading Request:";
 		request.setRequestInfo(requestMsg);
-		locationInfo = getLocationInfo(request, locationMap);
+		locationInfo = getLocationInfo(request, locationMap); //probleme de '/' dans le parsing
 		serverMap = getServerMap(locationInfo, defaultMap);
 		request.checkParsing();
 		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
@@ -36,7 +36,7 @@ Server::map_server defaultMap )
 			std::cout << std::endl;
 		}
 		try
-		{			
+		{
 			std::cout << "\nParsing Request :";
 			request.checkParsing();
 			std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;

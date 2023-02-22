@@ -40,14 +40,35 @@ void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::s
 				_targetPath + serverMap["default_file"][0] : _targetPath + "/" + serverMap["default_file"][0];
 		}
 	}
-
 	_errorPath = "./html" + serverMap["error"][0];
-	canUpload = (serverMap["upload_file"][0] == "on") ? 1 : 0;
-	
-	std::string fileType = getTargetPath().substr(getTargetPath().find_last_of('.') + 1);
-	cgiUsed = (std::find(serverMap["cgi"].begin(), serverMap["cgi"].end(), fileType) != serverMap["cgi"].end());
+	setUpload(serverMap);
+	setCgi(request, serverMap);
 }
 
+void	HttpResponse::setUpload(std::map< std::string, std::vector< std::string > > & serverMap)
+{
+	std::vector<std::string> const upload_file = serverMap["upload_file"];
+	_isUpload = (upload_file[0] == "on") ? "on":"off";
+	_uploadPath = (upload_file.size() >= 2) ? upload_file[1]:"";
+	std::cout << BOLDMAGENTA << "\nUpload PATH : " << _uploadPath << RESET << std::endl;
+}
+
+void	HttpResponse::setCgi(HttpRequest const & request,\
+std::map< std::string, std::vector< std::string > > & serverMap)
+{
+	(void) request;
+	std::vector<std::string> const cgi = serverMap["cgi"];
+	std::string const fileType = getTargetPath().substr(getTargetPath().find_last_of('.') + 1);
+
+	_cgiPath = (fileType == "php") ? "./html/cgi-bin/php.cgi":"";
+	for (std::vector<std::string>::const_iterator it = cgi.begin(); it != cgi.end() ; it++)
+	{
+		if (*it == fileType)
+			if (it + 1 != cgi.end())
+				_cgiPath = *(it + 1);
+	}
+	std::cout << BOLDMAGENTA << "CGI PATH : " << _cgiPath << RESET << std::endl;
+}
 
 void	HttpResponse::errorReturn()
 {
@@ -149,6 +170,10 @@ std::string HttpResponse::getErrorPath() const { return _errorPath; }
 std::string HttpResponse::getCode() { return _controlData["code"]; }
 std::string HttpResponse::getStatus() { return _controlData["status"]; }
 std::string HttpResponse::getTargetPath() const { return _targetPath; }
+std::string HttpResponse::getCgiPath() const { return _cgiPath; }
+std::string HttpResponse::getUploadPath() const { return _uploadPath; }
+std::string HttpResponse::getIsUpload() const { return _isUpload; }
+
 void		HttpResponse::setError(std::string code, std::string status) { setCode(code); setStatus(status); }
 void		HttpResponse::setCode(std::string content) { _controlData["code"] = content; }
 void		HttpResponse::setStatus(std::string content) { _controlData["status"] = content; }
