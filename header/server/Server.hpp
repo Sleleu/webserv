@@ -15,9 +15,10 @@
 #include <netdb.h> // struct addrinfo
 #include <arpa/inet.h>
 #include <sys/epoll.h>
+
 #include "../../header/utils/colors.hpp"
 #include "../../header/response/response.hpp"
-#include "signal.hpp"
+#include "server_includes.hpp"
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
@@ -31,27 +32,34 @@ class Server
 
 	typedef std::size_t			size_type;
 	typedef	int					Socket;
-	typedef std::map<std::string, std::vector<std::string> > 									  	map_server;
-	typedef std::map<std::string, std::map<std::string, std::vector<std::string> > >				location_server;
+	typedef std::map<std::string, std::vector<std::string> > 							map_server;
+	typedef std::map<std::string, std::map<std::string, std::vector<std::string> > >	location_server;
+	typedef std::map<std::string, std::vector<std::string> >::iterator					map_iterator;
 
 	Server(std::string ip, std::string port);
-	Server(map_server map, location_server location);
+	Server(map_server map, location_server location, int id);
 	~Server();
 
 	/*---- MEMBER FUNCTIONS ----*/
 	int		init_server(void);
 	int		init_socket(void);
 	int		start_server(void);
-
-	int		handle_server(void);
 	int		accept_connect(int epoll_fd);
 	int		epoll_add(int epoll_fd, int socket);
-	int 	handle_request(int epoll_fd, int i);
-
+	int		send_message_to_client(int client_fd);
+	int 	handle_request(int& epoll_fd, int i);
 	void*	get_addr(sockaddr *s_addr);
-	void	server_ok(const std::string ok_message) const;
-	int		server_error(const std::string error_message) const;
 	void	display_ip(std::string domain);
+	int		add_socket_to_events(int epoll_fd);
+
+	std::string get_ip(void) const;
+	std::string	get_port(void) const;
+	unsigned int get_id(void) const;
+	std::string get_serv_name(void) const;
+	Socket		get_socketfd(void) const;
+	Socket		get_sender_fd(void) const;
+	std::vector<Socket> 	get_client_fd(void) const; // new version
+
 	/*--------------------------*/
 
 	private:
@@ -66,15 +74,17 @@ class Server
 	std::string 	_ip;
 	std::string 	_serv_name;
 	unsigned int 	_body_size;
+	unsigned int	_id_server;
 	/*---------------------------------*/
 
 	/*---- SERVER VARIABLES ----*/
 	Socket				_socketfd;
 	Socket				_sender_fd;
+	std::vector<Socket>	_client_fd;
 	std::string			_msg_to_send;
 	std::string			_msg_to_recv;
-	addrinfo		_addrinfo;
-	addrinfo		*_ptr_info; // va recuperer le resultat de getaddrinfo
+	struct addrinfo		_addrinfo;
+	struct addrinfo		*_ptr_info; // va recuperer le resultat de getaddrinfo
 	struct sockaddr_in _sockaddr;
 	struct epoll_event _server_event;
 	struct epoll_event _events[EVENTS_HANDLED];

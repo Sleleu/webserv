@@ -2,6 +2,7 @@
 #include "../../header/utils/color.hpp"
 #include "../../header/response/response.hpp"
 #include "../../header/server/Server.hpp"
+#include "../../header/server/handler.hpp"
 
 int main(int argc, char **argv)
 {
@@ -11,15 +12,21 @@ int main(int argc, char **argv)
 	try
 	{
 		Parser parser(argv[1]);
-		// std::cout << parser << std::endl;
-		Server server = Server(parser.getBigVector()[0], parser.getBigLocation()[0]);
-		if (!server.init_server())
-			return (1);
-		server.start_server();
+		std::cout << parser << std::endl;
+		// Server server = Server(parser.getBigVector()[0], parser.getBigLocation()[0], 1);
+		// if (!server.init_server())
+		// 	return (1);
+		// server.start_server();
+
+		Handler handler(parser.getBigVector(), parser.getBigLocation());
+
+
+		handler.launch_servers();
+		handler.handle_servers();
 	}
 	catch (std::exception &e)
 	{
 	}
-	
+	return (0);
 	//simul_request(parser.getBigLocation()[0], parser.getBigVector()[0]);
 }

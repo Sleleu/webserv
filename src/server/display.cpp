@@ -1,16 +1,25 @@
 #include "../../header/server/Server.hpp"
 
-int	Server::server_error(const std::string error_message) const
+void	print_vector(std::vector<int> &vector)
+{
+	std::vector<int>::iterator it = vector.begin();
+
+	for (; it < vector.end(); it++)
+		std::cout << *it << " | ";
+	std::cout << std::endl;
+}
+
+int	display_error(const std::string error_message)
 {
 	std::cerr << error_message;
-	std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+	std::cerr << RESET << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 	return (0);
 }
 
-void Server::server_ok(const std::string ok_message) const
+void display_ok(const std::string ok_message)
 {
 	std::cout << ok_message;
-	std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
+	std::cout << RESET << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 }
 
 void	Server::display_ip(std::string domain)

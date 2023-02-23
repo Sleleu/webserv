@@ -15,11 +15,11 @@ ADDFLAGS	=
 # SOURCES
 
 SRC_FILES 		= server/Server \
-				  server/handle_server \
 				  server/Server_utils \
 				  server/webserv \
 				  server/display \
 				  server/signal \
+				  server/handler \
 				  parser/main \
 				  parser/parser \
 				  response/handle_response \
