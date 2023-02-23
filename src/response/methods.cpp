@@ -10,6 +10,12 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
 
     std::string targetPath = response.getTargetPath();
     std::ifstream targetStream(targetPath.c_str());
+    if (response.directoryListing)
+    {
+        std::cout << BOLDCYAN << "DIRECTORY LISTING" << RESET << std::endl;
+        response.setBody(BODY_500); // DIRECTORY_LISTING FUNCTION
+        return ;
+    }
     if (!targetStream.is_open())
     {
         response.setError("404", "Not Found");
