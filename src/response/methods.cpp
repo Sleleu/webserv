@@ -18,7 +18,7 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
     CgiHandler cgi(response, request);
     if (cgi.getOutput() != "")
     {
-        response.setBody("\n" + cgi.getOutput()); // En vrai pas de \n, juste pour les tests
+        response.setBody(cgi.getOutputBody());
         targetStream.close();
         return ;
     }
@@ -47,7 +47,7 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
     CgiHandler cgi(response, request);
     if (cgi.getOutput() != "")
     {
-        response.setBody(cgi.getOutput());
+        response.setBody(cgi.getOutputBody());
         targetStream.close();
         return ;
     }

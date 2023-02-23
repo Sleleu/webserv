@@ -24,23 +24,6 @@ class CgiHandler
 
 		typedef std::map<std::string, std::string> 							stringMap;
 		typedef std::map<std::string, std::map<std::string, std::string> > 	doubleMap;
-		// CgiHandler() //test
-		// {
-		// 	try
-		// 	{
-		// 		_scriptPath = "./html/cgi-bin/env.sh";
-		// 		_envMap["UPLOAD"] = "upload";
-		// 		_envMap["UPLOAD_PATH"] = "upploadpath";
-		// 		_envMap["CONTENT"] = "content";
-		// 		setEnvChar();
-		// 		executeCgi();
-		// 	}
-		// 	catch (std::exception e)
-		// 	{
-		// 		std::cout << BOLDRED << "\nCGI_HANDLER ERROR\n" << RESET << std::endl;
-		// 		exit(0);
-		// 	}
-		// }
 
 		CgiHandler(HttpResponse & response, HttpRequest const & request) : _output("")
 		{
@@ -53,6 +36,7 @@ class CgiHandler
 			{
 				setEnvMap(response, request);
 				_scriptPath = (response.getCgiPath() != "") ? response.getCgiPath():response.getTargetPath();
+				convertMap();
 				setEnvChar();
 				executeCgi();
 			}
@@ -68,10 +52,30 @@ class CgiHandler
 		{
 			stringMap	argMap = request.getArgs();
 			for (stringMap::const_iterator it = argMap.begin() ; it != argMap.end() ; it ++)
-				_envMap[it->first] = _envMap[it->second];
+				_envMap[it->first] = it->second;
 			_envMap["UPLOAD"] = response.getIsUpload();
 			_envMap["UPLOAD_PATH"] = response.getUploadPath();
 			_envMap["CONTENT"] = request.getContent();
+			_envMap["PATH_INFO"] = response.getTargetPath();
+		}
+
+
+		void convertMap()
+		{
+			for (std::map<std::string, std::string>::iterator it = _envMap.begin() ; it != _envMap.end() ; it++)
+			{
+				if (it->second[0] == '%')
+				{
+					std::string hexString = it->second.substr(1);
+					unsigned int decimalValue;
+					std::stringstream ss;
+					ss << std::hex << hexString;
+					ss >> decimalValue;
+					it->second[0] = decimalValue;
+					it->second = it->second.substr(0, 1);
+				}
+				std::cout << it->first << " -> "<< it->second << std::endl;
+			}
 		}
 
 		void		setEnvChar()
@@ -96,13 +100,18 @@ class CgiHandler
 			std::vector<char*> args;
 			args.push_back((char*)"/bin/bash");
 			args.push_back((char*)_scriptPath.c_str());
+			if (_scriptPath != _envMap["PATH_INFO"])
+				args.push_back((char*)_envMap["PATH_INFO"].c_str());
 			args.push_back(NULL);
 
 			//env
-			for (int i = 0; _env[i] != NULL ; i++)
-			{
-				std::cout << _env[i] << std::endl;
-			}
+			// std::cout << GREEN << "\nENV\n" << std::endl;
+			// for (int i = 0; _env[i] != NULL ; i++)
+			// {
+			// 	std::cout << _env[i] << std::endl;
+			// }
+			// std::cout << RESET << std::endl;
+			//
 
 			if (pipe(pipefd) == -1)
 			{
@@ -145,7 +154,19 @@ class CgiHandler
 			}
 		}
 
+
+
 		std::string	getOutput() const { return _output;}
+		std::string	getOutputBody() const
+		{
+			std::string outputBody = _output.substr(_output.find("\n\n") + 1);
+			return outputBody;
+		}
+		std::string	getOutputHeader() const
+		{
+			std::string outputHeader = _output.substr(0, _output.find("\n\n"));
+			return outputHeader;
+		}
 
 	private :
 
