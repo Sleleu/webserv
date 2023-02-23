@@ -121,6 +121,7 @@ void Parser::server_block_parsing(vector_iterator &tmp_it, vector_iterator &end_
 	}
 	accolad = *line;
 	_parsingVector.push_back(initmap());
+	_locationVector.push_back(std::map<std::string, std::map<std::string, std::vector<std::string> > >());
 	tmp_it ++;
 	(*line) ++;
 	while (tmp_it != end_it && *tmp_it != "}" )
@@ -375,8 +376,8 @@ vector_iterator		&Parser::location_bloc(vector_iterator &tmp_it, int server, int
 	std::string	location;
 	int 		accolad;
 
-	if (_locationVector.size() == (unsigned long)server - 1)
-		_locationVector.push_back(std::map<std::string, std::map<std::string, std::vector<std::string> > >());
+	//if (_locationVector.size() == (unsigned long)server - 1)
+	//	_locationVector.push_back(std::map<std::string, std::map<std::string, std::vector<std::string> > >());
 	try
 	{
 		location = fill_location_path(*tmp_it, server,line);
