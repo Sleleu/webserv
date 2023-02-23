@@ -139,10 +139,13 @@ std::vector<std::string> HttpResponse::getPackets(map_server serverMap, std::str
 		allPacketSize += onePacket.size();
 	}
 
-	std::cout << BOLDBLUE << "Packets to send : " << RESET << std::endl;
-	for (std::vector<std::string>::const_iterator it = packets.begin() ; it != packets.end() && verbose == true ; it++)
-		std::cout << "|" << BLUE << *it << RESET;
-	std::cout << "\n" <<BOLDBLUE << allPacketSize - headerSize << " bits SEND" << RESET << std::endl;
+	if (verbose)
+	{
+		std::cout << BOLDBLUE << "Packets to send : " << RESET << std::endl;
+		for (std::vector<std::string>::const_iterator it = packets.begin() ; it != packets.end() && verbose == true ; it++)
+			std::cout << "|" << BLUE << *it << RESET;
+		std::cout << "\n" <<BOLDBLUE << allPacketSize - headerSize << " bits SEND" << RESET << std::endl;
+	}
 	return packets;
 }
 

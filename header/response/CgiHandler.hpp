@@ -46,7 +46,7 @@ class CgiHandler
 		{
 			if (response.getCgiPath() == "" && response.getExtension() != "cgi")
 			{
-				std::cout << BOLDRED << "\nNO CGI\n" << RESET << std::endl;
+				std::cout << BOLDRED << " NO CGI" << RESET;
 				return ;
 			}
 			try
@@ -98,6 +98,12 @@ class CgiHandler
 			args.push_back((char*)_scriptPath.c_str());
 			args.push_back(NULL);
 
+			//env
+			for (int i = 0; _env[i] != NULL ; i++)
+			{
+				std::cout << _env[i] << std::endl;
+			}
+
 			if (pipe(pipefd) == -1)
 			{
 				std::cerr << "Error: failed to create pipe" << std::endl;
@@ -111,7 +117,7 @@ class CgiHandler
 			}
 			else if (pid == 0)
 			{
-			
+
 				close(pipefd[0]);
 				dup2(pipefd[1], STDOUT_FILENO);
 				close(pipefd[1]);

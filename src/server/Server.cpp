@@ -64,7 +64,8 @@ int	Server::init_socket(void)
 	// Utilise les resultats de getaddrinfo et les mettre dans socket
 	if ((_socketfd = socket(AF_INET, _ptr_info->ai_socktype, _ptr_info->ai_protocol)) == -1) // renvoie un descripteur de socket
 		return (freeaddrinfo(_ptr_info),display_error("Error when initialise socket"));
-	display_ok("Initialise server socket:");
+	std::cout << "[" << BOLDYELLOW << _serv_name << RESET;
+	display_ok("] Initialise server socket:");
 
 	// Set le socketfd en non-bloquant
 	fcntl(_socketfd, F_SETFL, O_NONBLOCK);
@@ -76,7 +77,8 @@ int	Server::init_socket(void)
 	// associer le socket a un port sur le localhost
 	if ((bind(_socketfd, _ptr_info->ai_addr, _ptr_info->ai_addrlen)) == -1) // inutile en tant que client car on se soucie pas du port local
 		return (freeaddrinfo(_ptr_info), display_error("Error when bind socket"));
-	display_ok("Bind server socket:");
+	std::cout << "[" << BOLDYELLOW << _serv_name << RESET;
+	display_ok("] Bind server socket:");
 
 	freeaddrinfo(_ptr_info); // free la liste chainee pointee par _serv_info
 	return (1);
@@ -86,7 +88,8 @@ int Server::start_server(void)
 {
 	if ((listen(_socketfd, 5)) == -1)
 		return (display_error("Error when listenning socket"));
-	display_ok("Start listening:");
+	std::cout << "[" << BOLDYELLOW << _serv_name << RESET;
+	display_ok("] Start listening:");
 	return (1);
 }
 
@@ -122,7 +125,7 @@ int	Server::accept_connect(int epoll_fd)
 	_client_fd.push_back(client_socket); // ajouter le socket a ce serveur
 
 	/*--- Affichage nouvelle connexion au serveur ---*/
-	std::cout << BOLDCYAN << "New connection to server [" << BOLDYELLOW << _serv_name 
+	std::cout << BOLDCYAN << "New connection to server [" << BOLDYELLOW << _serv_name
 			  << BOLDCYAN << "] id [" << BOLDGREEN << _id_server
 			  << BOLDCYAN << "] on socket [" << BOLDMAGENTA << client_socket
 			  << BOLDCYAN << "]" << RESET << std::endl;
@@ -145,7 +148,7 @@ int Server::send_message_to_client(int client_fd)
 	ssize_t bytes = send(client_fd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
 	if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)
 		return (display_error("Error sending response to client"));
-	
+
 	std::cout << BOLDCYAN << "Response from server [" << BOLDYELLOW << _serv_name
 			  << BOLDCYAN << "] id [" << BOLDGREEN << _id_server
 			  << BOLDCYAN << "] on socket [" << BOLDMAGENTA << client_fd
@@ -176,7 +179,7 @@ int	Server::handle_request(int& epoll_fd, int i)
 				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
 				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
 
-		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);	
+		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
 		if (!send_message_to_client(_client_fd[i]))
 			return (0);
 	}
