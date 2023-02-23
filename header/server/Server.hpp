@@ -37,7 +37,7 @@ class Server
 	typedef std::map<std::string, std::vector<std::string> >::iterator					map_iterator;
 
 	Server(std::string ip, std::string port);
-	Server(map_server map, location_server location, int id);
+	Server(map_server map, location_server location, int id, bool verbose);
 	~Server();
 
 	/*---- MEMBER FUNCTIONS ----*/
@@ -75,6 +75,7 @@ class Server
 	std::string 	_serv_name;
 	unsigned int 	_body_size;
 	unsigned int	_id_server;
+	bool			_verbose;
 	/*---------------------------------*/
 
 	/*---- SERVER VARIABLES ----*/

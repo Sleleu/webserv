@@ -4,11 +4,14 @@
 
 
 std::string get_response( std::string const & requestMsg, Server::location_server & locationMap,\
-Server::map_server defaultMap )
+Server::map_server defaultMap, bool verbose)
 {
-	std::cout << BOLDYELLOW << "\nRequest Message :\n" << RESET << std::endl;
-	std::cout << YELLOW << requestMsg << RESET << std::endl;
-	std::cout << BOLDWHITE << "\nConstructing Response...\n" << RESET << std::endl;
+	if (verbose)
+	{
+		std::cout << BOLDYELLOW << "\nRequest Message :\n" << RESET << std::endl;
+		std::cout << YELLOW << requestMsg << RESET << std::endl;
+		std::cout << BOLDWHITE << "\nConstructing Response...\n" << RESET << std::endl;
+	}
 
 	// ---------------- REQUEST ----------------
 	HttpRequest request(requestMsg);
@@ -23,17 +26,20 @@ Server::map_server defaultMap )
 		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 
 		//
-		std::cout << BOLDBLUE << "\nLOCATION INFORMATIONS :" << RESET << std::endl;
-		for (std::map< std::string, std::vector< std::string > >::const_iterator itServ = serverMap.begin();\
-		itServ != serverMap.end(); itServ++)
+		if (verbose)
 		{
-			std::cout << itServ->first << " -> ";
-			for (std::vector< std::string >::const_iterator itVec = itServ->second.begin();\
-			itVec != itServ->second.end(); itVec++)
+			std::cout << BOLDBLUE << "\nLOCATION INFORMATIONS :" << RESET << std::endl;
+			for (std::map< std::string, std::vector< std::string > >::const_iterator itServ = serverMap.begin();\
+			itServ != serverMap.end(); itServ++)
 			{
-				std::cout << *itVec << " ";
+				std::cout << itServ->first << " -> ";
+				for (std::vector< std::string >::const_iterator itVec = itServ->second.begin();\
+				itVec != itServ->second.end(); itVec++)
+				{
+					std::cout << *itVec << " ";
+				}
+				std::cout << std::endl;
 			}
-			std::cout << std::endl;
 		}
 		//
 	}
@@ -49,10 +55,13 @@ Server::map_server defaultMap )
 	{
 		std::cout << "\nParsing Request :";
 		request.checkParsing();
-		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
-		std::cout << "\nTarget Path : '" << BLUE <<response.getTargetPath() << RESET << "'"<< std::endl;
-		std::cout << "Error Path : '" << RED << response.getErrorPath() << RESET << "'"<< std::endl;
-		std::cout << "\nSetting Headers :";
+		if (verbose)
+		{
+			std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
+			std::cout << "\nTarget Path : '" << BLUE <<response.getTargetPath() << RESET << "'"<< std::endl;
+			std::cout << "Error Path : '" << RED << response.getErrorPath() << RESET << "'"<< std::endl;
+			std::cout << "\nSetting Headers :";
+		}
 		//SetHeaders ici
 		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 		std::cout << "Executing method:";
@@ -66,7 +75,10 @@ Server::map_server defaultMap )
 		std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << RESET << std::endl;
 	}
 	std::string responseString = response.getResponseString();
-	std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << responseString << std::endl;
+	if (verbose)
+	{
+		std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << responseString << std::endl;
+	}
 	return (responseString);
 }
 

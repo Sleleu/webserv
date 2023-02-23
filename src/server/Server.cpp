@@ -13,8 +13,8 @@ Server::Server(std::string ip, std::string port) : _port(port), _ip(ip)
 	this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
 }
 
-Server::Server(map_server map, location_server location, int id)
-: _map_server(map), _location_server(location), _id_server(id + 1)
+Server::Server(map_server map, location_server location, int id, bool verbose)
+: _map_server(map), _location_server(location), _id_server(id + 1), _verbose(verbose)
 {
 	std::memset(&_addrinfo, 0, sizeof(_addrinfo)); // initialiser tous les membres a 0
 	this->_addrinfo.ai_family = AF_UNSPEC; // Pour IPv4 et IPv6, IF_INET pour seulement v4
@@ -156,8 +156,6 @@ int	Server::handle_request(int& epoll_fd, int i)
 	char msg_to_recv[B_SIZE] = {0};
 
 	ssize_t bytes_received = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
-	if (_verbose)
-		std::cout << YELLOW << msg_to_recv << std::endl;
 	if (bytes_received <= 0)
 	{
 		if (bytes_received == -1)
@@ -173,7 +171,7 @@ int	Server::handle_request(int& epoll_fd, int i)
 				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
 				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
 
-		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server);	
+		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);	
 		if (!send_message_to_client(_client_fd[i]))
 			return (0);
 	}

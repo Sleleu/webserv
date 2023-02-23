@@ -25,7 +25,7 @@ Handler::Handler(conf_server& c_server, conf_location& c_location, bool verbose)
 
 	for (size_t id = 0; conf_server_it < _conf_server.end(); conf_server_it++, conf_location_it++, id++)
 	{
-		Server new_server(*conf_server_it, *conf_location_it, id);
+		Server new_server(*conf_server_it, *conf_location_it, id, _verbose);
 		_v_server.push_back(new_server);
 	}
 }
