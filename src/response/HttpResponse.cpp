@@ -59,6 +59,7 @@ std::map< std::string, std::vector< std::string > > & serverMap)
 	(void) request;
 	std::vector<std::string> const cgi = serverMap["cgi"];
 	std::string const fileType = getTargetPath().substr(getTargetPath().find_last_of('.') + 1);
+	_extension = fileType;
 
 	_cgiPath = (fileType == "php") ? "./html/cgi-bin/php.cgi":"";
 	for (std::vector<std::string>::const_iterator it = cgi.begin(); it != cgi.end() ; it++)
@@ -173,6 +174,7 @@ std::string HttpResponse::getTargetPath() const { return _targetPath; }
 std::string HttpResponse::getCgiPath() const { return _cgiPath; }
 std::string HttpResponse::getUploadPath() const { return _uploadPath; }
 std::string HttpResponse::getIsUpload() const { return _isUpload; }
+std::string HttpResponse::getExtension() const { return _extension; }
 
 void		HttpResponse::setError(std::string code, std::string status) { setCode(code); setStatus(status); }
 void		HttpResponse::setCode(std::string content) { _controlData["code"] = content; }

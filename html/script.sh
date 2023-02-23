@@ -1,1 +1,6 @@
-echo "Salut a tous /\nWsh\n\nldowjdijw\n"
+echo "Salut a tous /\nWsh\n\nldowjdijw\n
+fkeofk
+
+foekfoekoeofkoekfoekfkoefkefoefks
+oefe
+    EOF"

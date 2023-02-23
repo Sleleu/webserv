@@ -1,6 +1,9 @@
 #ifndef CGIHANDLER_H
 #define CGIHANDLER_H
 
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/wait.h>
 # include <iostream>
 # include <map>
 # include <string>
@@ -8,44 +11,46 @@
 # include <vector>
 # include <sstream>
 # include <fstream>
-# include <sys/types.h>
-# include <unistd.h>
-# include <sys/types.h>
-# include <sys/wait.h>
 # include "HttpResponse.hpp"
 # include "body.hpp"
 # include "../utils/colors.hpp"
 # include <cstring>
 
+#define BUFFER_SIZE 4096
+
 class CgiHandler
 {
 	public:
 
-		typedef std::map<std::string, std::string> 				stringMap;
+		typedef std::map<std::string, std::string> 							stringMap;
 		typedef std::map<std::string, std::map<std::string, std::string> > 	doubleMap;
-		CgiHandler() //test
-		{
-			try
-			{
-				_scriptPath = "./html/script.sh";
-				_envMap["UPLOAD"] = "upload";
-				_envMap["UPLOAD_PATH"] = "upploadpath";
-				_envMap["CONTENT"] = "content";
-				setEnvChar();
-				executeCgi();
-			}
-			catch (std::exception e)
-			{
-				std::cout << BOLDRED << "\nCGI_HANDLER ERROR\n" << RESET << std::endl;
-				exit(0);
-			}
-		}
+		// CgiHandler() //test
+		// {
+		// 	try
+		// 	{
+		// 		_scriptPath = "./html/cgi-bin/env.sh";
+		// 		_envMap["UPLOAD"] = "upload";
+		// 		_envMap["UPLOAD_PATH"] = "upploadpath";
+		// 		_envMap["CONTENT"] = "content";
+		// 		setEnvChar();
+		// 		executeCgi();
+		// 	}
+		// 	catch (std::exception e)
+		// 	{
+		// 		std::cout << BOLDRED << "\nCGI_HANDLER ERROR\n" << RESET << std::endl;
+		// 		exit(0);
+		// 	}
+		// }
 
-		CgiHandler(HttpResponse & response, HttpRequest const & request)
+		CgiHandler(HttpResponse & response, HttpRequest const & request) : _output("")
 		{
+			if (response.getCgiPath() == "" && response.getExtension() != "cgi")
+			{
+				std::cout << BOLDRED << "\nNO CGI\n" << RESET << std::endl;
+				return ;
+			}
 			try
 			{
-				(void) response;
 				setEnvMap(response, request);
 				_scriptPath = (response.getCgiPath() != "") ? response.getCgiPath():response.getTargetPath();
 				setEnvChar();
@@ -83,51 +88,65 @@ class CgiHandler
 			_env[i] = NULL;
 		}
 
-		void		executeCgi() const
+		void		executeCgi()
 		{
-			int				pipeFd[2];
+			int pipefd[2];
+			pid_t pid;
 
-			if (pipe(pipeFd) < 0)
-				throw std::exception();
-			int idFork = fork();
+			std::vector<char*> args;
+			args.push_back((char*)"/bin/bash");
+			args.push_back((char*)_scriptPath.c_str());
+			args.push_back(NULL);
 
-			if (idFork < 0)
-				throw std::exception();
-			std::cout << idFork << std::endl;
-			if (idFork == 0)
+			if (pipe(pipefd) == -1)
 			{
-				// char ** nullTab = new char*[2];
-				// nullTab[0] = new char[_scriptPath.size() + 1];
-				// nullTab[1] = NULL;
-				// strcpy(nullTab[0], (const char*)_scriptPath.c_str());
-				dup2(pipeFd[1], 1);
-				close(pipeFd[0]);
-				close(pipeFd[1]);
-				execve(_scriptPath.c_str(), nullTab, _env);
-				perror("execve");
-				std::cout << "PROBLEM" << std::endl;
-				exit (0);
+				std::cerr << "Error: failed to create pipe" << std::endl;
+				return ;
 			}
-			waitpid(-1, NULL, 0);
-			std::cout << "fork fini" << std::endl;
 
-			char buf[100];
-			read(pipeFd[0], buf, 100);
-			std::cout << BLUE << "BUF = " << buf << RESET << std::endl;
+			pid = fork();
+			if (pid == -1) {
+				std::cerr << "Error: failed to fork process" << std::endl;
+				return ;
+			}
+			else if (pid == 0)
+			{
+			
+				close(pipefd[0]);
+				dup2(pipefd[1], STDOUT_FILENO);
+				close(pipefd[1]);
+
+				char** argv = &args[0];
+				execve(argv[0], argv, _env);
+				std::cerr << "Error: failed to execute script" << std::endl;
+				return ;
+			}
+			else
+			{
+				close(pipefd[1]);
+				char buffer[BUFFER_SIZE];
+				_output = "";
+				int nbytes;
+				while ((nbytes = read(pipefd[0], buffer, BUFFER_SIZE)) > 0)
+					_output += std::string(buffer, nbytes);
+				std::cout << "Child process output: " << _output << std::endl;
+				close(pipefd[0]);
+
+				int status;
+				waitpid(pid, &status, 0);
+				if (WIFEXITED(status))
+					std::cout << "Child process exited with status " << WEXITSTATUS(status) << std::endl;
+			}
 		}
 
-
-
-		std::string	getCgiReturn() const { return "h";}
+		std::string	getOutput() const { return _output;}
 
 	private :
 
 		char**			_env;
 		stringMap		_envMap;
 		std::string		_scriptPath;
-		// int				_pipeFd[2];
-		// int				_idFork;
-		std::string		_returnString;
+		std::string		_output;
 };
 
 

@@ -38,6 +38,7 @@ class HttpResponse
 		std::string getCgiPath() const;
 		std::string getUploadPath() const;
 		std::string getIsUpload() const;
+		std::string getExtension() const;
 		void		setError(std::string code, std::string status);
 		void		setCode(std::string content);
 		void		setStatus(std::string content);
@@ -54,6 +55,7 @@ class HttpResponse
 		std::string _cgiPath;
 		std::string _uploadPath;
 		std::string _isUpload;
+		std::string _extension;
 
 		std::map<std::string, std::string> 	_controlData;
 		std::map<std::string, std::string> 	_headers;

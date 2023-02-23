@@ -15,14 +15,13 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
         response.setError("404", "Not Found");
         throw std::exception();
     }
-    // if (response.cgiUsed)
-    // {
-	//     std::cout << MAGENTA << " CGI used" << RESET;
-    //     targetStream.close();
-    //     acceptCgi();
-    //     response.setBody(BODY_CGI); // FOR TEST
-    //     return ;
-    // }
+    CgiHandler cgi(response, request);
+    if (cgi.getOutput() != "")
+    {
+        response.setBody("\n" + cgi.getOutput()); // En vrai pas de \n, juste pour les tests
+        targetStream.close();
+        return ;
+    }
     std::string targetContent;
     std::string tmp;
     while (std::getline(targetStream, tmp))
@@ -45,15 +44,14 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
         throw std::exception();
     }
     targetStream.close();
-    CgiHandler(response, request);
-    // handle_cgi();
-    // if (response.cgiUsed)
-    // {
-	//     std::cout << MAGENTA << " CGI used" << RESET;
-    //     acceptCgi();
-    //     response.setBody(BODY_CGI); // FOR TEST
-    //     return ;
-    // }
+    CgiHandler cgi(response, request);
+    if (cgi.getOutput() != "")
+    {
+        response.setBody(cgi.getOutput());
+        targetStream.close();
+        return ;
+    }
+    //Que se passe t-il dans ce cas ?
 }
 
 void methodDELETE(HttpRequest const & request, HttpResponse & response) //Pas de protection ? ACCESS ?
