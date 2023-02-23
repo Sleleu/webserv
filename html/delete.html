@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Delete Example</title>
+</head>
+<body>
+	<h1>Delete Example</h1>
+	<button id="delete-btn">Delete Resource</button>
+	<script>
+		const deleteButton = document.getElementById('delete-btn');
+		deleteButton.addEventListener('click', () => {
+			const url = 'target.php'; // Replace with the URL of the resource you want to delete
+			fetch(url, {
+				method: 'DELETE'
+			})
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				console.log('Resource deleted successfully');
+			})
+			.catch(error => {
+				console.error('There was a problem deleting the resource:', error);
+			});
+		});
+	</script>
+</body>
+</html>

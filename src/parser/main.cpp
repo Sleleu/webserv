@@ -35,7 +35,6 @@ int main(int argc, char **argv)
 {
 	bool		verbose = false;
 	
-	(void)verbose;
 	try
 	{
 		if (parse_argv(argc, argv))

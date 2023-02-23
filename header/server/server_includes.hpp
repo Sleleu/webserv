@@ -9,8 +9,4 @@ void	display_ok(const std::string ok_message);
 void	print_vector(std::vector<int> &vector);
 //--------------------------------------
 
-//----------- SIGNAL -------------------
-void	signal_handler(int signal);
-//--------------------------------------
-
 #endif

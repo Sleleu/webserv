@@ -39,9 +39,10 @@ Handler::~Handler()
 int	Handler::launch_servers(void)
 {
 	std::vector<Server>::iterator it;
+
 	for (it = _v_server.begin(); it < _v_server.end(); it++)
 	{
-		(*it).init_server();
+		(*it).init_server(); // leak fd
 		(*it).start_server();
 	}
 	return (1);
@@ -98,7 +99,10 @@ int	Handler::handle_servers(void)
 				if (_events[i].data.fd == (*it).get_socketfd()) // S'il s'agit de l'un des sockets d'un serveur
 					event_status = (*it).accept_connect(_epollfd); // accepter la nouvelle connexion et ajouter le socketfd du client au serveur vise
 				if (event_status == 0)
+				{
+					close_servers_sockfd();	
 					return (0);
+				}
 			}
 			if (it == _v_server.end()) // si l'event ne correspond pas a une nouvelle connexion
 			{
@@ -108,7 +112,10 @@ int	Handler::handle_servers(void)
 					if (index_client_fd != -1) // Une fois lien client|serveur decouvert
 						event_status = (*it).handle_request(_epollfd, index_client_fd); // traiter la requete
 					if (event_status == 0)
+					{
+						close_servers_sockfd();
 						return (0);
+					}
 				}
 			}
 		}

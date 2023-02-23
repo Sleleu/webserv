@@ -2,6 +2,5 @@
 #define SIGNAL_HPP
 
 void		signal_handler(int signal);
-extern bool	g_CONTINUE;
 
 #endif

@@ -45,7 +45,7 @@ int	Server::init_server(void)
 	int status;
 
 	// Met en place les structures
-	status = getaddrinfo(_ip.c_str(), _port.c_str(), &_addrinfo, &_ptr_info); // param a specifier
+	status = getaddrinfo(_ip.c_str(), _port.c_str(), &_addrinfo, &_ptr_info);
 	if (status != 0)
 	{
 		std::cout << "error status : " << status << " ";
@@ -115,8 +115,10 @@ int	Server::accept_connect(int epoll_fd)
 		return (display_error("Setsockopt error"));
 
 	if (!epoll_add(epoll_fd, client_socket))
+	{
+		close(client_socket);
 		return (0);
-
+	}
 	_client_fd.push_back(client_socket); // ajouter le socket a ce serveur
 
 	/*--- Affichage nouvelle connexion au serveur ---*/
@@ -161,7 +163,10 @@ int	Server::handle_request(int& epoll_fd, int i)
 		if (bytes_received == -1)
 			return (std::cerr << "Server [" << get_id() << "] ", display_error("Error : Could not receive data from client"));
 		if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _client_fd[i], NULL)) == -1)
+		{
+			close(_client_fd[i]);
 			return (display_error("recv data epoll_ctl() error"));
+		}
 		close(_client_fd[i]);
 		_client_fd.erase(_client_fd.begin() + i);
 	}
