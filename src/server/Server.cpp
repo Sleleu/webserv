@@ -156,6 +156,8 @@ int	Server::handle_request(int& epoll_fd, int i)
 	char msg_to_recv[B_SIZE] = {0};
 
 	ssize_t bytes_received = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
+	if (_verbose)
+		std::cout << YELLOW << msg_to_recv << std::endl;
 	if (bytes_received <= 0)
 	{
 		if (bytes_received == -1)

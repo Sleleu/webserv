@@ -15,7 +15,7 @@ class Handler
 	typedef std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >::iterator	conf_location_iterator;
 
 	Handler();
-	Handler(conf_server& c_server, conf_location& c_location);
+	Handler(conf_server& c_server, conf_location& c_location, bool);
 	~Handler();
 
 	int		launch_servers(void);
@@ -29,6 +29,7 @@ class Handler
 	std::vector<Server>	_v_server;
 	struct epoll_event	_events[EVENTS_HANDLED];
 	int					_epollfd;
+	bool				_verbose;
 
 };
 

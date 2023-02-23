@@ -570,11 +570,6 @@ bool	Parser::pars_conf(std::string token, std::string right_token, int line)
 		if (!tcheck_on_off(right_token, token, line))
 			return false;
 	}
-	else if (token == "upload_file")
-	{
-		if (!tcheck_upload(right_token, token, line))
-			return false;
-	}
 	return true;
 }
 
