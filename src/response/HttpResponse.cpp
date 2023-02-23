@@ -11,6 +11,7 @@ HttpResponse::HttpResponse()
 	_headers["content-type"] = "text/html";
 	_headers["content-length"] = "0";
 	directoryListing = 0;
+	_errorPath = "";
 }
 
 void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap)
@@ -38,7 +39,10 @@ void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::s
 				_targetPath + serverMap["default_file"][0] : _targetPath + "/" + serverMap["default_file"][0];
 		}
 	}
-	_errorPath = "./html" + serverMap["error"][0];
+
+	_errorConf = serverMap["error"];
+	// _errorPath = "./html" + serverMap.find("error")->second[0];
+
 	setUpload(serverMap);
 	setCgi(request, serverMap);
 }
@@ -71,21 +75,30 @@ std::map< std::string, std::vector< std::string > > & serverMap)
 
 void	HttpResponse::errorReturn()
 {
-	std::string errPath = this->getErrorPath();
-	std::ifstream ifs(errPath.c_str());
-	if (!ifs.is_open())
+	if (_errorConf.size() >= 2 && _errorConf.size() % 2 == 0)
 	{
-		setError("500", "Internal Server Error");
-		setBody(BODY_500);
-		return ;
+		for (std::vector<std::string>::const_iterator it = _errorConf.begin(); it != _errorConf.end() ; it += 2)
+		{
+			if (*it == _controlData["code"])
+			{
+				std::string errPath = *(it + 1);
+				std::ifstream ifs(errPath.c_str());
+				if (!ifs.is_open())
+				{
+					setError("500", "Internal Server Error");
+					setBody(BODY_500);
+					return ;
+				}
+				std::string errorFileContent;
+				std::string tmp;
+				while (std::getline(ifs, tmp))
+					errorFileContent += tmp + "\n";
+				ifs.close();
+				setBody("\n" + errorFileContent);
+				return ;
+			}
+		}
 	}
-
-	std::string errorFileContent;
-	std::string tmp;
-	while (std::getline(ifs, tmp))
-		errorFileContent += tmp + "\n";
-	ifs.close();
-	setBody("\n" + errorFileContent);
 }
 
 void		HttpResponse::setHeader()

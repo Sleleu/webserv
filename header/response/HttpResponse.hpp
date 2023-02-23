@@ -48,6 +48,7 @@ class HttpResponse
 		bool		canUpload;
 		bool		cgiUsed;
 		bool		directoryListing;
+		bool		errorPage;
 
 	private :
 
@@ -58,9 +59,12 @@ class HttpResponse
 		std::string _isUpload;
 		std::string _extension;
 
+		std::vector<std::string> _errorConf;
+
 		std::map<std::string, std::string> 	_controlData;
 		std::map<std::string, std::string> 	_headers;
 		std::string							_body;
+		std::string							_bodyError;
 
 };
 

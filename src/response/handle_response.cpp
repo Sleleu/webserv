@@ -71,11 +71,12 @@ Server::map_server defaultMap, bool verbose)
 			std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << RESET << std::endl;
 		}
 	}
-	catch(const std::exception& e)
+	catch(const std::exception& e) // On ne peut pas rediriger les erreurs de request !
 	{
 		request.parsing = 0;
 		response.setError("400", "Bad Request");
 		response.setBody(BODY_400);
+
 		std::cout << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 	}
 

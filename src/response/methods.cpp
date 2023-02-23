@@ -19,6 +19,7 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
     if (!targetStream.is_open())
     {
         response.setError("404", "Not Found");
+        response.setBody(BODY_404);
         throw std::exception();
     }
     CgiHandler cgi(response, request);
@@ -47,6 +48,7 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
     if (!targetStream.is_open())
     {
         response.setError("404", "Not Found");
+        response.setBody(BODY_404);
         throw std::exception();
     }
     targetStream.close();
@@ -71,11 +73,13 @@ void methodDELETE(HttpRequest const & request, HttpResponse & response) //Pas de
     if (stat(path, &s) != 0)
     {
         response.setError("404", "Not Found");
+        response.setBody(BODY_404);
         throw std::exception();
     }
     if (std::remove(response.getTargetPath().c_str()) != 0)
     {
 		response.setError("500", "Internal Server Error");
+        response.setBody(BODY_500);
         throw std::exception();
     }
     response.setError("204", "No Content");
@@ -92,6 +96,7 @@ std::map< std::string, std::vector< std::string > > locationInfo)
     if (std::find(acceptedMethods.begin(), acceptedMethods.end(), request.getMethod()) == acceptedMethods.end())
     {
         response.setError("405", "Method Not Allowed");
+        response.setBody(BODY_405);
         throw std::exception();
     }
     std::string possibleMethods[3] = {"GET", "POST", "DELETE"};
@@ -102,5 +107,6 @@ std::map< std::string, std::vector< std::string > > locationInfo)
             return ;
         }
     response.setError("405", "Method Not Allowed");
+    response.setBody(BODY_405);
     throw std::exception();
 }
