@@ -7,7 +7,7 @@ Server::Server() {}
 Server::Server(std::string ip, std::string port) : _port(port), _ip(ip)
 {
 	std::memset(&_addrinfo, 0, sizeof(_addrinfo)); // initialiser tous les membres a 0
-	this->_addrinfo.ai_family = AF_UNSPEC; // Pour IPv4 et IPv6, IF_INET pour seulement v4
+	this->_addrinfo.ai_family = AF_INET; // Pour IPv4 et IPv6, IF_INET pour seulement v4
 	this->_addrinfo.ai_socktype = SOCK_STREAM; // Pour TCP
 	this->_addrinfo.ai_flags = AI_PASSIVE; // Se lie a l'IP de l'hote sur lequel le programme s'execute
 	this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
@@ -17,7 +17,7 @@ Server::Server(map_server map, location_server location, int id, bool verbose)
 : _map_server(map), _location_server(location), _id_server(id + 1), _verbose(verbose)
 {
 	std::memset(&_addrinfo, 0, sizeof(_addrinfo)); // initialiser tous les membres a 0
-	this->_addrinfo.ai_family = AF_UNSPEC; // Pour IPv4 et IPv6, IF_INET pour seulement v4
+	this->_addrinfo.ai_family = AF_INET; // Pour IPv4 et IPv6, IF_INET pour seulement v4
 	this->_addrinfo.ai_socktype = SOCK_STREAM; // Pour TCP
 	this->_addrinfo.ai_flags = AI_PASSIVE; // Se lie a l'IP de l'hote sur lequel le programme s'execute
 	this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
@@ -145,9 +145,15 @@ int	Server::epoll_add(int epoll_fd, int socket)
 
 int Server::send_message_to_client(int client_fd)
 {
-	ssize_t bytes = send(client_fd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
-	if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)
-		return (display_error("Error sending response to client"));
+	unsigned long total_bytes = 0;
+
+	while (total_bytes < _msg_to_send.size())
+	{
+		ssize_t bytes = send(client_fd, _msg_to_send.c_str(), _msg_to_send.size(), MSG_NOSIGNAL);
+			if (bytes == -1)
+			 	break;
+		total_bytes += bytes;
+	}
 
 	std::cout << BOLDCYAN << "Response from server [" << BOLDYELLOW << _serv_name
 			  << BOLDCYAN << "] id [" << BOLDGREEN << _id_server
@@ -159,12 +165,14 @@ int Server::send_message_to_client(int client_fd)
 int	Server::handle_request(int& epoll_fd, int i)
 {
 	char msg_to_recv[B_SIZE] = {0};
-
-	ssize_t bytes_received = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
+	ssize_t bytes_received;
+	//size_t len = 0;
+	
+	//while (len < sizeof(msg_to_recv))
+	//{
+	bytes_received = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
 	if (bytes_received <= 0)
 	{
-		if (bytes_received == -1)
-			return (std::cerr << "Server [" << get_id() << "] ", display_error("Error : Could not receive data from client"));
 		if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _client_fd[i], NULL)) == -1)
 		{
 			close(_client_fd[i]);
@@ -173,7 +181,10 @@ int	Server::handle_request(int& epoll_fd, int i)
 		close(_client_fd[i]);
 		_client_fd.erase(_client_fd.begin() + i);
 	}
-	else
+	//len += bytes_received;
+	//}
+//	else
+	if (bytes_received != 0)
 	{
 		std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
 				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
