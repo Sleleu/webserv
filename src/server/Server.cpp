@@ -71,7 +71,7 @@ int	Server::init_socket(void)
 	fcntl(_socketfd, F_SETFL, O_NONBLOCK);
 
 	int optval = 1;
-	if (setsockopt(_socketfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
+	if (setsockopt(_socketfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &optval, sizeof(int)) == -1) // return 0 si success
 		return (freeaddrinfo(_ptr_info), display_error("Setsockopt error"));
 
 	// associer le socket a un port sur le localhost
@@ -86,7 +86,7 @@ int	Server::init_socket(void)
 
 int Server::start_server(void)
 {
-	if ((listen(_socketfd, 5)) == -1)
+	if ((listen(_socketfd, 20)) == -1)
 		return (display_error("Error when listenning socket"));
 	std::cout << "[" << BOLDYELLOW << _serv_name << RESET;
 	display_ok("] Start listening:");
@@ -114,7 +114,7 @@ int	Server::accept_connect(int epoll_fd)
 	fcntl(client_socket, F_SETFL, O_NONBLOCK); // On rend le socket non-bloquant
 
 	int optval = 1;
-	if (setsockopt(client_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
+	if (setsockopt(client_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &optval, sizeof(int)) == -1) // return 0 si success
 		return (display_error("Setsockopt error"));
 
 	if (!epoll_add(epoll_fd, client_socket))
@@ -149,12 +149,11 @@ int Server::send_message_to_client(int client_fd)
 
 	while (total_bytes < _msg_to_send.size())
 	{
-		ssize_t bytes = send(client_fd, _msg_to_send.c_str(), _msg_to_send.size(), MSG_NOSIGNAL);
-			if (bytes == -1)
-			 	break;
+		ssize_t bytes = send(client_fd, _msg_to_send.c_str() + total_bytes, _msg_to_send.size(), MSG_NOSIGNAL);
+		if (bytes == -1)
+		 	return (0);
 		total_bytes += bytes;
 	}
-
 	std::cout << BOLDCYAN << "Response from server [" << BOLDYELLOW << _serv_name
 			  << BOLDCYAN << "] id [" << BOLDGREEN << _id_server
 			  << BOLDCYAN << "] on socket [" << BOLDMAGENTA << client_fd
@@ -192,7 +191,7 @@ int	Server::handle_request(int& epoll_fd, int i)
 
 		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
 		if (!send_message_to_client(_client_fd[i]))
-			return (0);
+			return (1);
 	}
 	return (1);
 }
