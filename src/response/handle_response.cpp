@@ -25,7 +25,8 @@ Server::map_server defaultMap, bool verbose)
 		locationInfo = getLocationInfo(request, locationMap); //probleme de '/' dans le parsing
 		serverMap = getServerMap(locationInfo, defaultMap);
 		request.checkParsing();
-		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
+		std::cout << " [" << BOLDGREEN << "OK" << RESET << "]";
+		std::cout << YELLOW << " " << request.getTarget()  << RESET << std::endl;
 
 		//
 		if (verbose)
@@ -45,7 +46,7 @@ Server::map_server defaultMap, bool verbose)
 		}
 		try
 		{
-			std::cout << "\nParsing Request :";
+			std::cout << "Parsing Request :";
 			request.checkParsing();
 			std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 			std::cout << "Constructing Response :";
@@ -66,9 +67,9 @@ Server::map_server defaultMap, bool verbose)
 		}
 		catch(const std::exception& e)
 		{
-			std::cout << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+			std::cout << " [" << BOLDRED << "KO" << RESET << "] ";
 			response.errorReturn();
-			std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << RESET << std::endl;
+			std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
 		}
 	}
 	catch(const std::exception& e) // On ne peut pas rediriger les erreurs de request !
@@ -77,7 +78,7 @@ Server::map_server defaultMap, bool verbose)
 		response.setError("400", "Bad Request");
 		response.setBody(BODY_400);
 
-		std::cout << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		std::cout << " [" << BOLDRED << "KO" << RESET << "] " << std::endl;
 	}
 
 	std::string responseString = response.getResponseString();
@@ -90,43 +91,3 @@ Server::map_server defaultMap, bool verbose)
 	// 	std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << responseString << std::endl;
 	return (responseString); // il faudra return "packetsToSend"
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-// void simul_request(std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\
-// std::map < std::string, std::vector<std::string> > defaultMap )
-// {
-// 	std::string const requestMsg = "\
-// GET /files/index.html HTTP/1.1\n\
-// Host: localhost:8080\n\
-// Connection: keep-alive\n\
-// Cache-Control: max-age=0\n\
-// Upgrade-Insecure-Requests: 1\n\
-// User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.162 Safari/537.36\n\
-// Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\n\
-// DNT: 1\n\
-// Accept-Encoding: gzip, deflate, br\n\
-// Accept-Language: en-US,en;q=0.9\n\
-// \n\
-// <html>\n\
-// 	<head>\n\
-// 		<title>Ma page : d'exemple</title>\n\
-// 	</head>\n\
-// 	<body>\n\
-// 	Voici le contenu\n\
-// 	</body>\n\
-// </html>";
-
-
-// 	handle_response(requestMsg, locationMap, defaultMap);
-// }

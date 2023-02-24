@@ -28,10 +28,7 @@ class CgiHandler
 		CgiHandler(HttpResponse & response, HttpRequest const & request) : _output("")
 		{
 			if (response.getCgiPath() == "" && response.getExtension() != "cgi")
-			{
-				std::cout << BOLDRED << " NO CGI" << RESET;
 				return ;
-			}
 			try
 			{
 				setEnvMap(response, request);
@@ -42,7 +39,6 @@ class CgiHandler
 			}
 			catch (std::exception e)
 			{
-				std::cout << BOLDRED << "\nCGI_HANDLER ERROR\n" << RESET << std::endl;
 				response.setError("500", "Internal Server Error");
 				response.setBody(BODY_500);
 			}
@@ -74,7 +70,6 @@ class CgiHandler
 					it->second[0] = decimalValue;
 					it->second = it->second.substr(0, 1);
 				}
-				std::cout << it->first << " -> "<< it->second << std::endl;
 			}
 		}
 
@@ -135,13 +130,12 @@ class CgiHandler
 				int nbytes;
 				while ((nbytes = read(pipefd[0], buffer, BUFFER_SIZE)) > 0)
 					_output += std::string(buffer, nbytes);
-				std::cout << "Child process output: " << _output << std::endl;
 				close(pipefd[0]);
 
 				int status;
 				waitpid(pid, &status, 0);
-				if (WIFEXITED(status))
-					std::cout << "Child process exited with status " << WEXITSTATUS(status) << std::endl;
+				// if (WIFEXITED(status))
+					// std::cout << "Child process exited with status " << WEXITSTATUS(status) << std::endl;
 			}
 		}
 

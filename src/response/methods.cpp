@@ -14,7 +14,6 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
     {
         std::string listingPath = response.getTargetPath();
         listingPath.erase(0, response.getRoot().size() - 1);
-        std::cout << BOLDRED << listingPath << std::endl;
         response.setBody(dir_list(const_cast<char *>(listingPath.c_str()), \
         const_cast<char *>(response.getTargetPath().c_str())));
         return ;

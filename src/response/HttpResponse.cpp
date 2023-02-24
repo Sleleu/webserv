@@ -76,7 +76,7 @@ void	HttpResponse::setUpload(std::map< std::string, std::vector< std::string > >
 	std::vector<std::string> const upload_file = serverMap["upload_file"];
 	_isUpload = (upload_file[0] == "on") ? "on":"off";
 	_uploadPath = (upload_file.size() >= 2) ? upload_file[1]:"";
-	std::cout << BOLDMAGENTA << "\nUpload PATH : " << _uploadPath << RESET << std::endl;
+	// std::cout << BOLDMAGENTA << "\nUpload PATH : " << _uploadPath << RESET << std::endl;
 }
 
 void	HttpResponse::setCgi(HttpRequest const & request,\
@@ -94,7 +94,7 @@ std::map< std::string, std::vector< std::string > > & serverMap)
 			if (it + 1 != cgi.end())
 				_cgiPath = *(it + 1);
 	}
-	std::cout << BOLDMAGENTA << "CGI PATH : " << _cgiPath << RESET << std::endl;
+	// std::cout << BOLDMAGENTA << "CGI PATH : " << _cgiPath << RESET << std::endl;
 }
 
 void	HttpResponse::errorReturn()
