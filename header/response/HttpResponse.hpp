@@ -21,7 +21,7 @@ class HttpResponse
 		HttpResponse();
 
 		void	setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap);
-		void	redirectTargetPath(std::string first, std::string second);
+		void	redirectTargetPath(std::string url);
 		void	setCgi(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap);
 		void	setUpload(std::map< std::string, std::vector< std::string > > & serverMap);
 		bool	findInCgiBin();
@@ -30,7 +30,6 @@ class HttpResponse
 		void		setHeader();
 		std::vector<std::string> getPackets(map_server serverMap, std::string responseString, bool verbose);
 		void		errorReturn();
-
 
 		std::string getErrorPath() const;
 		std::string getCode();
@@ -52,6 +51,9 @@ class HttpResponse
 		bool		cgiUsed;
 		bool		directoryListing;
 		bool		errorPage;
+
+
+		class RedirectException : public std::exception {};
 
 	private :
 

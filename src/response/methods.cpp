@@ -6,7 +6,6 @@
 
 void methodGET(HttpRequest const & request, HttpResponse & response)
 {
-    (void) request;
     std::cout << BOLDYELLOW << " GET" << RESET;
 
     std::string targetPath = response.getTargetPath();

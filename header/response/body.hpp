@@ -1,6 +1,11 @@
 #ifndef BODY_H
 #define BODY_H
 
+#define BODY_301 "\n<html><head>\n\
+<title>301 Moved Permanently</title>\n\
+</head><body>\n\
+<h1>Moved Permanently</h1>\n"
+
 #define BODY_400 "\n<!DOCTYPE html>\n<html>\n<head>\n<title>400 Bad Request</title>\n</head>\n<body>\n<h1>Bad Request</h1>\n<p>The server will not process the request due to something that is perceived to be a client error.</p>\n</body>\n</html>\n"
 
 #define BODY_403 "\n<!DOCTYPE html>\n<html>\n<head>\n<title>403 Forbidden</title>\n</head>\n<body>\n<h1>Forbidden</h1>\n<p>You don't have permission to access this resource.</p>\n</body>\n</html>\n"

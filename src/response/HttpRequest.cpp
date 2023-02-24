@@ -71,6 +71,7 @@ std::vector<std::string> HttpRequest::getLocation() const
 	std::vector<std::string> location;
 	std::string target = getTarget();
 
+	target = (target[target.size() - 1] == '/') ? target : target + "/";
 	location.push_back(target);
 	while (target != "")
 	{

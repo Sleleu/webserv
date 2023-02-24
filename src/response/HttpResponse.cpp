@@ -4,19 +4,22 @@
 
 HttpResponse::HttpResponse()
 {
-	_controlData["version"] = "HTTP/1.1"; //Forcémment ?
+	_controlData["version"] = "HTTP/1.1";
 	_controlData["code"] = "200";
 	_controlData["status"] = "OK";
-	_headers["server"] = "webserv";
-	_headers["content-type"] = "text/html";
-	_headers["content-length"] = "0";
+	_headers["Server"] = "webserv";
+	_headers["Content-type"] = "text/html";
+	_headers["Content-length"] = "0";
 	directoryListing = 0;
 	_errorPath = "";
 }
 
 void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap)
 {
-	_headers["server"] = serverMap["server_name"][0];
+	_errorConf = serverMap["error"];
+	// _errorPath = "./html" + serverMap.find("error")->second[0];
+
+	_headers["Server"] = serverMap["server_name"][0];
 	if (!request.parsing)
 	{
 		_controlData["code"] = "400";
@@ -34,22 +37,26 @@ void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::s
 	if (_targetPath.find("_IMAGE_") != std::string::npos)
 		_targetPath = "./html/image" + _targetPath.substr(_targetPath.find("_IMAGE_") + 7);
 
-	if (serverMap["redirect"].size() == 2)
-		redirectTargetPath(serverMap["redirect"][0], serverMap["redirect"][1]); // code redirected ?
+	if (serverMap["redirect"].size() > 0)
+		redirectTargetPath(serverMap["redirect"][0]);
 	if (isDirectory())
-	{
-		if (serverMap["directory_listing"][0] == "on") // Pas certain de cette partie
-			directoryListing = 1;
-		else
+	{		
+		std::string defaultPage = (_targetPath[_targetPath.length() -1] == '/') ?\
+			_targetPath + serverMap["default_file"][0] : _targetPath + "/" + serverMap["default_file"][0];
+		if (fileExist(defaultPage))
+			_targetPath = defaultPage;
+		else 
 		{
-			_targetPath = (_targetPath[_targetPath.length() -1] == '/') ?\
-				_targetPath + serverMap["default_file"][0] : _targetPath + "/" + serverMap["default_file"][0];
-		}
+			if (serverMap["directory_listing"][0] == "on")
+				directoryListing = 1;
+			else
+			{
+				setError("403", "Forbidden");
+				setBody(BODY_403);
+				throw std::exception();
+			}
+		}		
 	}
-
-	_errorConf = serverMap["error"];
-	// _errorPath = "./html" + serverMap.find("error")->second[0];
-
 	setUpload(serverMap);
 	setCgi(request, serverMap);
 }
@@ -66,9 +73,6 @@ bool	HttpResponse::findInCgiBin()
 		return 1;
 	}
 	return 0;
-	// {
-	// 	if (S_ISREG(s.st_mode))
-	// }
 }
 
 void	HttpResponse::setUpload(std::map< std::string, std::vector< std::string > > & serverMap)
@@ -130,9 +134,9 @@ void		HttpResponse::setHeader()
 	std::string fileType = getTargetPath().substr(getTargetPath().find_last_of('.') + 1);
 	std::string img = "ico png apng avif webp";
 	if (img.find(fileType) != std::string::npos)			//un peu bancal
-		_headers["content-type"] = "image/" + fileType;
+		_headers["Content-type"] = "image/" + fileType;
 	if (fileType == "html")
-		_headers["content-type"] = "text/" + fileType;
+		_headers["Content-type"] = "text/" + fileType;
 }
 
 std::string HttpResponse::getResponseString()
@@ -140,7 +144,7 @@ std::string HttpResponse::getResponseString()
 	std::string controlDataString = _controlData["version"] + " " \
 		+ _controlData["code"] + " " + _controlData["status"] + "\n";
 
-	_headers["content-length"] = (_body.size() == 0) ? "0" : toString(sizeof(char) * _body.size() - 2);
+	_headers["Content-length"] = (_body.size() == 0) ? "0" : toString(sizeof(char) * _body.size() - 2);
 
 	std::string headersString;
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin() ; \
@@ -184,11 +188,12 @@ std::vector<std::string> HttpResponse::getPackets(map_server serverMap, std::str
 	return packets;
 }
 
-void	HttpResponse::redirectTargetPath(std::string first, std::string second)
+void	HttpResponse::redirectTargetPath(std::string url)
 {
-	size_t pos = _targetPath.find(first);
-	if (pos != std::string::npos)
-		_targetPath.replace(pos, first.length(), second);
+	_headers["Location"] = url;
+	setError("301", "Moved Permanently");
+	setBody(std::string(BODY_301) + "<p>The document has moved <a href=" + url + ">here</a>.</p>\n</body></html>\n");
+	throw HttpResponse::RedirectException();
 }
 
 bool	HttpResponse::isDirectory()

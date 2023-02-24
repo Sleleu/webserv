@@ -62,8 +62,14 @@ Server::map_server defaultMap, bool verbose)
 			std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 			std::cout << "Executing method:";
 			acceptMethod(request, response, serverMap);
-			std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
+			std::cout << " [" << BOLDGREEN << "OK" << RESET << "] ";
+			std::cout << BOLDGREEN << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
 			std::cout << std::endl;
+		}
+		catch(const HttpResponse::RedirectException e)
+		{
+			std::cout << " [" << BOLDGREEN << "OK" << RESET << "] ";
+			std::cout << BOLDGREEN << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
 		}
 		catch(const std::exception& e)
 		{
@@ -87,7 +93,7 @@ Server::map_server defaultMap, bool verbose)
 		packetsToSend = response.getPackets(serverMap, responseString, verbose);
 	else
 		packetsToSend.push_back(responseString);
-	// if (verbose)
-	// 	std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << responseString << std::endl;
+	if (verbose)
+		std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << responseString << std::endl;
 	return (responseString); // il faudra return "packetsToSend"
 }
