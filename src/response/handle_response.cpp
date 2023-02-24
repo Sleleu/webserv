@@ -66,7 +66,7 @@ Server::map_server defaultMap, bool verbose)
 			std::cout << BOLDGREEN << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
 			std::cout << std::endl;
 		}
-		catch(const HttpResponse::RedirectException e)
+		catch(const HttpResponse::RedirectException & e)
 		{
 			std::cout << " [" << BOLDGREEN << "OK" << RESET << "] ";
 			std::cout << BOLDGREEN << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
@@ -78,7 +78,15 @@ Server::map_server defaultMap, bool verbose)
 			std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
 		}
 	}
-	catch(const std::exception& e) // On ne peut pas rediriger les erreurs de request !
+	catch(const HttpRequest::HttpVersion & e)
+	{
+		request.parsing = 0;
+		response.setError("505", "HTTP Version not supported");
+		response.setBody(BODY_505);
+		std::cout << " [" << BOLDRED << "KO" << RESET << "] ";
+		std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
+	}
+	catch(const std::exception& e) // On ne peut pas rediriger les erreurs de request ! HttpRequest::HttpVersion
 	{
 		request.parsing = 0;
 		response.setError("400", "Bad Request");

@@ -18,6 +18,8 @@
 
 #define BODY_500 "\n<!DOCTYPE html>\n<html>\n<head>\n<title>500 Internal Server Error</title>\n</head>\n<body>\n<h1>Internal Server Error</h1>\n<p>The server encountered an unexpected condition that prevented it from fulfilling the request.</p>\n</body>\n</html>\n"
 
+#define BODY_505 "\n<!DOCTYPE html>\n<html>\n<head>\n<title>505 HTTP Version not supported</title>\n</head>\n<body>\n<h1>HTTP Version not supported</h1>\n<p>The server does not support this HTTP version.</p>\n</body>\n</html>\n"
+
 #define BODY_CGI "\n<!DOCTYPE html>\n<html>\n<head>\n<title>CGI</title>\n</head>\n<body>\n<h1>This is CGI !</h1>\n<p>Eeddy's part.</p>\n</body>\n</html>\n"
 
 #endif

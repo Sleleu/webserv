@@ -30,6 +30,9 @@ class HttpRequest
 
 		void								checkParsing() const;
 		bool								parsing;
+
+		class HttpVersion : public std::exception {};
+
 	private :
 		std::vector<std::string>            _controlData;
 		std::map<std::string, std::string>  _headerMap;
