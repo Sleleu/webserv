@@ -52,6 +52,7 @@ std::string	creat_html(std::map<std::string, int> map, std::string path)
 	
 	if (path[path.size() - 1] != '/')
 		path += "/";
+	//soit je j'erase de "root" soit gab se demerde
 	path.erase(0, 6);
 html = "\n\
 <!DOCTYPE html>\n\
@@ -105,10 +106,15 @@ html = "\n\
 		html += (*it).first;
 		html += "</a></p></td>\n";
 		html += "				<td><img src=\"";
-		if ((*it).second == _DIR)
-			html += "/image/dir.png";
+		// ce que j'aimerais mettre pour que tout marche
+	/*if ((*it).second == _DIR)
+			html += "./html/image/dir.png";
 		else
-			html += "/image/file.png";
+			html += "./html/image/file.png";*/	
+		if ((*it).second == _DIR)
+			html += "image/dir.png";
+		else
+			html += "image/file.png";
 		html += "\" ></td>";
 		html += "      		</tr>\n";
 	}
