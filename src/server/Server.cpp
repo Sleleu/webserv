@@ -145,15 +145,21 @@ int	Server::epoll_add(int epoll_fd, int socket)
 
 int Server::send_message_to_client(int client_fd)
 {
-	unsigned long total_bytes = 0;
+	unsigned long total_bytes = 0; // total de bytes envoyes
+	size_t		  packet_sent = 0; // nombre de paquets envoyes
+
 
 	while (total_bytes < _msg_to_send.size())
 	{
-		ssize_t bytes = send(client_fd, _msg_to_send.c_str() + total_bytes, _msg_to_send.size(), MSG_NOSIGNAL);
+		size_t packet_size = MTU < _msg_to_send.size() - total_bytes ? \
+			MTU : _msg_to_send.size() - total_bytes; // send la valeur < entre MTU et bytes restants
+		ssize_t bytes = send(client_fd, _msg_to_send.c_str() + total_bytes, packet_size, MSG_NOSIGNAL);
 		if (bytes == -1)
-		 	return (0);
+		 	return (display_error("Unable to sent data to client"));
 		total_bytes += bytes;
+		packet_sent++;
 	}
+	std::cout << "Packet sent : " << packet_sent << std::endl;
 	std::cout << BOLDCYAN << "Response from server [" << BOLDYELLOW << _serv_name
 			  << BOLDCYAN << "] id [" << BOLDGREEN << _id_server
 			  << BOLDCYAN << "] on socket [" << BOLDMAGENTA << client_fd
@@ -161,14 +167,24 @@ int Server::send_message_to_client(int client_fd)
 	return (1);
 }
 
+std::string body_size_error()
+{
+	std::string message;
+
+	message = "HTTP/1.1 200 OK\n\
+	Content-Type: text/html\nContent-Length: 179\n\n<!DOCTYPE html>\n<html>\n\
+	<head>\n<title>413 Request Entity Too Large</title>\n</head>\n\
+	<body>\n<h1>Request Entity Too Large</h1>\n\
+	<p>The request entity is too large.</p>\n</body>\n</html>\n";
+	std::cout << "INVALID REQUEST FOR BODY SIZE\n";
+	return (message);
+}
+
 int	Server::handle_request(int& epoll_fd, int i)
 {
 	char msg_to_recv[B_SIZE] = {0};
 	ssize_t bytes_received;
-	//size_t len = 0;
-	
-	//while (len < sizeof(msg_to_recv))
-	//{
+
 	bytes_received = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
 	if (bytes_received <= 0)
 	{
@@ -180,20 +196,27 @@ int	Server::handle_request(int& epoll_fd, int i)
 		close(_client_fd[i]);
 		_client_fd.erase(_client_fd.begin() + i);
 	}
-	//len += bytes_received;
-	//}
-//	else
 	if (bytes_received != 0)
 	{
 		std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
 				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
 				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
-
-		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
+		if (convert_char_to_string(msg_to_recv).size() > _body_size)
+			_msg_to_send = body_size_error();
+		else
+			_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
 		if (!send_message_to_client(_client_fd[i]))
 			return (1);
 	}
 	return (1);
+}
+
+void*	Server::get_addr(sockaddr *s_addr)
+{
+	if (s_addr->sa_family == AF_INET)
+		return &(((sockaddr_in *)s_addr)->sin_addr);
+	else
+		return &(((sockaddr_in6 *)s_addr)->sin6_addr);
 }
 
 //------------------- GETTERS ------------------------------

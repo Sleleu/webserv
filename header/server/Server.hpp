@@ -25,7 +25,7 @@
 
 # define B_SIZE 			1500000 // a changer avec body_size du .conf
 # define EVENTS_HANDLED		10000 // pour le tableau de fd
-
+# define MTU				1500 // maximum transmission unit
 class Server
 {
 	public:
