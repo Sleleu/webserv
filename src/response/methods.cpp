@@ -10,18 +10,24 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
     std::cout << BOLDYELLOW << " GET" << RESET;
 
     std::string targetPath = response.getTargetPath();
-    std::ifstream targetStream(targetPath.c_str());
     if (response.directoryListing)
     {
-        std::cout << BOLDCYAN << "DIRECTORY LISTING" << RESET << std::endl;
-        response.setBody(dir_list(const_cast<char *>(response.getTargetPath().c_str()))); // DIRECTORY_LISTING FUNCTION
+        std::string listingPath = response.getTargetPath();
+        listingPath.erase(0, response.getRoot().size() - 1);
+        std::cout << BOLDRED << listingPath << std::endl;
+        response.setBody(dir_list(const_cast<char *>(listingPath.c_str()), \
+        const_cast<char *>(response.getTargetPath().c_str())));
         return ;
     }
+    std::ifstream targetStream(targetPath.c_str());
     if (!targetStream.is_open())
     {
-        response.setError("404", "Not Found");
-        response.setBody(BODY_404);
-        throw std::exception();
+        if (!response.findInCgiBin()) // pareil pour .png ?
+        {
+            response.setError("404", "Not Found");
+            response.setBody(BODY_404);
+            throw std::exception();
+        }
     }
     CgiHandler cgi(response, request);
     if (cgi.getOutput() != "")
@@ -48,9 +54,12 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
     std::ifstream targetStream(targetPath.c_str());
     if (!targetStream.is_open())
     {
-        response.setError("404", "Not Found");
-        response.setBody(BODY_404);
-        throw std::exception();
+        if (!response.findInCgiBin()) // pareil pour .png ?
+        {
+            response.setError("404", "Not Found");
+            response.setBody(BODY_404);
+            throw std::exception();
+        }
     }
     targetStream.close();
     CgiHandler cgi(response, request);

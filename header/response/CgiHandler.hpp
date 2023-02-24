@@ -104,15 +104,6 @@ class CgiHandler
 				args.push_back((char*)_envMap["PATH_INFO"].c_str());
 			args.push_back(NULL);
 
-			//env
-			// std::cout << GREEN << "\nENV\n" << std::endl;
-			// for (int i = 0; _env[i] != NULL ; i++)
-			// {
-			// 	std::cout << _env[i] << std::endl;
-			// }
-			// std::cout << RESET << std::endl;
-			//
-
 			if (pipe(pipefd) == -1)
 			{
 				std::cerr << "Error: failed to create pipe" << std::endl;

@@ -24,6 +24,7 @@ class HttpResponse
 		void	redirectTargetPath(std::string first, std::string second);
 		void	setCgi(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap);
 		void	setUpload(std::map< std::string, std::vector< std::string > > & serverMap);
+		bool	findInCgiBin();
 
 		std::string getResponseString();
 		void		setHeader();
@@ -39,6 +40,8 @@ class HttpResponse
 		std::string getUploadPath() const;
 		std::string getIsUpload() const;
 		std::string getExtension() const;
+		std::string getRoot() const;
+
 		void		setError(std::string code, std::string status);
 		void		setCode(std::string content);
 		void		setStatus(std::string content);
@@ -58,6 +61,7 @@ class HttpResponse
 		std::string _uploadPath;
 		std::string _isUpload;
 		std::string _extension;
+		std::string _root;
 
 		std::vector<std::string> _errorConf;
 

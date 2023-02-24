@@ -9,7 +9,7 @@ void HttpRequest::setRequestInfo(std::string const requestMsg)
 	std::stringstream ss(firstHeaderLine);
 	while (ss >> substringTmp)
 		_controlData.push_back(substringTmp);
-	if (_controlData.size() != 3 || _controlData[2].find("HTTP/") == std::string::npos)
+	if (_controlData.size() != 3 || _controlData[2].find("HTTP/1.1") == std::string::npos) // PAS le bon retour d'erreur pour http1.1
 		throw std::exception();
 
 	std::istringstream streamMap(requestMsg);
@@ -30,9 +30,7 @@ void HttpRequest::setRequestInfo(std::string const requestMsg)
 	size_t bodyBegin = requestMsg.find("\r\n\r\n");
 	if (bodyBegin != std::string::npos)
 		_body = requestMsg.substr(bodyBegin + 2);
-	std::cout << "\nSETTING TARGET\n";
 	setTarget();
-	std::cout << "\nTARGET SET\n";
 }
 
 void		HttpRequest::setTarget() //PARSING PB '?'

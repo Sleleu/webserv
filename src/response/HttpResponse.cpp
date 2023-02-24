@@ -25,10 +25,17 @@ void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::s
 		return ;
 	}
 
+	_root = "./html" + serverMap["root"][0];
+	_root = (_root[_root.length() -1] == '/') ? _root : _root + "/";
+
 	_targetPath = (serverMap["root"][0] == "/") ? \
 		"./html" + request.getTarget() : "./html" + serverMap["root"][0] + request.getTarget();
+
+	if (_targetPath.find("_IMAGE_") != std::string::npos)
+		_targetPath = "./html/image" + _targetPath.substr(_targetPath.find("_IMAGE_") + 7);
+
 	if (serverMap["redirect"].size() == 2)
-		redirectTargetPath(serverMap["redirect"][0], serverMap["redirect"][1]);
+		redirectTargetPath(serverMap["redirect"][0], serverMap["redirect"][1]); // code redirected ?
 	if (isDirectory())
 	{
 		if (serverMap["directory_listing"][0] == "on") // Pas certain de cette partie
@@ -45,6 +52,23 @@ void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::s
 
 	setUpload(serverMap);
 	setCgi(request, serverMap);
+}
+
+bool	HttpResponse::findInCgiBin()
+{
+	std::string inCgiBin = "./html/cgi-bin/" + _targetPath.substr(_targetPath.find_last_of('/') + 1);
+	const char* path =inCgiBin.c_str();
+	struct stat s;
+
+	if (stat(path, &s) == 0)
+	{
+		_targetPath = inCgiBin;
+		return 1;
+	}
+	return 0;
+	// {
+	// 	if (S_ISREG(s.st_mode))
+	// }
 }
 
 void	HttpResponse::setUpload(std::map< std::string, std::vector< std::string > > & serverMap)
@@ -188,6 +212,7 @@ std::string HttpResponse::getCgiPath() const { return _cgiPath; }
 std::string HttpResponse::getUploadPath() const { return _uploadPath; }
 std::string HttpResponse::getIsUpload() const { return _isUpload; }
 std::string HttpResponse::getExtension() const { return _extension; }
+std::string HttpResponse::getRoot() const { return _root; }
 
 void		HttpResponse::setError(std::string code, std::string status) { setCode(code); setStatus(status); }
 void		HttpResponse::setCode(std::string content) { _controlData["code"] = content; }

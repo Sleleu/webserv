@@ -20,7 +20,7 @@
 #define _FILE 0
 #define _DIR 1
 
-std::string	dir_list(char *);
+std::string	dir_list(char * relativePath, char * completePath);
 std::string	html_error(std::string error);
 std::string	creat_html(std::map<std::string, int>, std::string);
 
