@@ -19,6 +19,7 @@ class Handler
 	~Handler();
 
 	int		launch_servers(void);
+	int		waiting_process(void);
 	int		handle_servers(void);
 	void	close_servers_sockfd(void);
 

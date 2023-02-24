@@ -10,7 +10,10 @@ int g_exit_code;
 void	signal_handler(int signal)
 {
 	if ((signal == SIGINT) || (signal == SIGQUIT))
+	{
 		g_exit_code = 1;
+		std::cout << std::endl;
+	}
 }
 
 Handler::Handler()
@@ -68,6 +71,24 @@ void	Handler::close_servers_sockfd(void)
 		close((*it).get_socketfd());
 }
 
+int	Handler::waiting_process(void)
+{
+	int event_count;
+
+	std::signal(SIGINT, signal_handler);
+	std::signal(SIGQUIT, signal_handler);
+	event_count = epoll_wait(_epollfd, _events, EVENTS_HANDLED, -1);
+	if (event_count == -1)
+	{	
+	 	if (errno != EINTR) // EINTR : un signal a été reçu
+		{
+			close_servers_sockfd();
+			return (display_error("epoll_wait"));
+		}
+	}
+	return (event_count);
+}
+
 int	Handler::handle_servers(void)
 {
 	int event_count;
@@ -77,21 +98,14 @@ int	Handler::handle_servers(void)
 	std::vector<Server>::iterator it;
 	for (it = _v_server.begin(); it < _v_server.end(); it++)
 		(*it).add_socket_to_events(_epollfd);
-
 	while (42)
 	{
 		int event_status = 1;
 
 		if (g_exit_code == 1) // on sort de la loop du serveur
 			break;
-		std::signal(SIGINT, signal_handler);
-		std::signal(SIGQUIT, signal_handler);
-		event_count = epoll_wait(_epollfd, _events, EVENTS_HANDLED, -1);
-		if (event_count == -1)
-		{
-			close_servers_sockfd();
-		 	return (display_error("epoll_wait"));
-		}
+		if ((event_count = waiting_process()) == 0)
+			return (0);
 		for (int i = 0; i < event_count; i++)
 		{
 			for (it = _v_server.begin(); it < _v_server.end(); it++)
