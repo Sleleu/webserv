@@ -46,8 +46,6 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
 
 void methodPOST(HttpRequest const & request, HttpResponse & response)
 {
-    (void) request;
-    (void) response;
     std::cout << BOLDYELLOW << " POST" << RESET;
 
     std::string targetPath = response.getTargetPath();
