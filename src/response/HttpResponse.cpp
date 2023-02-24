@@ -105,7 +105,7 @@ void	HttpResponse::errorReturn()
 		{
 			if (*it == _controlData["code"])
 			{
-				std::string errPath = *(it + 1);
+				std::string errPath = "./html/" + *(it + 1);
 				std::ifstream ifs(errPath.c_str());
 				if (!ifs.is_open())
 				{
