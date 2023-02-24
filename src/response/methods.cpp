@@ -2,6 +2,7 @@
 #include "../../header/response/CgiHandler.hpp"
 #include "../../header/parser/parser.hpp"
 #include "../../header/utils/color.hpp"
+#include "../../header/response/directory_index.hpp"
 
 void methodGET(HttpRequest const & request, HttpResponse & response)
 {
@@ -10,6 +11,12 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
 
     std::string targetPath = response.getTargetPath();
     std::ifstream targetStream(targetPath.c_str());
+    if (response.directoryListing)
+    {
+        std::cout << BOLDCYAN << "DIRECTORY LISTING" << RESET << std::endl;
+        response.setBody(dir_list(const_cast<char *>(response.getTargetPath().c_str()))); // DIRECTORY_LISTING FUNCTION
+        return ;
+    }
     if (!targetStream.is_open())
     {
         response.setError("404", "Not Found");
@@ -18,7 +25,7 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
     CgiHandler cgi(response, request);
     if (cgi.getOutput() != "")
     {
-        response.setBody(cgi.getOutput()); // En vrai pas de \n, juste pour les tests
+        response.setBody(cgi.getOutputBody());
         targetStream.close();
         return ;
     }
@@ -47,7 +54,7 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
     CgiHandler cgi(response, request);
     if (cgi.getOutput() != "")
     {
-        response.setBody(cgi.getOutput());
+        response.setBody(cgi.getOutputBody());
         targetStream.close();
         return ;
     }

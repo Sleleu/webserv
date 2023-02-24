@@ -10,6 +10,7 @@ HttpResponse::HttpResponse()
 	_headers["server"] = "webserv";
 	_headers["content-type"] = "text/html";
 	_headers["content-length"] = "0";
+	directoryListing = 0;
 }
 
 void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap)
@@ -30,10 +31,7 @@ void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::s
 	if (isDirectory())
 	{
 		if (serverMap["directory_listing"][0] == "on") // Pas certain de cette partie
-		{
-			_targetPath = (_targetPath[_targetPath.length() -1] == '/') ?\
-				_targetPath + "directory_listing.html" : _targetPath + "/" + "directory_listing.html";
-		}
+			directoryListing = 1;
 		else
 		{
 			_targetPath = (_targetPath[_targetPath.length() -1] == '/') ?\
@@ -105,7 +103,7 @@ std::string HttpResponse::getResponseString()
 	std::string controlDataString = _controlData["version"] + " " \
 		+ _controlData["code"] + " " + _controlData["status"] + "\n";
 
-	_headers["content-length"] = (_body.size() == 0) ? "" : toString(sizeof(char) * _body.size() - 2);
+	_headers["content-length"] = (_body.size() == 0) ? "0" : toString(sizeof(char) * _body.size() - 2);
 
 	std::string headersString;
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin() ; \
@@ -139,10 +137,13 @@ std::vector<std::string> HttpResponse::getPackets(map_server serverMap, std::str
 		allPacketSize += onePacket.size();
 	}
 
-	std::cout << BOLDBLUE << "Packets to send : " << RESET << std::endl;
-	for (std::vector<std::string>::const_iterator it = packets.begin() ; it != packets.end() && verbose == true ; it++)
-		std::cout << "|" << BLUE << *it << RESET;
-	std::cout << "\n" <<BOLDBLUE << allPacketSize - headerSize << " bits SEND" << RESET << std::endl;
+	if (verbose)
+	{
+		std::cout << BOLDBLUE << "Packets to send : " << RESET << std::endl;
+		for (std::vector<std::string>::const_iterator it = packets.begin() ; it != packets.end() && verbose == true ; it++)
+			std::cout << "|" << BLUE << *it << RESET;
+		std::cout << "\n" <<BOLDBLUE << allPacketSize - headerSize << " bits SEND" << RESET << std::endl;
+	}
 	return packets;
 }
 

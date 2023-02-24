@@ -47,6 +47,7 @@ class HttpResponse
 		bool		isDirectory();
 		bool		canUpload;
 		bool		cgiUsed;
+		bool		directoryListing;
 
 	private :
 

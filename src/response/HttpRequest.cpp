@@ -30,8 +30,9 @@ void HttpRequest::setRequestInfo(std::string const requestMsg)
 	size_t bodyBegin = requestMsg.find("\r\n\r\n");
 	if (bodyBegin != std::string::npos)
 		_body = requestMsg.substr(bodyBegin + 2);
-
+	std::cout << "\nSETTING TARGET\n";
 	setTarget();
+	std::cout << "\nTARGET SET\n";
 }
 
 void		HttpRequest::setTarget() //PARSING PB '?'
@@ -44,23 +45,27 @@ void		HttpRequest::setTarget() //PARSING PB '?'
 		if (argsBegin == std::string::npos)
 			return ;
 		_controlData[1] = oldTarget.substr(0, argsBegin);
-		argsString = oldTarget.substr(argsBegin);
+		argsString = oldTarget.substr(argsBegin + 1);
 	}
 	else if (getMethod() == "POST")
 		argsString = _body;
 	else
 		return ;
 	_content = argsString;
-	for (size_t pos = 0 ; pos != std::string::npos;)
+
+	while (argsString != "")
 	{
-		size_t beginArg = pos;
-		pos = argsString.find("&", pos + 1);
-		std::string oneArg = argsString.substr(beginArg + 1, pos - 1); //Segfault peut etre
-		_args[oneArg.substr(0, oneArg.find("="))] = oneArg.substr(oneArg.find("=") + 1);
+		std::string const line = argsString.substr(0, argsString.find("&"));
+		_args[line.substr(0, line.find("="))] = line.substr(line.find("=") + 1);
+		argsString = (argsString.find("&") != std::string::npos) ? argsString.substr(argsString.find("&") + 1):"";
 	}
-	std::cout << std::endl;
-	for (std::map<std::string, std::string>::const_iterator it = _args.begin() ; it != _args.end() ; it++)
-		std::cout << it->first << " -> "<< it->second << std::endl;
+
+	// std::cout << std::endl;
+	// std::cout << "CONTENT = " << _content << std::endl;
+	// std::cout << "ARGS MAP" << std::endl;
+	// for (std::map<std::string, std::string>::const_iterator it = _args.begin() ; it != _args.end() ; it++)
+	// 	std::cout << it->first << " -> "<< it->second << std::endl;
+	// std::cout << std::endl;
 }
 
 std::vector<std::string> HttpRequest::getLocation() const
