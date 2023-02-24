@@ -18,7 +18,7 @@ Handler::Handler()
 	std::cout << "Default constructor called" << std::endl;
 }
 
-Handler::Handler(conf_server& c_server, conf_location& c_location, bool verbose) : _conf_server(c_server), _conf_location(c_location), _verbose(verbose)
+Handler::Handler(conf_server c_server, conf_location c_location, bool verbose) : _conf_server(c_server), _conf_location(c_location), _verbose(verbose)
 {
 	conf_server_iterator   conf_server_it = _conf_server.begin();
 	conf_location_iterator conf_location_it = _conf_location.begin();

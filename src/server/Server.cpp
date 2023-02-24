@@ -24,7 +24,7 @@ Server::Server(map_server map, location_server location, int id, bool verbose)
 
 	_port = map.find("listen")->second[0]; // assigner port au fichier conf
 	_serv_name = map.find("server_name")->second[0];
-	_body_size = std::atoi(map.find("body_size")->second[0].c_str());
+	_body_size = std::atoi(map.find("body_size")->second[0].c_str()); // A AJOUTER
 	_ip = "localhost";
 
 	/*--- Affichage initialisation du serveur ---*/
