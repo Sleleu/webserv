@@ -10,7 +10,8 @@ obj/response/methods.o: src/response/methods.cpp \
   src/response/../../header/response/CgiHandler.hpp \
   src/response/../../header/response/../utils/colors.hpp \
   src/response/../../header/parser/parser.hpp \
-  src/response/../../header/utils/color.hpp
+  src/response/../../header/utils/color.hpp \
+  src/response/../../header/response/directory_index.hpp
 
 src/response/../../header/response/response.hpp:
 
@@ -35,3 +36,5 @@ src/response/../../header/response/../utils/colors.hpp:
 src/response/../../header/parser/parser.hpp:
 
 src/response/../../header/utils/color.hpp:
+
+src/response/../../header/response/directory_index.hpp:

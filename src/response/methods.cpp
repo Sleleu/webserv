@@ -2,6 +2,7 @@
 #include "../../header/response/CgiHandler.hpp"
 #include "../../header/parser/parser.hpp"
 #include "../../header/utils/color.hpp"
+#include "../../header/response/directory_index.hpp"
 
 void methodGET(HttpRequest const & request, HttpResponse & response)
 {
@@ -13,7 +14,7 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
     if (response.directoryListing)
     {
         std::cout << BOLDCYAN << "DIRECTORY LISTING" << RESET << std::endl;
-        response.setBody(BODY_500); // DIRECTORY_LISTING FUNCTION
+        response.setBody(dir_list(const_cast<char *>(response.getTargetPath().c_str()))); // DIRECTORY_LISTING FUNCTION
         return ;
     }
     if (!targetStream.is_open())
