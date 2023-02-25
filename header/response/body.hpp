@@ -14,6 +14,8 @@
 
 #define BODY_405 "\n<!DOCTYPE html>\n<html>\n<head>\n<title>405 Method Not Allowed</title>\n</head>\n<body>\n<h1>Method Not Allowed</h1>\n<p>The requested method is not allowed for the URL.</p>\n</body>\n</html>\n"
 
+#define BODY_406 "\n<!DOCTYPE html>\n<html>\n<head>\n<title>406 Not Acceptable</title>\n</head>\n<body>\n<h1>Not Acceptable</h1>\n<p>The requested resource is capable of generating only content not acceptable according to the Accept headers sent in the request.</p>\n</body>\n</html>\n"
+
 #define BODY_413 "\n<!DOCTYPE html>\n<html>\n<head>\n<title>413 Request Entity Too Large</title>\n</head>\n<body>\n<h1>Request Entity Too Large</h1>\n<p>The request entity is too large.</p>\n</body>\n</html>\n"
 
 #define BODY_500 "\n<!DOCTYPE html>\n<html>\n<head>\n<title>500 Internal Server Error</title>\n</head>\n<body>\n<h1>Internal Server Error</h1>\n<p>The server encountered an unexpected condition that prevented it from fulfilling the request.</p>\n</body>\n</html>\n"

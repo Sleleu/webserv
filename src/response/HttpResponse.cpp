@@ -14,7 +14,7 @@ HttpResponse::HttpResponse()
 	_errorPath = "";
 }
 
-void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap)
+void HttpResponse::setResponseInfo(HttpRequest & request, std::map< std::string, std::vector< std::string > > & serverMap)
 {
 	_errorConf = serverMap["error"];
 
@@ -64,6 +64,7 @@ void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::s
 	}
 	setUpload(serverMap);
 	setCgi(request, serverMap);
+	_accept = request.getHeader("Accept");
 }
 
 bool	HttpResponse::findInCgiBin()
@@ -137,11 +138,23 @@ void	HttpResponse::errorReturn()
 void		HttpResponse::setHeader()
 {
 	std::string fileType = getTargetPath().substr(getTargetPath().find_last_of('.') + 1);
-	std::string img = "ico png apng avif webp";
+	std::string img = "ico png apng avif jpeg";
 	if (img.find(fileType) != std::string::npos)			//un peu bancal
 		_headers["Content-type"] = "image/" + fileType;
 	if (fileType == "html")
 		_headers["Content-type"] = "text/" + fileType;
+	if (_accept == "")
+		return ;
+	std::string const typeOfFile = _headers["Content-type"];
+	if (_accept.find(typeOfFile) == std::string::npos)
+	{
+		std::string const subType = typeOfFile.substr(0, typeOfFile.find("/")) + "/*";
+		if (_accept.find(subType) != std::string::npos)
+			return ;
+		setBody(BODY_406);
+		setError("406", "Not Acceptable");
+		throw std::exception();
+	}
 }
 
 std::string HttpResponse::getResponseString()

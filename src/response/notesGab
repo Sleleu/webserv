@@ -31,7 +31,7 @@ CODES POSSIBLES
 100:	Continue	Attente de la suite de la requête: "Nécessaire ou pas ?"
 
 200:	OK	Requête traitée avec succès.: Par défaut
-201:	Created	Requête traitée avec succès et création d’un document: Pour upload
+201:	Created	Requête traitée avec succès et création d’un document: Pour UPLOAD
 204:	No Content	Requête traitée avec succès mais pas d’information à renvoyer: Pour DELETE
 
 301:  Moved Permanently  Document déplacé de façon permanente.: Quand on utilise "redirect" OK
@@ -64,4 +64,6 @@ default_error 404 /html/error.html -> ok
 redirect -> ok
 limit client body (body_size ?) -> nop
 directory listing devrait pouvoir être on, off ou unset
+
+
 

@@ -20,7 +20,7 @@ class HttpResponse
 
 		HttpResponse();
 
-		void	setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap);
+		void	setResponseInfo(HttpRequest & request, std::map< std::string, std::vector< std::string > > & serverMap);
 		void	redirectTargetPath(std::string url);
 		void	setCgi(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap);
 		void	setUpload(std::map< std::string, std::vector< std::string > > & serverMap);
@@ -64,6 +64,7 @@ class HttpResponse
 		std::string _isUpload;
 		std::string _extension;
 		std::string _root;
+		std::string _accept;
 
 		std::vector<std::string> _errorConf;
 
