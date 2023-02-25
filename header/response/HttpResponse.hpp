@@ -21,15 +21,15 @@ class HttpResponse
 		HttpResponse();
 
 		void	setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap);
-		void	redirectTargetPath(std::string first, std::string second);
+		void	redirectTargetPath(std::string url);
 		void	setCgi(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap);
 		void	setUpload(std::map< std::string, std::vector< std::string > > & serverMap);
+		bool	findInCgiBin();
 
 		std::string getResponseString();
 		void		setHeader();
 		std::vector<std::string> getPackets(map_server serverMap, std::string responseString, bool verbose);
 		void		errorReturn();
-
 
 		std::string getErrorPath() const;
 		std::string getCode();
@@ -39,6 +39,8 @@ class HttpResponse
 		std::string getUploadPath() const;
 		std::string getIsUpload() const;
 		std::string getExtension() const;
+		std::string getRoot() const;
+
 		void		setError(std::string code, std::string status);
 		void		setCode(std::string content);
 		void		setStatus(std::string content);
@@ -48,6 +50,10 @@ class HttpResponse
 		bool		canUpload;
 		bool		cgiUsed;
 		bool		directoryListing;
+		bool		errorPage;
+
+
+		class RedirectException : public std::exception {};
 
 	private :
 
@@ -57,10 +63,14 @@ class HttpResponse
 		std::string _uploadPath;
 		std::string _isUpload;
 		std::string _extension;
+		std::string _root;
+
+		std::vector<std::string> _errorConf;
 
 		std::map<std::string, std::string> 	_controlData;
 		std::map<std::string, std::string> 	_headers;
 		std::string							_body;
+		std::string							_bodyError;
 
 };
 

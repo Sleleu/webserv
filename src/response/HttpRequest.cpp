@@ -11,6 +11,8 @@ void HttpRequest::setRequestInfo(std::string const requestMsg)
 		_controlData.push_back(substringTmp);
 	if (_controlData.size() != 3 || _controlData[2].find("HTTP/") == std::string::npos)
 		throw std::exception();
+	if (_controlData[2].find("HTTP/1.1") == std::string::npos) // NON TESTE
+		throw HttpRequest::HttpVersion();
 
 	std::istringstream streamMap(requestMsg);
 	std::string headerField;
@@ -30,12 +32,10 @@ void HttpRequest::setRequestInfo(std::string const requestMsg)
 	size_t bodyBegin = requestMsg.find("\r\n\r\n");
 	if (bodyBegin != std::string::npos)
 		_body = requestMsg.substr(bodyBegin + 2);
-	std::cout << "\nSETTING TARGET\n";
 	setTarget();
-	std::cout << "\nTARGET SET\n";
 }
 
-void		HttpRequest::setTarget() //PARSING PB '?'
+void		HttpRequest::setTarget()
 {
 	std::string	argsString;
 	if (getMethod() == "GET")
@@ -73,6 +73,7 @@ std::vector<std::string> HttpRequest::getLocation() const
 	std::vector<std::string> location;
 	std::string target = getTarget();
 
+	target = (target[target.size() - 1] == '/') ? target : target + "/";
 	location.push_back(target);
 	while (target != "")
 	{

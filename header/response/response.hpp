@@ -30,6 +30,7 @@ void acceptMethod(HttpRequest const & request, HttpResponse & response,\
 std::map< std::string, std::vector< std::string > > locationInfo);
 
 //parsing_request.cpp
+bool fileExist(std::string & pathString);
 std::map< std::string, std::vector< std::string > > getLocationInfo( HttpRequest & request,\
 std::map< std::string, std::map< std::string, std::vector<std::string> > > & serverMap );
 std::map< std::string, std::vector< std::string > > getServerMap (std::map< std::string, std::vector< std::string > > locationMap,\
