@@ -155,7 +155,10 @@ int Server::send_message_to_client(int client_fd)
 			MTU : _msg_to_send.size() - total_bytes; // send la valeur < entre MTU et bytes restants
 		ssize_t bytes = send(client_fd, _msg_to_send.c_str() + total_bytes, packet_size, MSG_NOSIGNAL);
 		if (bytes == -1)
+		{
+			close(client_fd);
 		 	return (display_error("Unable to sent data to client"));
+		}
 		total_bytes += bytes;
 		packet_sent++;
 	}
@@ -183,14 +186,14 @@ int	Server::handle_request(int& epoll_fd, int i)
 		close(_client_fd[i]);
 		_client_fd.erase(_client_fd.begin() + i);
 	}
-	if (bytes_received != 0)
+	if (bytes_received > 0)
 	{
 		std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
 				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
 				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
 		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
 		if (!send_message_to_client(_client_fd[i]))
-			return (1);
+			return (0);
 	}
 	return (1);
 }
