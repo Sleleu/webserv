@@ -170,6 +170,16 @@ int Server::send_message_to_client(int client_fd)
 	return (1);
 }
 
+int Server::epoll_mod(int epollfd, int socket, int event)
+{
+	std::memset(&_server_event, 0, sizeof(epoll_event));
+	_server_event.data.fd = socket;
+	_server_event.events = event;
+	if ((epoll_ctl(epollfd, EPOLL_CTL_MOD, socket, &_server_event)) == -1)
+		return (display_error("modification on epoll_ctl error"));
+	return (1);
+}
+
 int	Server::handle_request(int& epoll_fd, int i)
 {
 	char msg_to_recv[B_SIZE] = {0};
@@ -192,8 +202,9 @@ int	Server::handle_request(int& epoll_fd, int i)
 				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
 				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
 		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
+		epoll_mod(epoll_fd, _client_fd[i], EPOLLOUT);
 		if (!send_message_to_client(_client_fd[i]))
-			return (0);
+		 	return (0);
 	}
 	return (1);
 }
