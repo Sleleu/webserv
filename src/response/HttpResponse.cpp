@@ -17,7 +17,6 @@ HttpResponse::HttpResponse()
 void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap)
 {
 	_errorConf = serverMap["error"];
-	// _errorPath = "./html" + serverMap.find("error")->second[0];
 
 	_headers["Server"] = serverMap["server_name"][0];
 	if (!request.parsing)
@@ -26,6 +25,12 @@ void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::s
 		_controlData["status"] = "Bad Request";
 		_errorPath = "./html" + serverMap["error"][0];
 		return ;
+	}
+	if (static_cast<long>(request.getBody().size() - 2) > std::atol(serverMap.find("body_size")->second[0].c_str()))
+	{
+		setError("413", "Payload Too Large");
+		setBody(BODY_413);
+		throw HttpResponse::BodySizeException();
 	}
 
 	_root = "./html" + serverMap["root"][0];

@@ -52,7 +52,7 @@ class HttpResponse
 		bool		directoryListing;
 		bool		errorPage;
 
-
+		class BodySizeException : public std::exception {};
 		class RedirectException : public std::exception {};
 
 	private :
