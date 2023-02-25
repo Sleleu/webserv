@@ -47,7 +47,7 @@ class Server
 	int		accept_connect(int epoll_fd);
 	int		epoll_add(int epoll_fd, int socket);
 	int		epoll_mod(int epoll_fd, int socket, int event);
-	int		send_message_to_client(int client_fd);
+	int		send_message_to_client(int epollfd, int client_fd);
 	int 	handle_request(int& epoll_fd, int i);
 	void*	get_addr(sockaddr *s_addr);
 	void	display_ip(std::string domain);

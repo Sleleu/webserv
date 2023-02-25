@@ -121,7 +121,12 @@ int	Handler::handle_servers(void)
 				{
 					int index_client_fd = is_client_owned(*it, _events[i].data.fd);
 					if (index_client_fd != -1) // Une fois lien client|serveur decouvert
-						event_status = (*it).handle_request(_epollfd, index_client_fd); // traiter la requete
+					{	
+						if (_events[i].events & EPOLLIN)
+							event_status = (*it).handle_request(_epollfd, index_client_fd); // traiter la requete
+						else if (_events[i].events & EPOLLOUT)
+							(*it).send_message_to_client(_epollfd, index_client_fd);
+					}
 					if (event_status == 0)
 					{
 						close_servers_sockfd();

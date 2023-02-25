@@ -143,33 +143,6 @@ int	Server::epoll_add(int epoll_fd, int socket)
 	return (1);
 }
 
-int Server::send_message_to_client(int client_fd)
-{
-	unsigned long total_bytes = 0; // total de bytes envoyes
-	size_t		  packet_sent = 0; // nombre de paquets envoyes
-
-
-	while (total_bytes < _msg_to_send.size())
-	{
-		size_t packet_size = MTU < _msg_to_send.size() - total_bytes ? \
-			MTU : _msg_to_send.size() - total_bytes; // send la valeur < entre MTU et bytes restants
-		ssize_t bytes = send(client_fd, _msg_to_send.c_str() + total_bytes, packet_size, MSG_NOSIGNAL);
-		if (bytes == -1)
-		{
-			close(client_fd);
-		 	return (display_error("Unable to sent data to client"));
-		}
-		total_bytes += bytes;
-		packet_sent++;
-	}
-	std::cout << "Packet sent : " << packet_sent << std::endl;
-	std::cout << BOLDCYAN << "Response from server [" << BOLDYELLOW << _serv_name
-			  << BOLDCYAN << "] id [" << BOLDGREEN << _id_server
-			  << BOLDCYAN << "] on socket [" << BOLDMAGENTA << client_fd
-			  << BOLDCYAN << "] successfully sent" << RESET << std::endl;
-	return (1);
-}
-
 int Server::epoll_mod(int epollfd, int socket, int event)
 {
 	std::memset(&_server_event, 0, sizeof(epoll_event));
@@ -180,13 +153,40 @@ int Server::epoll_mod(int epollfd, int socket, int event)
 	return (1);
 }
 
+int Server::send_message_to_client(int epollfd, int i)
+{
+	unsigned long total_bytes = 0; // total de bytes envoyes
+	size_t		  packet_sent = 0; // nombre de paquets envoyes
+
+	while (total_bytes < _msg_to_send.size())
+	{
+		size_t packet_size = MTU < _msg_to_send.size() - total_bytes ? \
+			MTU : _msg_to_send.size() - total_bytes; // send la valeur < entre MTU et bytes restants
+		ssize_t bytes = send(_client_fd[i], _msg_to_send.c_str() + total_bytes, packet_size, MSG_NOSIGNAL);
+		if (bytes == -1)
+		{
+			close(_client_fd[i]);
+		 	return (display_error("Unable to sent data to client"));
+		}
+		total_bytes += bytes;
+		packet_sent++;
+	}
+	std::cout << "Packet sent : " << packet_sent << std::endl;
+	std::cout << BOLDCYAN << "Response from server [" << BOLDYELLOW << _serv_name
+			  << BOLDCYAN << "] id [" << BOLDGREEN << _id_server
+			  << BOLDCYAN << "] on socket [" << BOLDMAGENTA << _client_fd[i]
+			  << BOLDCYAN << "] successfully sent" << RESET << std::endl;
+	epoll_mod(epollfd, _client_fd[i], EPOLLIN);
+	return (1);
+}
+
 int	Server::handle_request(int& epoll_fd, int i)
 {
 	char msg_to_recv[B_SIZE] = {0};
 	ssize_t bytes_received;
 
 	bytes_received = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
-	if (bytes_received <= 0)
+	if (bytes_received <= 0) // fin de connexion ou erreur
 	{
 		if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _client_fd[i], NULL)) == -1)
 		{
@@ -203,8 +203,6 @@ int	Server::handle_request(int& epoll_fd, int i)
 				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
 		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
 		epoll_mod(epoll_fd, _client_fd[i], EPOLLOUT);
-		if (!send_message_to_client(_client_fd[i]))
-		 	return (0);
 	}
 	return (1);
 }
