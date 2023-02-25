@@ -77,8 +77,8 @@ int	Handler::waiting_process(void)
 
 	std::signal(SIGINT, signal_handler);
 	std::signal(SIGQUIT, signal_handler);
-	event_count = epoll_wait(_epollfd, _events, EVENTS_HANDLED, 0);
-	if (event_count == -1)
+	event_count = epoll_wait(_epollfd, _events, EVENTS_HANDLED, -1);
+	if (event_count == -1) // -1 = erreur | 0 = timeout
 	{	
 	 	if (errno != EINTR) // EINTR : un signal a été reçu
 			return (display_error("epoll_wait"));
