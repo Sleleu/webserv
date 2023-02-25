@@ -30,7 +30,6 @@
         _envMap["PATH_INFO"] = response.getTargetPath();
     }
 
-
     void    CgiHandler::convertMap()
     {
         for (std::map<std::string, std::string>::iterator it = _envMap.begin() ; it != _envMap.end() ; it++)

@@ -60,9 +60,6 @@ Sending a large request body to a server after a request has been rejected for i
     The response 417 Expectation Failed indicates that the request should be repeated without the Expect header as
      it indicates that the server does not support expectations (this is the case, for example, of HTTP/1.0 servers).
 
-default_error 404 /html/error.html -> ok
-redirect -> ok
-limit client body (body_size ?) -> nop
 directory listing devrait pouvoir être on, off ou unset
 
 
