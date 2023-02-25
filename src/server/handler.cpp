@@ -77,14 +77,11 @@ int	Handler::waiting_process(void)
 
 	std::signal(SIGINT, signal_handler);
 	std::signal(SIGQUIT, signal_handler);
-	event_count = epoll_wait(_epollfd, _events, EVENTS_HANDLED, -1);
+	event_count = epoll_wait(_epollfd, _events, EVENTS_HANDLED, 0);
 	if (event_count == -1)
 	{	
 	 	if (errno != EINTR) // EINTR : un signal a été reçu
-		{
-			close_servers_sockfd();
 			return (display_error("epoll_wait"));
-		}
 	}
 	return (event_count);
 }
@@ -105,7 +102,7 @@ int	Handler::handle_servers(void)
 		if (g_exit_code == 1) // on sort de la loop du serveur
 			break;
 		if ((event_count = waiting_process()) == 0)
-			return (0);
+			return (close_servers_sockfd(), 0);
 		for (int i = 0; i < event_count; i++)
 		{
 			for (it = _v_server.begin(); it < _v_server.end(); it++)

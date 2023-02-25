@@ -167,19 +167,6 @@ int Server::send_message_to_client(int client_fd)
 	return (1);
 }
 
-std::string body_size_error()
-{
-	std::string message;
-
-	message = "HTTP/1.1 200 OK\n\
-	Content-Type: text/html\nContent-Length: 179\n\n<!DOCTYPE html>\n<html>\n\
-	<head>\n<title>413 Request Entity Too Large</title>\n</head>\n\
-	<body>\n<h1>Request Entity Too Large</h1>\n\
-	<p>The request entity is too large.</p>\n</body>\n</html>\n";
-	std::cout << "INVALID REQUEST FOR BODY SIZE\n";
-	return (message);
-}
-
 int	Server::handle_request(int& epoll_fd, int i)
 {
 	char msg_to_recv[B_SIZE] = {0};
@@ -201,10 +188,7 @@ int	Server::handle_request(int& epoll_fd, int i)
 		std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
 				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
 				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
-		if (convert_char_to_string(msg_to_recv).size() > _body_size)
-			_msg_to_send = body_size_error();
-		else
-			_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
+		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
 		if (!send_message_to_client(_client_fd[i]))
 			return (1);
 	}
