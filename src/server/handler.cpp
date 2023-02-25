@@ -125,7 +125,7 @@ int	Handler::handle_servers(void)
 						if (_events[i].events & EPOLLIN)
 							event_status = (*it).handle_request(_epollfd, index_client_fd); // traiter la requete
 						else if (_events[i].events & EPOLLOUT)
-							(*it).send_message_to_client(_epollfd, index_client_fd);
+							event_status = (*it).send_message_to_client(_epollfd, index_client_fd);
 					}
 					if (event_status == 0)
 					{
