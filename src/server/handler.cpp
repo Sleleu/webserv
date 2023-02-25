@@ -44,10 +44,8 @@ int	Handler::launch_servers(void)
 	std::vector<Server>::iterator it;
 
 	for (it = _v_server.begin(); it < _v_server.end(); it++)
-	{
-		(*it).init_server(); // leak fd
-		(*it).start_server();
-	}
+		if (!(*it).init_server() || !(*it).start_server())
+			return (0);
 	return (1);
 }
 

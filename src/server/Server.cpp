@@ -68,7 +68,8 @@ int	Server::init_socket(void)
 	display_ok("] Initialise server socket:");
 
 	// Set le socketfd en non-bloquant
-	fcntl(_socketfd, F_SETFL, O_NONBLOCK);
+	if (fcntl(_socketfd, F_SETFL, O_NONBLOCK) == -1)
+		return (freeaddrinfo(_ptr_info),display_error("Error when modify socketfd properties"));
 
 	int optval = 1;
 	if (setsockopt(_socketfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &optval, sizeof(int)) == -1) // return 0 si success
@@ -163,15 +164,13 @@ int Server::send_message_to_client(int epollfd, int i)
 		size_t packet_size = MTU < _msg_to_send.size() - total_bytes ? \
 			MTU : _msg_to_send.size() - total_bytes; // send la valeur < entre MTU et bytes restants
 		ssize_t bytes = send(_client_fd[i], _msg_to_send.c_str() + total_bytes, packet_size, MSG_NOSIGNAL);
-		if (bytes == -1)
-		{
-			close(_client_fd[i]);
-		 	return (display_error("Unable to sent data to client"));
-		}
+		if (bytes <= 0)
+			return (close(_client_fd[i]), 1);
 		total_bytes += bytes;
 		packet_sent++;
 	}
-	std::cout << "Packet sent : " << packet_sent << std::endl;
+	if (_verbose)
+		std::cout << "Packet sent : " << packet_sent << std::endl;
 	std::cout << BOLDCYAN << "Response from server [" << BOLDYELLOW << _serv_name
 			  << BOLDCYAN << "] id [" << BOLDGREEN << _id_server
 			  << BOLDCYAN << "] on socket [" << BOLDMAGENTA << _client_fd[i]
