@@ -202,6 +202,7 @@ int	Server::handle_request(int& epoll_fd, int i)
 				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
 		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
 		epoll_mod(epoll_fd, _client_fd[i], EPOLLOUT);
+		send_message_to_client(epoll_fd, i);
 	}
 	return (1);
 }
