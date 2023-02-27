@@ -33,8 +33,7 @@ void HttpResponse::setResponseInfo(HttpRequest & request, std::map< std::string,
 		throw HttpResponse::BodySizeException();
 	}
 
-	std::cout << BOLDMAGENTA << request.getLocationBlocName() << RESET << std::endl;
-
+	// std::cout << BOLDMAGENTA << request.getLocationBlocName() << RESET << std::endl;
 	//TARGETPATH
 	_root = "./html" + serverMap["root"][0];
 	_root = (_root[_root.length() -1] == '/') ? _root : _root + "/";
