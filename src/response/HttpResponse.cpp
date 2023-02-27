@@ -33,12 +33,18 @@ void HttpResponse::setResponseInfo(HttpRequest & request, std::map< std::string,
 		throw HttpResponse::BodySizeException();
 	}
 
+	std::cout << BOLDMAGENTA << request.getLocationBlocName() << RESET << std::endl;
+
+	//TARGETPATH
 	_root = "./html" + serverMap["root"][0];
 	_root = (_root[_root.length() -1] == '/') ? _root : _root + "/";
 
 	_targetPath = _root.substr(0, _root.size() - 1) + request.getTarget();
-	if (request.getLocationBlocName()!= "/")
-		_targetPath.erase(_targetPath.find(request.getLocationBlocName()), request.getLocationBlocName().size());
+	std::string bloc = request.getLocationBlocName();
+	bloc = (bloc[bloc.length() -1] == '/') ? bloc : bloc + "/";
+	bloc = bloc.substr(0, bloc.size() - 1);
+	_targetPath.erase(_targetPath.find(bloc), bloc.size());
+	//
 
 	if (_targetPath.find("_IMAGE_") != std::string::npos)
 		_targetPath = "./html/image" + _targetPath.substr(_targetPath.find("_IMAGE_") + 7);
@@ -47,6 +53,7 @@ void HttpResponse::setResponseInfo(HttpRequest & request, std::map< std::string,
 		redirectTargetPath(serverMap["redirect"][0]);
 	if (isDirectory())
 	{
+		_targetPath = (_targetPath[_targetPath.length() -1] == '/') ? _targetPath : _targetPath + "/";
 		std::string defaultPage = (_targetPath[_targetPath.length() -1] == '/') ?\
 			_targetPath + serverMap["default_file"][0] : _targetPath + "/" + serverMap["default_file"][0];
 		if (fileExist(defaultPage))

@@ -18,7 +18,7 @@ std::string parseBody(HttpRequest & request)
 	// std::cout << BOLDBLUE << filename << RESET << std::endl;
 
 	newBody = newBody.substr(newBody.find("\r\n\r\n") + 4);
-	newBody = newBody.substr(0, newBody.find("------WebKitFormBoundary") - 2);
+	newBody = newBody.substr(0, newBody.find("------WebKitFormBoundary") - 4);
 	// std::cout << BOLDMAGENTA << newBody << RESET << std::endl;
 
 	request.setContent(newBody);

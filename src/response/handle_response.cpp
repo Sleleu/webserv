@@ -80,6 +80,7 @@ Server::map_server defaultMap, bool verbose)
 		catch(const std::exception& e)
 		{
 			std::cout << " [" << BOLDRED << "KO" << RESET << "] ";
+			// std::cout << e.what() << std::endl;
 			response.errorReturn();
 			std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
 		}
