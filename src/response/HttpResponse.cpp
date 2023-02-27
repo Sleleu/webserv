@@ -39,6 +39,11 @@ void HttpResponse::setResponseInfo(HttpRequest & request, std::map< std::string,
 	_targetPath = (serverMap["root"][0] == "/") ? \
 		"./html" + request.getTarget() : "./html" + serverMap["root"][0] + request.getTarget();
 
+		std::cout << BOLDMAGENTA << request.getLocationBlocName() << RESET << std::endl;
+
+	// _targetPath = _root +
+
+
 	if (_targetPath.find("_IMAGE_") != std::string::npos)
 		_targetPath = "./html/image" + _targetPath.substr(_targetPath.find("_IMAGE_") + 7);
 
