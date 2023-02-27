@@ -23,11 +23,15 @@ class HttpRequest
 		std::string 						getVersion() const;
 		std::string 						getHeader(std::string key);
 		std::string 						getBody() const;
+		void 								setBody(std::string src);
+		void 								setContent(std::string src);
 		std::map<std::string, std::string>	getArgs() const;
 		void								setLocationBlocName(std::string src);
 		std::string 						getLocationBlocName() const;
 		std::string 						getContent() const;
+		std::string 						getFileName() const;
 
+		void 								setFileName(std::string src);
 		void								checkParsing() const;
 		bool								parsing;
 
@@ -41,6 +45,7 @@ class HttpRequest
 		std::string 						_target;
 		std::map<std::string, std::string> 	_args;
 		std::string						 	_content;
+		std::string                         _filename;
 };
 
 

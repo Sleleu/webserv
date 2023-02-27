@@ -1,3 +1,3 @@
 #!/bin/bash
 
-php-cgi "$1"
+php-cgi "$PATH_INFO"

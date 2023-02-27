@@ -1,0 +1,7 @@
+------WebKitFormBoundary6L9EdpLA2CjXS8c9
+Content-Disposition: form-data; name="myfile"; filename="level6.json"
+Content-Type: application/json
+
+{"routes":{"Ar1":{"route":"8.8.8.8/16","gate":"49.60.242.254"},"Rr1":{"route":"8.8.8.8/16"},"Ir1":{"route":"49.60.242.227/24"}},"ifs":{"A1":{"mask":"255.255.255.128"},"R1":{"ip":"49.60.242.254"},"R2":{},"S1":{},"Somewhere on the Net":{},"I1":{}}}
+------WebKitFormBoundary6L9EdpLA2CjXS8c9--
+
