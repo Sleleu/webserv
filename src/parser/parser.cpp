@@ -521,7 +521,7 @@ void	Parser::new_conf_location(int &line, int server, std::string str, std::stri
 			add_conf ++ ;
 			if (add_conf == 1)
 			{
-				_parsingVector[server][left_token].clear();
+				_locationVector[server][location][left_token].clear();
 				if (!pars_conf(left_token, token, line))
 					throw std::exception();
 			}
@@ -600,17 +600,17 @@ bool	Parser::tcheck_size(std::string token, std::string left_token, int line)
 
 bool	Parser::tcheck_root(std::string token, std::string left_token, int line)
 {
-	struct stat _stat;
+/*	struct stat _stat;
 	std::string path = "./html";
 	std::string	tmp = token;
 
-	if (token[0] != '/')
+*/	if (token[0] != '/')
 	{
 		std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << " need begin with " << RED << "\"/\"" << RESET << " to match a destination, line:" << line;
 		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 		return false;
 	}
-	path += token;
+/*	path += token;
 	token = path;
 	if (stat(token.c_str(), &_stat) != 0)
 	{
@@ -626,7 +626,7 @@ bool	Parser::tcheck_root(std::string token, std::string left_token, int line)
 		std::cout << " isn't a directory: line:" << line;
 		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 		return false;
-	}
+	}*/
 	return true;
 }
 
