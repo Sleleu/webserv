@@ -24,6 +24,7 @@ class HttpRequest
 		std::string 						getHeader(std::string key);
 		std::string 						getBody() const;
 		void 								setBody(std::string src);
+		void 								setContent(std::string src);
 		std::map<std::string, std::string>	getArgs() const;
 		void								setLocationBlocName(std::string src);
 		std::string 						getLocationBlocName() const;

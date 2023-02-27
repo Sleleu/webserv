@@ -8,6 +8,7 @@ Parser::Parser(std::string conf_file)
 		std::cout << BOLDWHITE << "Reading conf file...\n" << RESET;
 		fill_conf(conf_file);
 		fill_vector();
+		tcheck_listen();
 	}
 	catch (std::exception &e)
 	{
@@ -24,7 +25,6 @@ void	Parser::fill_conf(std::string conf_file)
 	std::fstream	conf_fd;
 	std::string tmp_buff;
 
-	std::cout << "\nChecking extension name...\n";
 	if (!extension(conf_file))
 	{
 		std::cerr << "Bad extension";
@@ -36,7 +36,6 @@ void	Parser::fill_conf(std::string conf_file)
 
 	//Si le fichier est un directory le programme fonctionne ? ;
 
-	std::cout << "\nOpen Conf File...\n";
 	conf_fd.open(conf_file.c_str(), std::ios::in);
 	if (!conf_fd.is_open())
 	{
@@ -76,7 +75,6 @@ void	Parser::fill_vector(void)
 	initDefaultVector();
 	tmp_it = _conf.begin();
 	end_it = _conf.end();
-	std::cout << "\nParsing Conf File...\n";
 	while (tmp_it != end_it)
 	{
 		if (tmp_it->size() == 0 || tmp_it->c_str()[0] == '#');
@@ -523,7 +521,7 @@ void	Parser::new_conf_location(int &line, int server, std::string str, std::stri
 			add_conf ++ ;
 			if (add_conf == 1)
 			{
-				_parsingVector[server][left_token].clear();
+				_locationVector[server][location][left_token].clear();
 				if (!pars_conf(left_token, token, line))
 					throw std::exception();
 			}
@@ -602,17 +600,17 @@ bool	Parser::tcheck_size(std::string token, std::string left_token, int line)
 
 bool	Parser::tcheck_root(std::string token, std::string left_token, int line)
 {
-	struct stat _stat;
+/*	struct stat _stat;
 	std::string path = "./html";
 	std::string	tmp = token;
 
-	if (token[0] != '/')
+*/	if (token[0] != '/')
 	{
 		std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << " need begin with " << RED << "\"/\"" << RESET << " to match a destination, line:" << line;
 		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 		return false;
 	}
-	path += token;
+/*	path += token;
 	token = path;
 	if (stat(token.c_str(), &_stat) != 0)
 	{
@@ -628,7 +626,7 @@ bool	Parser::tcheck_root(std::string token, std::string left_token, int line)
 		std::cout << " isn't a directory: line:" << line;
 		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 		return false;
-	}
+	}*/
 	return true;
 }
 
@@ -640,4 +638,29 @@ bool	Parser::tcheck_on_off(std::string token, std::string left_token, int line)
 	std::cerr << RED << " \"on\"" << RESET << " or " << RED << "\"off\"" << RESET << " token, line:" << line;
 	std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 	return false;
+}
+
+void	Parser::tcheck_listen(void)
+{
+	std::vector<std::string>	listen;
+	std::vector<std::string>	tmp;
+	std::string					port;
+
+
+	for (big_vector::iterator it = _parsingVector.begin(); it != _parsingVector.end(); it ++)
+	{
+		port = (*it)["listen"][0];
+		for (std::vector<std::string>::iterator i = listen.begin(); i != listen.end(); i ++)
+		{
+			if ((*i) == port)
+			{
+				std::cerr << "Can't handle same port ("<< RED << "\"" << port << "\"" << RESET << ") on two distinct server ";
+				std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+				throw std::exception();
+			}
+		}
+		listen.push_back((*it)["listen"][0]);
+	}
+	std::cout << "Port parsing:";
+	std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 }
