@@ -21,7 +21,7 @@ std::string parseBody(HttpRequest & request)
 	newBody = newBody.substr(0, newBody.find("------WebKitFormBoundary"));
 	std::cout << BOLDMAGENTA << newBody << RESET << std::endl;
 
-	request.setBody(newBody);
+	request.setContent(newBody);
 	return newBody;
 }
 
