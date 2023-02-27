@@ -10,7 +10,10 @@ int g_exit_code;
 void	signal_handler(int signal)
 {
 	if ((signal == SIGINT) || (signal == SIGQUIT))
+	{
 		g_exit_code = 1;
+		std::cout << std::endl;
+	}
 }
 
 Handler::Handler()
@@ -18,7 +21,7 @@ Handler::Handler()
 	std::cout << "Default constructor called" << std::endl;
 }
 
-Handler::Handler(conf_server& c_server, conf_location& c_location, bool verbose) : _conf_server(c_server), _conf_location(c_location), _verbose(verbose)
+Handler::Handler(conf_server c_server, conf_location c_location, bool verbose) : _conf_server(c_server), _conf_location(c_location), _verbose(verbose)
 {
 	conf_server_iterator   conf_server_it = _conf_server.begin();
 	conf_location_iterator conf_location_it = _conf_location.begin();
@@ -41,10 +44,8 @@ int	Handler::launch_servers(void)
 	std::vector<Server>::iterator it;
 
 	for (it = _v_server.begin(); it < _v_server.end(); it++)
-	{
-		(*it).init_server(); // leak fd
-		(*it).start_server();
-	}
+		if (!(*it).init_server() || !(*it).start_server())
+			return (0);
 	return (1);
 }
 
@@ -68,6 +69,21 @@ void	Handler::close_servers_sockfd(void)
 		close((*it).get_socketfd());
 }
 
+int	Handler::waiting_process(void)
+{
+	int event_count;
+
+	std::signal(SIGINT, signal_handler);
+	std::signal(SIGQUIT, signal_handler);
+	event_count = epoll_wait(_epollfd, _events, EVENTS_HANDLED, -1);
+	if (event_count == -1) // -1 = erreur | 0 = timeout
+	{	
+	 	if (errno != EINTR) // EINTR : un signal a été reçu
+			return (display_error("epoll_wait"));
+	}
+	return (event_count);
+}
+
 int	Handler::handle_servers(void)
 {
 	int event_count;
@@ -77,21 +93,14 @@ int	Handler::handle_servers(void)
 	std::vector<Server>::iterator it;
 	for (it = _v_server.begin(); it < _v_server.end(); it++)
 		(*it).add_socket_to_events(_epollfd);
-
 	while (42)
 	{
 		int event_status = 1;
 
 		if (g_exit_code == 1) // on sort de la loop du serveur
 			break;
-		std::signal(SIGINT, signal_handler);
-		std::signal(SIGQUIT, signal_handler);
-		event_count = epoll_wait(_epollfd, _events, EVENTS_HANDLED, -1);
-		if (event_count == -1)
-		{
-			close_servers_sockfd();
-		 	return (display_error("epoll_wait"));
-		}
+		if ((event_count = waiting_process()) == 0)
+			return (close_servers_sockfd(), 0);
 		for (int i = 0; i < event_count; i++)
 		{
 			for (it = _v_server.begin(); it < _v_server.end(); it++)
@@ -110,7 +119,7 @@ int	Handler::handle_servers(void)
 				{
 					int index_client_fd = is_client_owned(*it, _events[i].data.fd);
 					if (index_client_fd != -1) // Une fois lien client|serveur decouvert
-						event_status = (*it).handle_request(_epollfd, index_client_fd); // traiter la requete
+							event_status = (*it).handle_request(_epollfd, index_client_fd); // traiter la requete
 					if (event_status == 0)
 					{
 						close_servers_sockfd();

@@ -50,6 +50,7 @@ int main(int argc, char **argv)
 	}
 	catch (std::exception &e)
 	{
+		e.what();
 	}
 	return (0);
 	//simul_request(parser.getBigLocation()[0], parser.getBigVector()[0]);
