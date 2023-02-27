@@ -4,7 +4,7 @@
 #include "../../header/utils/color.hpp"
 #include "../../header/response/directory_index.hpp"
 
-void methodGET(HttpRequest const & request, HttpResponse & response)
+void methodGET(HttpRequest & request, HttpResponse & response)
 {
     std::cout << BOLDYELLOW << " GET" << RESET;
 
@@ -42,7 +42,7 @@ void methodGET(HttpRequest const & request, HttpResponse & response)
     response.setBody("\n" + targetContent);
 };
 
-void methodPOST(HttpRequest const & request, HttpResponse & response)
+void methodPOST(HttpRequest & request, HttpResponse & response)
 {
     std::cout << BOLDYELLOW << " POST" << RESET;
 
@@ -57,6 +57,7 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
             throw std::exception();
         }
     }
+    std::string const body = parseBody(request);
     targetStream.close();
     CgiHandler cgi(response, request);
     if (cgi.getOutput() != "")
@@ -68,7 +69,7 @@ void methodPOST(HttpRequest const & request, HttpResponse & response)
     //Que se passe t-il dans ce cas ?
 }
 
-void methodDELETE(HttpRequest const & request, HttpResponse & response) //Pas de protection ? ACCESS ?
+void methodDELETE(HttpRequest & request, HttpResponse & response) //Pas de protection ? ACCESS ?
 {
     (void) request;
     std::cout << BOLDYELLOW << " DELETE" << RESET;
@@ -92,11 +93,11 @@ void methodDELETE(HttpRequest const & request, HttpResponse & response) //Pas de
     response.setBody("");
 }
 
-void acceptMethod(HttpRequest const & request, HttpResponse & response,\
+void acceptMethod(HttpRequest & request, HttpResponse & response,\
 std::map< std::string, std::vector< std::string > > locationInfo)
 {
     (void)locationInfo;
-	void (*useMethod[3])(HttpRequest const & request, HttpResponse & response) = {methodGET, methodPOST, methodDELETE};
+	void (*useMethod[3])(HttpRequest & request, HttpResponse & response) = {methodGET, methodPOST, methodDELETE};
 
     std::vector<std::string> acceptedMethods = locationInfo["method"];
     if (std::find(acceptedMethods.begin(), acceptedMethods.end(), request.getMethod()) == acceptedMethods.end())

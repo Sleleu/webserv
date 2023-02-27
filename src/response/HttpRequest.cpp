@@ -89,6 +89,13 @@ void	HttpRequest::checkParsing() const
 		throw std::exception();
 }
 
+
+void	HttpRequest::setBody(std::string src) { _body = src; }
+
+std::string HttpRequest::getFileName() const { return _filename; }
+
+void	HttpRequest::setFileName(std::string src) { _filename = src; }
+
 std::string HttpRequest::getContent() const { return _content; }
 
 std::string HttpRequest::getMethod() const { return _controlData[0]; }

@@ -16,7 +16,7 @@ function error_html()
 
 if [[ "$UPLOAD" != "on" ]]
 then
-	error_html "$1" "upload isn't allowed" 
+	error_html "$1" "upload isn't allowed"
 	exit 4
 fi
 last_char=${UPLOAD_PATH: -1}
@@ -43,12 +43,12 @@ then
 fi
 if [[ -d "$path" ]]
 then
-	error_html "$1" "already exist and is a directory" 
+	error_html "$1" "already exist and is a directory"
 	exit 7
 fi
 if [[ -e "$path" ]]
 then
-	error_html "$1" "already exist and is a file" 
+	error_html "$1" "already exist and is a file"
 	exit 1
 fi
 
