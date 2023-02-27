@@ -48,7 +48,7 @@ void		HttpRequest::setTarget()
 		argsString = oldTarget.substr(argsBegin + 1);
 	}
 	else if (getMethod() == "POST")
-		argsString = _body;
+		argsString = _body.substr(2);
 	else
 		return ;
 	_content = argsString;

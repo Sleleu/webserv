@@ -25,7 +25,8 @@ SRC_FILES 		= server/Server \
 				  response/methods \
 				  response/HttpResponse \
 				  response/HttpRequest \
-				  response/directory_index
+				  response/CgiHandler \
+				  response/directory_index \
 
 SRC_FILES_BONUS	=
 

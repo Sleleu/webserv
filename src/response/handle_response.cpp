@@ -71,6 +71,12 @@ Server::map_server defaultMap, bool verbose)
 			std::cout << " [" << BOLDGREEN << "OK" << RESET << "] ";
 			std::cout << BOLDGREEN << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
 		}
+		catch(const HttpResponse::BodySizeException & e)
+		{
+			std::cout << " [" << BOLDRED << "KO" << RESET << "] ";
+			response.errorReturn();
+			std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
+		}
 		catch(const std::exception& e)
 		{
 			std::cout << " [" << BOLDRED << "KO" << RESET << "] ";
@@ -91,17 +97,17 @@ Server::map_server defaultMap, bool verbose)
 		request.parsing = 0;
 		response.setError("400", "Bad Request");
 		response.setBody(BODY_400);
-
-		std::cout << " [" << BOLDRED << "KO" << RESET << "] " << std::endl;
+		std::cout << " [" << BOLDRED << "KO" << RESET << "] ";
+		std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
 	}
 
 	std::string responseString = response.getResponseString();
-	std::vector<std::string> packetsToSend;
-	if (request.parsing)
-		packetsToSend = response.getPackets(serverMap, responseString, verbose);
-	else
-		packetsToSend.push_back(responseString);
+	// std::vector<std::string> packetsToSend; // Peut être pas à faire
+	// if (request.parsing)
+	// 	packetsToSend = response.getPackets(serverMap, responseString, verbose);
+	// else
+	// 	packetsToSend.push_back(responseString);
 	if (verbose)
 		std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << responseString << std::endl;
-	return (responseString); // il faudra return "packetsToSend"
+	return (responseString);
 }

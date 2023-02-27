@@ -14,10 +14,9 @@ HttpResponse::HttpResponse()
 	_errorPath = "";
 }
 
-void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::string, std::vector< std::string > > & serverMap)
+void HttpResponse::setResponseInfo(HttpRequest & request, std::map< std::string, std::vector< std::string > > & serverMap)
 {
 	_errorConf = serverMap["error"];
-	// _errorPath = "./html" + serverMap.find("error")->second[0];
 
 	_headers["Server"] = serverMap["server_name"][0];
 	if (!request.parsing)
@@ -26,6 +25,12 @@ void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::s
 		_controlData["status"] = "Bad Request";
 		_errorPath = "./html" + serverMap["error"][0];
 		return ;
+	}
+	if (static_cast<long>(request.getBody().size() - 2) > std::atol(serverMap.find("body_size")->second[0].c_str()))
+	{
+		setError("413", "Payload Too Large");
+		setBody(BODY_413);
+		throw HttpResponse::BodySizeException();
 	}
 
 	_root = "./html" + serverMap["root"][0];
@@ -37,15 +42,15 @@ void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::s
 	if (_targetPath.find("_IMAGE_") != std::string::npos)
 		_targetPath = "./html/image" + _targetPath.substr(_targetPath.find("_IMAGE_") + 7);
 
-	if (serverMap["redirect"].size() > 0)
+	if (serverMap["redirect"].size() != 0 && serverMap["redirect"][0] != "")
 		redirectTargetPath(serverMap["redirect"][0]);
 	if (isDirectory())
-	{		
+	{
 		std::string defaultPage = (_targetPath[_targetPath.length() -1] == '/') ?\
 			_targetPath + serverMap["default_file"][0] : _targetPath + "/" + serverMap["default_file"][0];
 		if (fileExist(defaultPage))
 			_targetPath = defaultPage;
-		else 
+		else
 		{
 			if (serverMap["directory_listing"][0] == "on")
 				directoryListing = 1;
@@ -55,10 +60,11 @@ void HttpResponse::setResponseInfo(HttpRequest const & request, std::map< std::s
 				setBody(BODY_403);
 				throw std::exception();
 			}
-		}		
+		}
 	}
 	setUpload(serverMap);
 	setCgi(request, serverMap);
+	_accept = request.getHeader("Accept");
 }
 
 bool	HttpResponse::findInCgiBin()
@@ -132,11 +138,23 @@ void	HttpResponse::errorReturn()
 void		HttpResponse::setHeader()
 {
 	std::string fileType = getTargetPath().substr(getTargetPath().find_last_of('.') + 1);
-	std::string img = "ico png apng avif webp";
+	std::string img = "ico png apng avif jpeg";
 	if (img.find(fileType) != std::string::npos)			//un peu bancal
 		_headers["Content-type"] = "image/" + fileType;
 	if (fileType == "html")
 		_headers["Content-type"] = "text/" + fileType;
+	if (_accept == "")
+		return ;
+	std::string const typeOfFile = _headers["Content-type"];
+	if (_accept.find(typeOfFile) == std::string::npos)
+	{
+		std::string const subType = typeOfFile.substr(0, typeOfFile.find("/")) + "/*";
+		if (_accept.find(subType) != std::string::npos || _accept.find("*/*") != std::string::npos)
+			return ;
+		setBody(BODY_406);
+		setError("406", "Not Acceptable");
+		throw std::exception();
+	}
 }
 
 std::string HttpResponse::getResponseString()
