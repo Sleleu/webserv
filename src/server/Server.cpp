@@ -235,41 +235,30 @@ int	Server::handle_request(int& epoll_fd, int i)
 		if ((pos_content_length = total_request.find("Content-Length: ")) != std::string::npos)
 		{
 			ssize_t bytes_loop = 0;
-			size_t pos_body_start;
-			std::cout << "CONTENT LENGTH FOUND : " << std::endl;
-		content_length = atoi(total_request.c_str() + pos_content_length + 16);
-			std::cout << "TAILLE = " << content_length << std::endl;
+			size_t pos_body_start = 0;
+			content_length = atoi(total_request.c_str() + pos_content_length + 16);
 			if ((pos_body_start = total_request.find("\r\n\r\n")) != std::string::npos)
-				pos_body_start += 4;
+				pos_body_start += 0;
 			else if ((pos_body_start = total_request.find("\n\n")) != std::string::npos)
-				pos_body_start += 2;
+				pos_body_start += 0;
+			
 			for (; total_bytes < content_length + pos_body_start;)
 			{
-				bzero(msg_to_recv, B_SIZE);
-				bytes_loop = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
-				// if (bytes_loop <= 0) // fin de connexion ou erreur
-				// {
-				// 	if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _client_fd[i], NULL)) == -1)
-				// 	{
-				// 		close(_client_fd[i]);
-				// 		return (display_error("recv data epoll_ctl() error"));
-				// 	}
-				// 	close(_client_fd[i]);
-				// 	_client_fd.erase(_client_fd.begin() + i);
-				// }
+				char buffer[B_SIZE] = {0};
+				bytes_loop = recv(_client_fd[i], buffer, B_SIZE, 0);
+
 				if (bytes_loop > 0)
 				{
-					total_request.append(msg_to_recv);
+					strncat(msg_to_recv, buffer, bytes_loop);
 					total_bytes += bytes_loop;
 				}
+			std::cout << " bytes :" << bytes_loop << " total : " << total_bytes << std::endl;
 			}
-			std::cout << "bytes :" << bytes_loop << "total : " << total_bytes << std::endl;
 		}
-		std::cout << total_request;
 		std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
 				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
 				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
-		_msg_to_send = get_response(total_request, _location_server, _map_server, _verbose);
+		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
 		epoll_mod(epoll_fd, _client_fd[i], EPOLLOUT);
 		send_message_to_client(epoll_fd, i);
 	}
