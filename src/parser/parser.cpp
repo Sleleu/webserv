@@ -8,6 +8,7 @@ Parser::Parser(std::string conf_file)
 		std::cout << BOLDWHITE << "Reading conf file...\n" << RESET;
 		fill_conf(conf_file);
 		fill_vector();
+		tcheck_listen();
 	}
 	catch (std::exception &e)
 	{
@@ -571,6 +572,11 @@ bool	Parser::pars_conf(std::string token, std::string right_token, int line)
 		if (!tcheck_on_off(right_token, token, line))
 			return false;
 	}
+	else if (token == "listen")
+	{
+		if (!tcheck_root(right_token, token, line))
+			return false;
+	}
 	return true;
 }
 
@@ -640,4 +646,16 @@ bool	Parser::tcheck_on_off(std::string token, std::string left_token, int line)
 	std::cerr << RED << " \"on\"" << RESET << " or " << RED << "\"off\"" << RESET << " token, line:" << line;
 	std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 	return false;
+}
+
+void	Parser::tcheck_listen(void)
+{
+	std::vector<std::string>	listen;
+	std::vector<std::string>	tmp;
+
+
+	for (big_vector::iterator it = _parsingVector.begin(); it != _parsingVector.end(); it ++)
+	{
+		std::cout << (*it)["listen"][0] << std::endl;
+	}
 }
