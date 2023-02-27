@@ -240,9 +240,10 @@ int	Server::handle_request(int& epoll_fd, int i)
 		content_length = atoi(total_request.c_str() + pos_content_length + 16);
 			std::cout << "TAILLE = " << content_length << std::endl;
 			if ((pos_body_start = total_request.find("\r\n\r\n")) != std::string::npos)
-				std::cout << "BODY START FOUND \n";
-			
-			for (; total_bytes < content_length + pos_body_start + 4;)
+				pos_body_start += 4;
+			else if ((pos_body_start = total_request.find("\n\n")) != std::string::npos)
+				pos_body_start += 2;
+			for (; total_bytes < content_length + pos_body_start;)
 			{
 				bzero(msg_to_recv, B_SIZE);
 				bytes_loop = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
