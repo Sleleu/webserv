@@ -3,7 +3,6 @@ NAME = client
 SRC = client_main.cpp \
       client.cpp \
 	  ../server/display.cpp \
-	  ../server/signal.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

@@ -3,6 +3,16 @@
 #include "../../header/utils/color.hpp"
 
 
+bool fileExist(std::string & pathString)
+{
+	const char* path = pathString.c_str();
+	struct stat s;
+
+	if (stat(path, &s) == 0)
+			return 1;
+	return 0;
+}
+
 std::map< std::string, std::vector< std::string > > getLocationInfo( HttpRequest & request,\
 std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap )
 {
