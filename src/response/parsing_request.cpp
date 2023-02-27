@@ -18,7 +18,7 @@ std::string parseBody(HttpRequest & request)
 	// std::cout << BOLDBLUE << filename << RESET << std::endl;
 
 	newBody = newBody.substr(newBody.find("\r\n\r\n") + 2);
-	newBody = newBody.substr(0, newBody.find("------WebKitFormBoundary"));
+	newBody = newBody.substr(1, newBody.find("------WebKitFormBoundary") - 2);
 	// std::cout << BOLDMAGENTA << newBody << RESET << std::endl;
 
 	request.setContent(newBody);
@@ -45,15 +45,25 @@ std::map< std::string, std::map< std::string, std::vector<std::string> > > & loc
 	std::vector<std::string>::const_iterator it = locationList.begin();
 	for (; it != locationList.end(); it ++)
 	{
+		std::cout << BOLDBLUE << it->substr(0, it->size() - 1) << RESET << std::endl;
 		if (locationMap.find(*it) != locationMap.end())
 		{
 			request.setLocationBlocName(*it);
 			locationInfo = locationMap[*it];
 			break;
 		}
+		if (locationMap.find(it->substr(0, it->size() - 1)) != locationMap.end())
+		{
+			request.setLocationBlocName(it->substr(0, it->size() - 1));
+			locationInfo = locationMap[it->substr(0, it->size() - 1)];
+			break;
+		}
 	}
 	if (it == locationList.end())
+	{
+		request.setLocationBlocName("/");
 		locationInfo = locationMap["/"];
+	}
 	return locationInfo;
 }
 

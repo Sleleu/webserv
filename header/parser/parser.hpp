@@ -50,6 +50,7 @@ class Parser
 	bool								tcheck_size(std::string, std::string, int);
 	bool								tcheck_root(std::string, std::string, int);
 	bool								tcheck_on_off(std::string, std::string, int);
+	void								tcheck_listen();
 	vector_iterator						&new_conf(std::string, int, int &line, vector_iterator &, vector_iterator &);
 	void								new_conf_location(int &line, int server, std::string str, std::string);
 	vector_iterator						&location_bloc(vector_iterator &, int, int &, vector_iterator &);
@@ -64,7 +65,6 @@ class Parser
 	std::vector<std::map<std::string, std::map<std::string, std::vector<std::string> > > >	_locationVector;
 	std::map<std::string, std::string>														_check_location_token;
 	Parser();
-
 };
 
 std::ostream	&operator<<(std::ostream &o, Parser &src);

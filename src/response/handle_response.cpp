@@ -107,7 +107,7 @@ Server::map_server defaultMap, bool verbose)
 	// 	packetsToSend = response.getPackets(serverMap, responseString, verbose);
 	// else
 	// 	packetsToSend.push_back(responseString);
-	if (verbose)
-		std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << responseString << std::endl;
+	// if (verbose)
+	// 	std::cout << BOLDWHITE << "\n\n-- RESPONSE --\n\n" << RESET << responseString << std::endl;
 	return (responseString);
 }
