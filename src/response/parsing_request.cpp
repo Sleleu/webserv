@@ -45,7 +45,7 @@ std::map< std::string, std::map< std::string, std::vector<std::string> > > & loc
 	std::vector<std::string>::const_iterator it = locationList.begin();
 	for (; it != locationList.end(); it ++)
 	{
-		std::cout << BOLDBLUE << it->substr(0, it->size() - 1) << RESET << std::endl;
+		// std::cout << BOLDBLUE << it->substr(0, it->size() - 1) << RESET << std::endl;
 		if (locationMap.find(*it) != locationMap.end())
 		{
 			request.setLocationBlocName(*it);
