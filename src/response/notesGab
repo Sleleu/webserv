@@ -28,21 +28,21 @@ TO DO:
 - Headers: A faire (Accepted)
 
 CODES POSSIBLES
-100:	Continue	Attente de la suite de la requête: "Y a t-il un cas ?"
+100:	Continue	Attente de la suite de la requête: "Nécessaire ou pas ?"
 
 200:	OK	Requête traitée avec succès.: Par défaut
-201:	Created	Requête traitée avec succès et création d’un document: OK (utilisée pour POST)
-204:	No Content	Requête traitée avec succès mais pas d’information à renvoyer: Pour DELETE ?
+201:	Created	Requête traitée avec succès et création d’un document: Pour UPLOAD
+204:	No Content	Requête traitée avec succès mais pas d’information à renvoyer: Pour DELETE
 
-301:  Moved Permanently  Document déplacé de façon permanente.: Quand on utilise "redirect" ?
+301:  Moved Permanently  Document déplacé de façon permanente.: Quand on utilise "redirect" OK
 
 400:  Bad Request  La syntaxe de la requête est erronée: Ok
 401:	Unauthorized	Une authentification est nécessaire pour accéder à la ressource: Pas à gérer ?
-403:	Forbidden	Le serveur a compris la requête, mais refuse de l'exécuter.: OK
+403:	Forbidden	Le serveur a compris la requête, mais refuse de l'exécuter: Auto index off
 404:	Not Found	Ressource non trouvée.: OK
 405:	Method Not Allowed	Méthode de requête non autorisée: OK
 406:  Not Acceptable     La ressource demandée n'est pas disponible dans un format qui respecterait les en-têtes « Accept » de la requête: Probablement à gérer
-410:	Gone	La ressource n'est plus disponible et aucune adresse de redirection n’est connue: Quand on a DELETE la ressource
+410:	Gone	La ressource n'est plus disponible et aucune adresse de redirection n'est pas connue: Quand on a DELETE la ressource
 
 -> Retours d'erreur a verifier
 -> Method post que pour les cgi ?
@@ -60,4 +60,7 @@ Sending a large request body to a server after a request has been rejected for i
     The response 417 Expectation Failed indicates that the request should be repeated without the Expect header as
      it indicates that the server does not support expectations (this is the case, for example, of HTTP/1.0 servers).
 
-default_error 404 /htm/error.html
+directory listing devrait pouvoir être on, off ou unset
+
+
+

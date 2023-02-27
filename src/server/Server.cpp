@@ -7,7 +7,7 @@ Server::Server() {}
 Server::Server(std::string ip, std::string port) : _port(port), _ip(ip)
 {
 	std::memset(&_addrinfo, 0, sizeof(_addrinfo)); // initialiser tous les membres a 0
-	this->_addrinfo.ai_family = AF_UNSPEC; // Pour IPv4 et IPv6, IF_INET pour seulement v4
+	this->_addrinfo.ai_family = AF_INET; // Pour IPv4 et IPv6, IF_INET pour seulement v4
 	this->_addrinfo.ai_socktype = SOCK_STREAM; // Pour TCP
 	this->_addrinfo.ai_flags = AI_PASSIVE; // Se lie a l'IP de l'hote sur lequel le programme s'execute
 	this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
@@ -17,14 +17,14 @@ Server::Server(map_server map, location_server location, int id, bool verbose)
 : _map_server(map), _location_server(location), _id_server(id + 1), _verbose(verbose)
 {
 	std::memset(&_addrinfo, 0, sizeof(_addrinfo)); // initialiser tous les membres a 0
-	this->_addrinfo.ai_family = AF_UNSPEC; // Pour IPv4 et IPv6, IF_INET pour seulement v4
+	this->_addrinfo.ai_family = AF_INET; // Pour IPv4 et IPv6, IF_INET pour seulement v4
 	this->_addrinfo.ai_socktype = SOCK_STREAM; // Pour TCP
 	this->_addrinfo.ai_flags = AI_PASSIVE; // Se lie a l'IP de l'hote sur lequel le programme s'execute
 	this->_addrinfo.ai_protocol = 0; // peut renvoyer des adresses de socket de n'importe quel type
 
 	_port = map.find("listen")->second[0]; // assigner port au fichier conf
 	_serv_name = map.find("server_name")->second[0];
-	_body_size = std::atoi(map.find("body_size")->second[0].c_str());
+	_body_size = std::atoi(map.find("body_size")->second[0].c_str()); // A AJOUTER
 	_ip = "localhost";
 
 	/*--- Affichage initialisation du serveur ---*/
@@ -68,10 +68,11 @@ int	Server::init_socket(void)
 	display_ok("] Initialise server socket:");
 
 	// Set le socketfd en non-bloquant
-	fcntl(_socketfd, F_SETFL, O_NONBLOCK);
+	if (fcntl(_socketfd, F_SETFL, O_NONBLOCK) == -1)
+		return (freeaddrinfo(_ptr_info),display_error("Error when modify socketfd properties"));
 
 	int optval = 1;
-	if (setsockopt(_socketfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
+	if (setsockopt(_socketfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &optval, sizeof(int)) == -1) // return 0 si success
 		return (freeaddrinfo(_ptr_info), display_error("Setsockopt error"));
 
 	// associer le socket a un port sur le localhost
@@ -86,7 +87,7 @@ int	Server::init_socket(void)
 
 int Server::start_server(void)
 {
-	if ((listen(_socketfd, 5)) == -1)
+	if ((listen(_socketfd, 20)) == -1)
 		return (display_error("Error when listenning socket"));
 	std::cout << "[" << BOLDYELLOW << _serv_name << RESET;
 	display_ok("] Start listening:");
@@ -114,7 +115,7 @@ int	Server::accept_connect(int epoll_fd)
 	fcntl(client_socket, F_SETFL, O_NONBLOCK); // On rend le socket non-bloquant
 
 	int optval = 1;
-	if (setsockopt(client_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) // return 0 si success
+	if (setsockopt(client_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &optval, sizeof(int)) == -1) // return 0 si success
 		return (display_error("Setsockopt error"));
 
 	if (!epoll_add(epoll_fd, client_socket))
@@ -143,28 +144,49 @@ int	Server::epoll_add(int epoll_fd, int socket)
 	return (1);
 }
 
-int Server::send_message_to_client(int client_fd)
+int Server::epoll_mod(int epollfd, int socket, int event)
 {
-	ssize_t bytes = send(client_fd, _msg_to_send.c_str(), _msg_to_send.size(), 0);
-	if (((unsigned long)bytes != _msg_to_send.size()) || bytes == -1)
-		return (display_error("Error sending response to client"));
+	std::memset(&_server_event, 0, sizeof(epoll_event));
+	_server_event.data.fd = socket;
+	_server_event.events = event;
+	if ((epoll_ctl(epollfd, EPOLL_CTL_MOD, socket, &_server_event)) == -1)
+		return (display_error("modification on epoll_ctl error"));
+	return (1);
+}
 
+int Server::send_message_to_client(int epollfd, int i)
+{
+	unsigned long total_bytes = 0; // total de bytes envoyes
+	size_t		  packet_sent = 0; // nombre de paquets envoyes
+
+	while (total_bytes < _msg_to_send.size())
+	{
+		size_t packet_size = MTU < _msg_to_send.size() - total_bytes ? \
+			MTU : _msg_to_send.size() - total_bytes; // send la valeur < entre MTU et bytes restants
+		ssize_t bytes = send(_client_fd[i], _msg_to_send.c_str() + total_bytes, packet_size, MSG_NOSIGNAL);
+		if (bytes <= 0)
+			return (close(_client_fd[i]), 1);
+		total_bytes += bytes;
+		packet_sent++;
+	}
+	if (_verbose)
+		std::cout << "Packet sent : " << packet_sent << std::endl;
 	std::cout << BOLDCYAN << "Response from server [" << BOLDYELLOW << _serv_name
 			  << BOLDCYAN << "] id [" << BOLDGREEN << _id_server
-			  << BOLDCYAN << "] on socket [" << BOLDMAGENTA << client_fd
+			  << BOLDCYAN << "] on socket [" << BOLDMAGENTA << _client_fd[i]
 			  << BOLDCYAN << "] successfully sent" << RESET << std::endl;
+	epoll_mod(epollfd, _client_fd[i], EPOLLIN);
 	return (1);
 }
 
 int	Server::handle_request(int& epoll_fd, int i)
 {
 	char msg_to_recv[B_SIZE] = {0};
+	ssize_t bytes_received;
 
-	ssize_t bytes_received = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
-	if (bytes_received <= 0)
+	bytes_received = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
+	if (bytes_received <= 0) // fin de connexion ou erreur
 	{
-		if (bytes_received == -1)
-			return (std::cerr << "Server [" << get_id() << "] ", display_error("Error : Could not receive data from client"));
 		if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _client_fd[i], NULL)) == -1)
 		{
 			close(_client_fd[i]);
@@ -173,17 +195,24 @@ int	Server::handle_request(int& epoll_fd, int i)
 		close(_client_fd[i]);
 		_client_fd.erase(_client_fd.begin() + i);
 	}
-	else
+	if (bytes_received > 0)
 	{
 		std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
 				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
 				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
-
 		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
-		if (!send_message_to_client(_client_fd[i]))
-			return (0);
+		epoll_mod(epoll_fd, _client_fd[i], EPOLLOUT);
+		send_message_to_client(epoll_fd, i);
 	}
 	return (1);
+}
+
+void*	Server::get_addr(sockaddr *s_addr)
+{
+	if (s_addr->sa_family == AF_INET)
+		return &(((sockaddr_in *)s_addr)->sin_addr);
+	else
+		return &(((sockaddr_in6 *)s_addr)->sin6_addr);
 }
 
 //------------------- GETTERS ------------------------------

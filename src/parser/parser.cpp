@@ -8,6 +8,7 @@ Parser::Parser(std::string conf_file)
 		std::cout << BOLDWHITE << "Reading conf file...\n" << RESET;
 		fill_conf(conf_file);
 		fill_vector();
+		tcheck_listen();
 	}
 	catch (std::exception &e)
 	{
@@ -24,7 +25,6 @@ void	Parser::fill_conf(std::string conf_file)
 	std::fstream	conf_fd;
 	std::string tmp_buff;
 
-	std::cout << "\nChecking extension name...\n";
 	if (!extension(conf_file))
 	{
 		std::cerr << "Bad extension";
@@ -35,8 +35,7 @@ void	Parser::fill_conf(std::string conf_file)
 	std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 
 	//Si le fichier est un directory le programme fonctionne ? ;
-	
-	std::cout << "\nOpen Conf File...\n";
+
 	conf_fd.open(conf_file.c_str(), std::ios::in);
 	if (!conf_fd.is_open())
 	{
@@ -68,15 +67,14 @@ bool	Parser::extension(std::string file)
 
 void	Parser::fill_vector(void)
 {
-	std::vector<std::string>::iterator	tmp_it;	
-	std::vector<std::string>::iterator	end_it;	
+	std::vector<std::string>::iterator	tmp_it;
+	std::vector<std::string>::iterator	end_it;
 	int 								line = 1;
 	int									server = 0;
 
 	initDefaultVector();
 	tmp_it = _conf.begin();
 	end_it = _conf.end();
-	std::cout << "\nParsing Conf File...\n";
 	while (tmp_it != end_it)
 	{
 		if (tmp_it->size() == 0 || tmp_it->c_str()[0] == '#');
@@ -178,7 +176,7 @@ void	Parser::initDefaultVector(void)
 	server_name.push_back("webserv");
 	listen.push_back("8080");
 	root.push_back("/");
-	body_size.push_back("1000");
+	body_size.push_back("1000000");
 	redirect.push_back("");
 	error.push_back("/error.html");
 	method.push_back("GET");
@@ -210,7 +208,7 @@ std::ostream	&operator<<(std::ostream &o, Parser &src)
 	std::vector<std::string>	tmp;
 	std::vector<std::string>	all_string;
 	map_vector					tmp_map;
-	
+
 	src.fill_vector_with_name(all_string);
 
 	o << BOLDWHITE << "\nPrint of _parsingVector:" << RESET;
@@ -336,12 +334,12 @@ vector_iterator	&Parser::new_conf(std::string str, int server, int &line, vector
 	i = 0;
 	while (token[i])
 	{
-		while(token[i] && (token[i] == ' ' || token[i] == '\t'))	
+		while(token[i] && (token[i] == ' ' || token[i] == '\t'))
 			i++;
 		token.erase(0, i);
 		skip += i;
 		i = 0;
-		while(token[i] && (token[i] != ' ' && token[i] != '\t'))	
+		while(token[i] && (token[i] != ' ' && token[i] != '\t'))
 			i++;
 		token.erase(i, token.size());
 		if (token != "")
@@ -388,7 +386,7 @@ vector_iterator		&Parser::location_bloc(vector_iterator &tmp_it, int server, int
 	{
 		throw;
 	}
-	tmp_str = *tmp_it;	
+	tmp_str = *tmp_it;
 	int i = -1;
 	while (tmp_str[++i] && (tmp_str[i] == ' ' || tmp_str[i] == '\t'));
 	tmp_str.erase(tmp_str.begin(), tmp_str.end() - i);
@@ -401,7 +399,7 @@ vector_iterator		&Parser::location_bloc(vector_iterator &tmp_it, int server, int
 	accolad = line;
 	tmp_it ++;
 	line ++;
-	tmp_str = *tmp_it;	
+	tmp_str = *tmp_it;
 	i = -1;
 	while (tmp_str[++i] && (tmp_str[i] == ' ' || tmp_str[i] == '\t'));
 	tmp_str.erase(tmp_str.begin(), tmp_str.end() - i);
@@ -417,7 +415,7 @@ vector_iterator		&Parser::location_bloc(vector_iterator &tmp_it, int server, int
 		{
 			throw;
 		}
-		tmp_str = *tmp_it;	
+		tmp_str = *tmp_it;
 		i = -1;
 		while (tmp_str[++i] && (tmp_str[i] == ' ' || tmp_str[i] == '\t'));
 		tmp_str.erase(tmp_str.begin(), tmp_str.end() - i);
@@ -453,7 +451,7 @@ std::string	Parser::fill_location_path(std::string str, int server, int line)
 	token = str.c_str() + i + 1 + skip;
 	skip += i;
 	i = 0;
-	while(token[i] && (token[i] == ' ' || token[i] == '\t'))	
+	while(token[i] && (token[i] == ' ' || token[i] == '\t'))
 		i++;
 	token.erase(0, i);
 	skip += i;
@@ -510,12 +508,12 @@ void	Parser::new_conf_location(int &line, int server, std::string str, std::stri
 	i = 0;
 	while (token[i])
 	{
-		while(token[i] && (token[i] == ' ' || token[i] == '\t'))	
+		while(token[i] && (token[i] == ' ' || token[i] == '\t'))
 			i++;
 		token.erase(0, i);
 		skip += i;
 		i = 0;
-		while(token[i] && (token[i] != ' ' && token[i] != '\t'))	
+		while(token[i] && (token[i] != ' ' && token[i] != '\t'))
 			i++;
 		token.erase(i, token.size());
 		if (token != "")
@@ -576,7 +574,7 @@ bool	Parser::pars_conf(std::string token, std::string right_token, int line)
 
 bool	Parser::tcheck_size(std::string token, std::string left_token, int line)
 {
-	for (int i = 0; token[i]; i ++)	
+	for (int i = 0; token[i]; i ++)
 	{
 		if (!std::isdigit(token[i]))
 		{
@@ -640,4 +638,29 @@ bool	Parser::tcheck_on_off(std::string token, std::string left_token, int line)
 	std::cerr << RED << " \"on\"" << RESET << " or " << RED << "\"off\"" << RESET << " token, line:" << line;
 	std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 	return false;
+}
+
+void	Parser::tcheck_listen(void)
+{
+	std::vector<std::string>	listen;
+	std::vector<std::string>	tmp;
+	std::string					port;
+
+
+	for (big_vector::iterator it = _parsingVector.begin(); it != _parsingVector.end(); it ++)
+	{
+		port = (*it)["listen"][0];
+		for (std::vector<std::string>::iterator i = listen.begin(); i != listen.end(); i ++)
+		{
+			if ((*i) == port)
+			{
+				std::cerr << "Can't handle same port ("<< RED << "\"" << port << "\"" << RESET << ") on two distinct server ";
+				std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+				throw std::exception();
+			}
+		}
+		listen.push_back((*it)["listen"][0]);
+	}
+	std::cout << "Port parsing:";
+	std::cout << " [" << BOLDGREEN << "OK" << RESET << "]" << std::endl;
 }

@@ -23,9 +23,9 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# define B_SIZE 			15000 // a changer avec body_size du .conf
-# define EVENTS_HANDLED		100 // pour le tableau de fd
-
+# define B_SIZE 			1500000 // a changer avec body_size du .conf
+# define EVENTS_HANDLED		10000 // pour le tableau de fd
+# define MTU				1500 // maximum transmission unit
 class Server
 {
 	public:
@@ -46,7 +46,8 @@ class Server
 	int		start_server(void);
 	int		accept_connect(int epoll_fd);
 	int		epoll_add(int epoll_fd, int socket);
-	int		send_message_to_client(int client_fd);
+	int		epoll_mod(int epoll_fd, int socket, int event);
+	int		send_message_to_client(int epollfd, int client_fd);
 	int 	handle_request(int& epoll_fd, int i);
 	void*	get_addr(sockaddr *s_addr);
 	void	display_ip(std::string domain);

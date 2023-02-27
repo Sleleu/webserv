@@ -16,9 +16,7 @@ ADDFLAGS	=
 
 SRC_FILES 		= server/Server \
 				  server/Server_utils \
-				  server/webserv \
 				  server/display \
-				  server/signal \
 				  server/handler \
 				  parser/main \
 				  parser/parser \
@@ -27,7 +25,8 @@ SRC_FILES 		= server/Server \
 				  response/methods \
 				  response/HttpResponse \
 				  response/HttpRequest \
-				  response/directory_index
+				  response/CgiHandler \
+				  response/directory_index \
 
 SRC_FILES_BONUS	=
 

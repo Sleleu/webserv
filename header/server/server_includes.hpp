@@ -9,4 +9,8 @@ void	display_ok(const std::string ok_message);
 void	print_vector(std::vector<int> &vector);
 //--------------------------------------
 
+//------------ UTILS -------------------
+std::string	convert_char_to_string(char *str);
+//--------------------------------------
+
 #endif

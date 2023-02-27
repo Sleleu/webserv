@@ -1,8 +1,8 @@
 #include "../../header/response/directory_index.hpp"
 
-std::string	dir_list(char *path)
+std::string	dir_list(char * relativePath, char * completePath)
 {
-	DIR 						*dir = opendir(path);
+	DIR 						*dir = opendir(completePath);
 	struct dirent				*entitiy;
 	std::map<std::string, int>	file;
 	std::string					error;
@@ -10,7 +10,7 @@ std::string	dir_list(char *path)
 	if (dir == NULL) 
 	{
 		error = "the directory \"";
-		error += path;
+		error += completePath;
  		error += "\" doesnt exist";
 
 		return (html_error(error));
@@ -25,7 +25,7 @@ std::string	dir_list(char *path)
 		entitiy = readdir(dir);
 	}
 	closedir(dir);
-	return (creat_html(file, path));
+	return (creat_html(file, relativePath));
 }
 
 std::string	html_error(std::string error)
@@ -46,14 +46,12 @@ html = "\n\
 	return (html);
 }
 
-std::string	creat_html(std::map<std::string, int> map, std::string path)
+std::string	creat_html(std::map<std::string, int> map, std::string relativePath)
 {
 	std::string html;
 	
-	if (path[path.size() - 1] != '/')
-		path += "/";
-	//soit je j'erase de "root" soit gab se demerde
-	path.erase(0, 6);
+	if (relativePath[relativePath.size() - 1] != '/')
+		relativePath += "/";
 html = "\n\
 <!DOCTYPE html>\n\
 <html>\n\
@@ -101,7 +99,7 @@ html = "\n\
 		else
 			html += "black";
 		html += "\" href=\"";
-		html += path + (*it).first;
+		html += relativePath + (*it).first;
 		html += "\">";
 		html += (*it).first;
 		html += "</a></p></td>\n";
@@ -112,9 +110,9 @@ html = "\n\
 		else
 			html += "./html/image/file.png";*/	
 		if ((*it).second == _DIR)
-			html += "image/dir.png";
+			html += "_IMAGE_/dir.png";
 		else
-			html += "image/file.png";
+			html += "_IMAGE_/file.png";
 		html += "\" ></td>";
 		html += "      		</tr>\n";
 	}

@@ -1,5 +1,13 @@
 #include "../../header/server/Client.hpp"
 
+// int	g_exit_code;
+
+void signal_client_handler(int signal)
+{
+	if (signal == SIGINT || signal == SIGQUIT)
+		exit(EXIT_SUCCESS);
+}
+
 Client::Client()
 {
 	
@@ -50,8 +58,10 @@ int	Client::request_to_server(int socket, std::string request)
 	
 	ssize_t bytes_received;
 
-	while (total_bytes_sent != request.size())
+	while (total_bytes_sent != request.size() && request.size() != 0)
 	{
+		signal(SIGINT, signal_client_handler);
+		signal(SIGQUIT, signal_client_handler);
 		bytes_sent = send(socket, request.c_str(), request.size(), 0);
 		if (bytes_sent < 0)
 			return (std::cout << BOLDRED, display_error("send() error"));
@@ -62,6 +72,8 @@ int	Client::request_to_server(int socket, std::string request)
 	std::cout << BOLDGREEN;
 	display_ok("request sent:");
 	std::cout << BOLDYELLOW << "\nResponse: \n" << RESET;
+	signal(SIGINT, signal_client_handler);
+	signal(SIGQUIT, signal_client_handler);
 	bytes_received = recv(socket, response, RESPONSE_SIZE, 0);
 	if (bytes_received < 0)
 	 	return (std::cout << BOLDRED, display_error("recv() error"));
