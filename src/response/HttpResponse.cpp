@@ -42,15 +42,15 @@ void HttpResponse::setResponseInfo(HttpRequest & request, std::map< std::string,
 	if (_targetPath.find("_IMAGE_") != std::string::npos)
 		_targetPath = "./html/image" + _targetPath.substr(_targetPath.find("_IMAGE_") + 7);
 
-	if (serverMap["redirect"].size() > 0)
+	if (serverMap["redirect"].size() != 0 && serverMap["redirect"][0] != "")
 		redirectTargetPath(serverMap["redirect"][0]);
 	if (isDirectory())
-	{		
+	{
 		std::string defaultPage = (_targetPath[_targetPath.length() -1] == '/') ?\
 			_targetPath + serverMap["default_file"][0] : _targetPath + "/" + serverMap["default_file"][0];
 		if (fileExist(defaultPage))
 			_targetPath = defaultPage;
-		else 
+		else
 		{
 			if (serverMap["directory_listing"][0] == "on")
 				directoryListing = 1;
@@ -60,7 +60,7 @@ void HttpResponse::setResponseInfo(HttpRequest & request, std::map< std::string,
 				setBody(BODY_403);
 				throw std::exception();
 			}
-		}		
+		}
 	}
 	setUpload(serverMap);
 	setCgi(request, serverMap);
@@ -149,7 +149,7 @@ void		HttpResponse::setHeader()
 	if (_accept.find(typeOfFile) == std::string::npos)
 	{
 		std::string const subType = typeOfFile.substr(0, typeOfFile.find("/")) + "/*";
-		if (_accept.find(subType) != std::string::npos)
+		if (_accept.find(subType) != std::string::npos || _accept.find("*/*") != std::string::npos)
 			return ;
 		setBody(BODY_406);
 		setError("406", "Not Acceptable");

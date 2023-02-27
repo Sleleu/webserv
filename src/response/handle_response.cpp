@@ -97,8 +97,8 @@ Server::map_server defaultMap, bool verbose)
 		request.parsing = 0;
 		response.setError("400", "Bad Request");
 		response.setBody(BODY_400);
-
-		std::cout << " [" << BOLDRED << "KO" << RESET << "] " << std::endl;
+		std::cout << " [" << BOLDRED << "KO" << RESET << "] ";
+		std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
 	}
 
 	std::string responseString = response.getResponseString();
