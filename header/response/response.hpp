@@ -23,10 +23,10 @@ std::map< std::string, std::map< std::string, std::vector<std::string> > > & loc
 std::map < std::string, std::vector<std::string> > defaultMap, bool verbose );
 
 // methods.cpp
-void methodGET(HttpRequest const & request, HttpResponse  & response);
-void methodPOST(HttpRequest const & request, HttpResponse  & response);
-void methodDELETE(HttpRequest const & request, HttpResponse  & response);
-void acceptMethod(HttpRequest const & request, HttpResponse & response,\
+void methodGET(HttpRequest & request, HttpResponse  & response);
+void methodPOST(HttpRequest & request, HttpResponse  & response);
+void methodDELETE(HttpRequest & request, HttpResponse  & response);
+void acceptMethod(HttpRequest & request, HttpResponse & response,\
 std::map< std::string, std::vector< std::string > > locationInfo);
 
 //parsing_request.cpp
@@ -35,7 +35,7 @@ std::map< std::string, std::vector< std::string > > getLocationInfo( HttpRequest
 std::map< std::string, std::map< std::string, std::vector<std::string> > > & serverMap );
 std::map< std::string, std::vector< std::string > > getServerMap (std::map< std::string, std::vector< std::string > > locationMap,\
 std::map< std::string, std::vector< std::string > > defaultMap);
-
+std::string parseBody(HttpRequest & request);
 //response_utils.cpp
 template <typename T>
 std::string toString(T value)

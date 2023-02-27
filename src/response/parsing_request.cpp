@@ -3,6 +3,28 @@
 #include "../../header/utils/color.hpp"
 
 
+std::string parseBody(HttpRequest & request)
+{
+	std::string const body = request.getBody();
+	size_t boundary = body.find("------WebKitFormBoundary");
+	if (boundary == std::string::npos)
+		return body;
+
+	std::string newBody = body.substr(boundary);
+
+	std::string filename = newBody.substr(newBody.find("filename") + 10);
+	filename = filename.substr(0, filename.find_first_of('"'));
+	request.setFileName(filename);
+	std::cout << BOLDBLUE << filename << RESET << std::endl;
+
+	newBody = newBody.substr(newBody.find("\r\n\r\n") + 2);
+	newBody = newBody.substr(0, newBody.find("------WebKitFormBoundary"));
+	std::cout << BOLDMAGENTA << newBody << RESET << std::endl;
+
+	request.setBody(newBody);
+	return newBody;
+}
+
 bool fileExist(std::string & pathString)
 {
 	const char* path = pathString.c_str();

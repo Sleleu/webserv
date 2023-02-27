@@ -26,7 +26,7 @@ class CgiHandler
 		typedef std::map<std::string, std::map<std::string, std::string> > 	doubleMap;
 
 		CgiHandler(HttpResponse & response, HttpRequest const & request);
-		
+
 		void		setEnvMap(HttpResponse & response, HttpRequest const & request);
 		void 		convertMap();
 		void		setEnvChar();
@@ -41,6 +41,7 @@ class CgiHandler
 		stringMap		_envMap;
 		std::string		_scriptPath;
 		std::string		_output;
+		std::string		_filename;
 };
 
 

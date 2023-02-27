@@ -8,6 +8,7 @@
         {
             setEnvMap(response, request);
             _scriptPath = (response.getCgiPath() != "") ? response.getCgiPath():response.getTargetPath();
+            _filename = request.getFileName();
             convertMap();
             setEnvChar();
             executeCgi();
@@ -25,7 +26,7 @@
         for (stringMap::const_iterator it = argMap.begin() ; it != argMap.end() ; it ++)
             _envMap[it->first] = it->second;
         _envMap["UPLOAD"] = response.getIsUpload();
-        _envMap["UPLOAD_PATH"] = response.getUploadPath();
+        _envMap["UPLOAD_PATH"] = "./html" + response.getUploadPath();
         _envMap["CONTENT"] = request.getContent();
         _envMap["PATH_INFO"] = response.getTargetPath();
     }
@@ -69,8 +70,9 @@
         std::vector<char*> args;
         args.push_back((char*)"/bin/bash");
         args.push_back((char*)_scriptPath.c_str());
-        if (_scriptPath != _envMap["PATH_INFO"])
-            args.push_back((char*)_envMap["PATH_INFO"].c_str());
+        // if (_scriptPath != _envMap["PATH_INFO"])
+        //     args.push_back((char*)_envMap["PATH_INFO"].c_str());
+        args.push_back((char*)_filename.c_str());
         args.push_back(NULL);
 
         // for(int i = 0; _env[i] ; i ++)
