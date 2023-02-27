@@ -15,11 +15,11 @@ std::string parseBody(HttpRequest & request)
 	std::string filename = newBody.substr(newBody.find("filename") + 10);
 	filename = filename.substr(0, filename.find_first_of('"'));
 	request.setFileName(filename);
-	std::cout << BOLDBLUE << filename << RESET << std::endl;
+	// std::cout << BOLDBLUE << filename << RESET << std::endl;
 
 	newBody = newBody.substr(newBody.find("\r\n\r\n") + 2);
 	newBody = newBody.substr(0, newBody.find("------WebKitFormBoundary"));
-	std::cout << BOLDMAGENTA << newBody << RESET << std::endl;
+	// std::cout << BOLDMAGENTA << newBody << RESET << std::endl;
 
 	request.setContent(newBody);
 	return newBody;
