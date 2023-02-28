@@ -637,6 +637,21 @@ void	Parser::tcheck_listen(void)
 				std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 				throw std::exception();
 			}
+			for (int i = 0; port[i]; i ++)
+			{
+				if (!std::isdigit(port[i]))
+				{
+					std::cerr << "Port only accept digit characters ("<< RED << "\"" << port << "\"" << RESET << ")";
+					std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+					throw std::exception();
+				}
+			}
+			if (std::atoi(port.c_str()) > 65535|| std::atoi(port.c_str()) < 1024)
+			{
+				std::cerr << "Range port: 1024 - 65535. Port used:("<< RED << "\"" << port << "\"" << RESET << ")";
+				std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+				throw std::exception();
+			}
 		}
 		listen.push_back((*it)["listen"][0]);
 	}

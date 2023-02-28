@@ -44,9 +44,8 @@ int main(int argc, char **argv)
 			std::cout << parser << std::endl;
 		Handler handler(parser.getBigVector(), parser.getBigLocation(), verbose);
 
-
-		handler.launch_servers();
-		handler.handle_servers();
+		if (handler.launch_servers())
+			handler.handle_servers();
 	}
 	catch (std::exception &e)
 	{
