@@ -18,7 +18,7 @@
 void simul_request(std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\
 std::map < std::string, std::vector<std::string> > defaultMap );
 // std::string handle_request(std::string const & requestMsg);
-std::string get_response( std::string const & requestMsg,\
+std::string get_response( std::string const requestMsg,\
 std::map< std::string, std::map< std::string, std::vector<std::string> > > & locationMap,\
 std::map < std::string, std::vector<std::string> > defaultMap, bool verbose );
 

@@ -2,7 +2,9 @@
 #include "../../header/response/response.hpp"
 #include "../../header/utils/colors.hpp"
 
-HttpResponse::HttpResponse()
+//controlDataString + headersString + _body
+
+HttpResponse::HttpResponse() : _body("")
 {
 	_controlData["version"] = "HTTP/1.1";
 	_controlData["code"] = "200";
@@ -37,6 +39,13 @@ void HttpResponse::setResponseInfo(HttpRequest & request, std::map< std::string,
 	//TARGETPATH
 	_root = "./html" + serverMap["root"][0];
 	_root = (_root[_root.length() -1] == '/') ? _root : _root + "/";
+
+	if (!fileExist(_root))
+	{
+		setError("404", "Not Found");
+		setBody(BODY_404);
+		throw std::exception();
+	}
 
 	_targetPath = _root.substr(0, _root.size() - 1) + request.getTarget();
 	std::string bloc = request.getLocationBlocName();
@@ -109,7 +118,7 @@ std::map< std::string, std::vector< std::string > > & serverMap)
 	{
 		if (*it == fileType)
 			if (it + 1 != cgi.end())
-				_cgiPath = *(it + 1);
+				_cgiPath = _root + "cgi-bin/" + *(it + 1);
 	}
 	// std::cout << BOLDMAGENTA << "CGI PATH : " << _cgiPath << RESET << std::endl;
 }
@@ -171,7 +180,7 @@ std::string HttpResponse::getResponseString()
 
 	_headers["Content-length"] = (_body.size() == 0) ? "0" : toString(sizeof(char) * _body.size() - 2);
 
-	std::string headersString;
+	std::string headersString = "";
 	for (std::map<std::string, std::string>::const_iterator it = _headers.begin() ; \
 		it != _headers.end() ; it ++)
 	{
