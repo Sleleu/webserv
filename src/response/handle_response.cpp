@@ -15,11 +15,9 @@ void	errorPage(HttpRequest request, HttpResponse & response, Server::map_server 
 		if (*it == response.getCode())
 		{
 			std::string errPath = "./html/" + *(it + 1);
-			std::cout << errPath << std::endl;
 			std::ifstream ifs(errPath.c_str());
 			if (!ifs.is_open())
 			{
-				std::cout << "errPath" << std::endl;
 				response.setError("500", "Internal Server Error");
 				response.setBody(BODY_500);
 				return ;
