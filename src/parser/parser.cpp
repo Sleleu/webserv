@@ -176,7 +176,7 @@ void	Parser::initDefaultVector(void)
 	server_name.push_back("webserv");
 	listen.push_back("8080");
 	root.push_back("/");
-	body_size.push_back("1000000");
+	body_size.push_back("50000");
 	redirect.push_back("");
 	error.push_back("/error.html");
 	method.push_back("GET");
@@ -600,33 +600,12 @@ bool	Parser::tcheck_size(std::string token, std::string left_token, int line)
 
 bool	Parser::tcheck_root(std::string token, std::string left_token, int line)
 {
-/*	struct stat _stat;
-	std::string path = "./html";
-	std::string	tmp = token;
-
-*/	if (token[0] != '/')
+	if (token[0] != '/')
 	{
 		std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << " need begin with " << RED << "\"/\"" << RESET << " to match a destination, line:" << line;
 		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 		return false;
 	}
-/*	path += token;
-	token = path;
-	if (stat(token.c_str(), &_stat) != 0)
-	{
-		std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << ", path " << RED << "\"" << tmp << "\": " << RESET;
-		perror("");
-		std::cout << "line:" << line;
-		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
-		return false;
-	}
-	if (!S_ISDIR(_stat.st_mode))
-	{
-		std::cerr << "Token " << RED << "\""<< left_token << "\"" << RESET << ", path " << RED << "\"" << tmp << "\": " << RESET;
-		std::cout << " isn't a directory: line:" << line;
-		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
-		return false;
-	}*/
 	return true;
 }
 
