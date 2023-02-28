@@ -83,6 +83,8 @@ class Server
 	Socket				_socketfd;
 	Socket				_sender_fd;
 	std::vector<Socket>	_client_fd;
+	std::vector<std::string> _client_request;
+	std::vector<size_t>	_total_bytes;
 	std::string			_msg_to_send;
 	std::string			_msg_to_recv;
 	struct addrinfo		_addrinfo;
