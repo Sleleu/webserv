@@ -2,6 +2,36 @@
 #include "../../header/parser/parser.hpp"
 #include "../../header/utils/color.hpp"
 
+void	errorPage(HttpRequest request, HttpResponse & response, Server::map_server defaultMap)
+{
+	(void) request;
+	// std::string errorPath = defaultMap["error"][0];
+	// if (!fileExist(errorPath))
+	// 	return ;
+	// std::cout << errorPath << std::endl;
+	std::vector<std::string> errorConf = defaultMap["error"];
+	for (std::vector<std::string>::const_iterator it = errorConf.begin(); it != errorConf.end() ; it += 2)
+	{
+		if (*it == response.getCode())
+		{
+			std::string errPath = "./html/" + *(it + 1);
+			std::ifstream ifs(errPath.c_str());
+			if (!ifs.is_open())
+			{
+				response.setError("500", "Internal Server Error");
+				response.setBody(BODY_500);
+				return ;
+			}
+			std::string errorFileContent;
+			std::string tmp;
+			while (std::getline(ifs, tmp))
+				errorFileContent += tmp + "\n";
+			ifs.close();
+			response.setBody("\n" + errorFileContent);
+			return ;
+		}
+	}
+}
 
 std::string get_response( std::string const requestMsg, Server::location_server & locationMap,\
 Server::map_server defaultMap, bool verbose)
@@ -90,6 +120,7 @@ Server::map_server defaultMap, bool verbose)
 		request.parsing = 0;
 		response.setError("505", "HTTP Version not supported");
 		response.setBody(BODY_505);
+		errorPage(request, response, defaultMap);
 		std::cout << " [" << BOLDRED << "KO" << RESET << "] ";
 		std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
 	}
@@ -98,6 +129,7 @@ Server::map_server defaultMap, bool verbose)
 		request.parsing = 0;
 		response.setError("400", "Bad Request");
 		response.setBody(BODY_400);
+		errorPage(request, response, defaultMap);
 		std::cout << " [" << BOLDRED << "KO" << RESET << "] ";
 		std::cout << BOLDRED << response.getCode() << " " << response.getStatus() << "\n" << RESET << std::endl;
 	}
