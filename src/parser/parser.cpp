@@ -176,7 +176,7 @@ void	Parser::initDefaultVector(void)
 	server_name.push_back("webserv");
 	listen.push_back("8080");
 	root.push_back("/");
-	body_size.push_back("1000000");
+	body_size.push_back("50000");
 	redirect.push_back("");
 	error.push_back("/error.html");
 	method.push_back("GET");
