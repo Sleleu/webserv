@@ -178,7 +178,7 @@ void	Parser::initDefaultVector(void)
 	root.push_back("/");
 	body_size.push_back("50000");
 	redirect.push_back("");
-	error.push_back("/error.html");
+	error.push_back("error.html");
 	method.push_back("GET");
 	method.push_back("POST");
 	method.push_back("DELETE");
@@ -446,6 +446,12 @@ std::string	Parser::fill_location_path(std::string str, int server, int line)
 	i = 0;
 	while (token[i] && (token[i] != ' ' && token[i] != '\t'))
 		i ++;
+	if (!token[i])
+	{
+		std::cerr << "Token " << RED << "\""<< token << "\"" << RESET << " need a right value line " << line;
+		std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
+		throw std::exception();
+	}
 	token.erase(token.begin()+i, token.end());
 	left_token = token;
 	token = str.c_str() + i + 1 + skip;
@@ -634,21 +640,6 @@ void	Parser::tcheck_listen(void)
 			if ((*i) == port)
 			{
 				std::cerr << "Can't handle same port ("<< RED << "\"" << port << "\"" << RESET << ") on two distinct server ";
-				std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
-				throw std::exception();
-			}
-			for (int i = 0; port[i]; i ++)
-			{
-				if (!std::isdigit(port[i]))
-				{
-					std::cerr << "Port only accept digit characters ("<< RED << "\"" << port << "\"" << RESET << ")";
-					std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
-					throw std::exception();
-				}
-			}
-			if (std::atoi(port.c_str()) > 65535|| std::atoi(port.c_str()) < 1024)
-			{
-				std::cerr << "Range port: 1024 - 65535. Port used:("<< RED << "\"" << port << "\"" << RESET << ")";
 				std::cerr << " [" << BOLDRED << "KO" << RESET << "]" << std::endl;
 				throw std::exception();
 			}
