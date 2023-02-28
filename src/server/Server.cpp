@@ -180,34 +180,6 @@ int Server::send_message_to_client(int epollfd, int i)
 	return (1);
 }
 
-// int	Server::handle_request(int& epoll_fd, int i)
-// {
-// 	char msg_to_recv[B_SIZE] = {0};
-// 	ssize_t bytes_received;
-
-// 	bytes_received = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
-// 	if (bytes_received <= 0) // fin de connexion ou erreur
-// 	{
-// 		if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _client_fd[i], NULL)) == -1)
-// 		{
-// 			close(_client_fd[i]);
-// 			return (display_error("recv data epoll_ctl() error"));
-// 		}
-// 		close(_client_fd[i]);
-// 		_client_fd.erase(_client_fd.begin() + i);
-// 	}
-// 	if (bytes_received > 0)
-// 	{
-// 		std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
-// 				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
-// 				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
-// 		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
-// 		epoll_mod(epoll_fd, _client_fd[i], EPOLLOUT);
-// 		send_message_to_client(epoll_fd, i);
-// 	}
-// 	return (1);
-// }
-
 int	Server::handle_request(int& epoll_fd, int i)
 {
 	char msg_to_recv[B_SIZE] = {0};
@@ -237,6 +209,20 @@ int	Server::handle_request(int& epoll_fd, int i)
 			size_t pos_body_start;
 
 			content_length = atoi(_client_request[i].c_str() + pos_content_length + 16);
+			if (content_length > _body_size)
+			{
+				send_client_request(epoll_fd, i);
+				if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _client_fd[i], NULL)) == -1)
+				{
+					close(_client_fd[i]);
+					return (display_error("recv data epoll_ctl() error"));
+				}
+				close(_client_fd[i]);
+				_client_fd.erase(_client_fd.begin() + i);
+				_client_request.erase(_client_request.begin() + i);
+				_total_bytes.erase(_total_bytes.begin() + i);
+				return (1);
+			}
 			if ((pos_body_start = _client_request[i].find("\r\n\r\n")) != std::string::npos)
 				pos_body_start += 4;
 			else if ((pos_body_start = _client_request[i].find("\n\n")) != std::string::npos)
@@ -244,85 +230,23 @@ int	Server::handle_request(int& epoll_fd, int i)
 			if (_total_bytes[i] < content_length + pos_body_start)
 				return (1);
 			else
-			{
-				std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
-					<< BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
-					<< BOLDCYAN << "] successfully received" << RESET << std::endl;
-				_msg_to_send = get_response(_client_request[i], _location_server, _map_server, _verbose);
-				epoll_mod(epoll_fd, _client_fd[i], EPOLLOUT);
-				send_message_to_client(epoll_fd, i);			
-			}
+				send_client_request(epoll_fd, i);
 		}
 		else // pas de content-length = une seule requete
-		{
-			std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
+			send_client_request(epoll_fd, i);
+	}
+	return (1);
+}
+
+void	Server::send_client_request(int epoll_fd, int i)
+{
+	std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
 					<< BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
 					<< BOLDCYAN << "] successfully received" << RESET << std::endl;
 			_msg_to_send = get_response(_client_request[i], _location_server, _map_server, _verbose);
 			epoll_mod(epoll_fd, _client_fd[i], EPOLLOUT);
 			send_message_to_client(epoll_fd, i);
-		}
-	}
-	return (1);
 }
-
-// int	Server::handle_request(int& epoll_fd, int i)
-// {
-// 	char msg_to_recv[B_SIZE] = {0};
-// 	ssize_t bytes_received;
-// 	size_t total_bytes = 0;
-
-// 	std::string total_request;
-// 	bytes_received = recv(_client_fd[i], msg_to_recv, B_SIZE, 0);
-// 	if (bytes_received <= 0) // fin de connexion ou erreur
-// 	{
-// 		if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _client_fd[i], NULL)) == -1)
-// 		{
-// 			close(_client_fd[i]);
-// 			return (display_error("recv data epoll_ctl() error"));
-// 		}
-// 		close(_client_fd[i]);
-// 		_client_fd.erase(_client_fd.begin() + i);
-// 	}
-// 	if (bytes_received > 0)
-// 	{
-// 		total_request = msg_to_recv;
-// 		total_bytes += bytes_received;
-// 		size_t content_length;
-// 		size_t pos_content_length;
-
-// 		if ((pos_content_length = total_request.find("Content-Length: ")) != std::string::npos)
-// 		{
-// 			ssize_t bytes_loop = 0;
-// 			size_t pos_body_start = 0;
-// 			content_length = atoi(total_request.c_str() + pos_content_length + 16);
-// 			if ((pos_body_start = total_request.find("\r\n\r\n")) != std::string::npos)
-// 				pos_body_start += 4;
-// 			else if ((pos_body_start = total_request.find("\n\n")) != std::string::npos)
-// 				pos_body_start += 2;
-			
-// 			for (; total_bytes < content_length + pos_body_start;)
-// 			{
-// 				char buffer[B_SIZE] = {0};
-// 				bytes_loop = recv(_client_fd[i], buffer, B_SIZE, 0);
-
-// 				if (bytes_loop > 0)
-// 				{
-					
-// 					total_bytes += bytes_loop;
-// 				}
-// 			std::cout << " bytes :" << bytes_loop << " total : " << total_bytes << std::endl;
-// 			}
-// 		}
-// 		std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
-// 				  << BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
-// 				  << BOLDCYAN << "] successfully received" << RESET << std::endl;
-// 		_msg_to_send = get_response(msg_to_recv, _location_server, _map_server, _verbose);
-// 		epoll_mod(epoll_fd, _client_fd[i], EPOLLOUT);
-// 		send_message_to_client(epoll_fd, i);
-// 	}
-// 	return (1);
-// }
 
 void*	Server::get_addr(sockaddr *s_addr)
 {
