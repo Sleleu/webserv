@@ -8,6 +8,8 @@ int main(int argc, char **argv)
 
 	int socket;
 
+	if (argv[3][0] == '\0')
+		return (0);
 	socket = client.init_client();
 	if (socket != 0)
 		client.request_to_server(client.get_sockfd(), client.get_request());

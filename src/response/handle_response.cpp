@@ -10,7 +10,7 @@ void	errorPage(HttpRequest request, HttpResponse & response, Server::map_server 
 	// 	return ;
 	// std::cout << errorPath << std::endl;
 	std::vector<std::string> errorConf = defaultMap["error"];
-	for (std::vector<std::string>::const_iterator it = errorConf.begin(); it != errorConf.end() ; it += 2)
+	for (std::vector<std::string>::const_iterator it = errorConf.begin(); it != errorConf.end() ; it ++)
 	{
 		if (*it == response.getCode())
 		{

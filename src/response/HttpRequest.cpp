@@ -13,6 +13,8 @@ void HttpRequest::setRequestInfo(std::string const requestMsg)
 		throw std::exception();
 	if (_controlData[2].find("HTTP/1.1") == std::string::npos) // NON TESTE
 		throw HttpRequest::HttpVersion();
+	if (_controlData[1][0] != '/') // NON TESTE
+		throw std::exception();
 
 	std::istringstream streamMap(requestMsg);
 	std::string headerField;

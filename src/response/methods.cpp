@@ -20,7 +20,7 @@ void methodGET(HttpRequest & request, HttpResponse & response)
     std::ifstream targetStream(targetPath.c_str());
     if (!targetStream.is_open())
     {
-        if (!response.findInCgiBin()) // pareil pour .png ?
+        if (!response.findInCgiBin())
         {
             response.setError("404", "Not Found");
             response.setBody(BODY_404);
@@ -50,7 +50,7 @@ void methodPOST(HttpRequest & request, HttpResponse & response)
     std::ifstream targetStream(targetPath.c_str());
     if (!targetStream.is_open())
     {
-        if (!response.findInCgiBin()) // pareil pour .png ?
+        if (!response.findInCgiBin())
         {
             response.setError("404", "Not Found");
             response.setBody(BODY_404);

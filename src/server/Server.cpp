@@ -209,20 +209,6 @@ int	Server::handle_request(int& epoll_fd, int i)
 			size_t pos_body_start;
 
 			content_length = atoi(_client_request[i].c_str() + pos_content_length + 16);
-			if (content_length > _body_size)
-			{
-				send_client_request(epoll_fd, i);
-				if ((epoll_ctl(epoll_fd, EPOLL_CTL_DEL, _client_fd[i], NULL)) == -1)
-				{
-					close(_client_fd[i]);
-					return (display_error("recv data epoll_ctl() error"));
-				}
-				close(_client_fd[i]);
-				_client_fd.erase(_client_fd.begin() + i);
-				_client_request.erase(_client_request.begin() + i);
-				_total_bytes.erase(_total_bytes.begin() + i);
-				return (1);
-			}
 			if ((pos_body_start = _client_request[i].find("\r\n\r\n")) != std::string::npos)
 				pos_body_start += 4;
 			else if ((pos_body_start = _client_request[i].find("\n\n")) != std::string::npos)
@@ -230,22 +216,26 @@ int	Server::handle_request(int& epoll_fd, int i)
 			if (_total_bytes[i] < content_length + pos_body_start)
 				return (1);
 			else
-				send_client_request(epoll_fd, i);
+			{
+				std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
+					<< BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
+					<< BOLDCYAN << "] successfully received" << RESET << std::endl;
+				_msg_to_send = get_response(_client_request[i], _location_server, _map_server, _verbose);
+				epoll_mod(epoll_fd, _client_fd[i], EPOLLOUT);
+				send_message_to_client(epoll_fd, i);			
+			}
 		}
 		else // pas de content-length = une seule requete
-			send_client_request(epoll_fd, i);
-	}
-	return (1);
-}
-
-void	Server::send_client_request(int epoll_fd, int i)
-{
-	std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
+		{
+			std::cout << BOLDCYAN << "Message from socket [" << BOLDMAGENTA << _client_fd[i]
 					<< BOLDCYAN << "] on server [" << BOLDGREEN << _id_server
 					<< BOLDCYAN << "] successfully received" << RESET << std::endl;
 			_msg_to_send = get_response(_client_request[i], _location_server, _map_server, _verbose);
 			epoll_mod(epoll_fd, _client_fd[i], EPOLLOUT);
 			send_message_to_client(epoll_fd, i);
+		}
+	}
+	return (1);
 }
 
 void*	Server::get_addr(sockaddr *s_addr)

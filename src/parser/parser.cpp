@@ -178,6 +178,7 @@ void	Parser::initDefaultVector(void)
 	root.push_back("/");
 	body_size.push_back("50000");
 	redirect.push_back("");
+	error.push_back("404");
 	error.push_back("error.html");
 	method.push_back("GET");
 	method.push_back("POST");
