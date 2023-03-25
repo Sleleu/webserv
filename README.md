@@ -20,6 +20,17 @@ as well as the incoming requests and responses sent on each socket :
 
 ![render_shell](https://user-images.githubusercontent.com/93100775/227725307-0cab5a30-8cb9-41ba-b65b-4a9123b7b940.png)
 
+For a server initialized on port 8080, for example, by going to `http://localhost:8080`, a presentation page will be available :
+
+![webserv_site](https://user-images.githubusercontent.com/93100775/227726291-a19eada1-6b75-4b5e-b633-2e9778210b2a.gif)
+
+The presentation page contains routes to tests of our CGIs such as :
+- The use of a calculator
+- The execution of php and python scripts
+
+as well as for the use of text file upload and file deletion in order to test more easily the implementation of the **POST** and **DELETE** methods.
+The page finally provides an access to the bible.txt in order to test the display of large pages
+
 ## Installation
 
 ### Clone the repository and make
