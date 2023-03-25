@@ -31,6 +31,11 @@ The presentation page contains routes to tests of our CGIs such as :
 as well as for the use of text file upload and file deletion in order to test more easily the implementation of the **POST** and **DELETE** methods.
 The page finally provides an access to the bible.txt in order to test the display of large pages
 
+To test the server further upstream, a simple client has been created and is accessible from the path `./src/client`. Here is an example of its use after installation, by launching an invalid HTTP GET request "/hellooo" :
+
+![client](https://user-images.githubusercontent.com/93100775/227727700-3e849668-479c-4ce6-972a-648ce835e482.png)
+
+
 ## Installation
 
 ### Clone the repository and make
@@ -40,6 +45,15 @@ git clone git@github.com:Sleleu/webserv.git
 cd webserv
 make
 ```
+
+### If you want to install client
+
+From ./webserv :
+```shell
+cd src/client
+make
+```
+
 
 ### Usage
 
